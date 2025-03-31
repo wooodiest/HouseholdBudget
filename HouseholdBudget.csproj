@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="src\Core\Interfaces\" />
+    <Folder Include="src\Core\Services\" />
+    <Folder Include="src\Data\DataBase\" />
+    <Folder Include="src\Data\External\" />
+    <Folder Include="src\Data\Repositories\" />
+    <Folder Include="src\Tests\" />
+    <Folder Include="src\Notifications\" />
+    <Folder Include="src\UI\Controls\" />
+    <Folder Include="src\UI\Views\" />
+    <Folder Include="src\Utils\Helpers\" />
+  </ItemGroup>
+
+</Project>
