@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Managers;
+﻿using HouseholdBudget.Data;
+using HouseholdBudget.Managers;
 using HouseholdBudget.Models;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,19 @@ namespace HouseholdBudget.Services
     {
         private readonly List<Transaction> _transactions = new();
 
+        private readonly DatabaseManager _db;
+
+        public TransactionService(DatabaseManager db)
+        {
+            _db = db;
+            _transactions = _db.LoadTransactions();
+        }
+
         public void AddTransaction(Transaction transaction)
         {
+            CategoryManager.Instance.AddIfNotExists(transaction.Category);
             _transactions.Add(transaction);
+            _db.SaveTransaction(transaction);
         }
 
         public void RemoveTransaction(Guid id)
@@ -60,7 +71,6 @@ namespace HouseholdBudget.Services
 
         public decimal GetTotalAmount() =>
             _transactions.Sum(t => t.Amount);
-
 
         public decimal GetTotalExpense() =>
             _transactions
