@@ -1,5 +1,4 @@
 ﻿using HouseholdBudget.Data;
-using HouseholdBudget.Managers;
 using HouseholdBudget.Services;
 using System.Configuration;
 using System.Data;
@@ -10,15 +9,18 @@ namespace HouseholdBudget
     public partial class App : Application
     {
         public static DatabaseManager DatabaseManager { get; private set; } = null!;
+
         public static TransactionService TransactionService { get; private set; } = null!;
+
+        public static CategoryService CategoryService { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            // CategoryManager.Instance.LoadDefaultCategories();
             DatabaseManager = new DatabaseManager("householdBudget.db");
-            TransactionService = new TransactionService(DatabaseManager);
+            CategoryService = new CategoryService("categories.json");
+            TransactionService = new TransactionService(DatabaseManager, CategoryService);
 
             var mainWindow = new MainWindow();
             mainWindow.Show();

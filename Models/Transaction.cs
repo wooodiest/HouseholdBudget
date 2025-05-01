@@ -1,5 +1,4 @@
-﻿using HouseholdBudget.Managers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +18,7 @@ namespace HouseholdBudget.Models
 
         public Guid CategoryId { get; set; }
 
-        public Category? Category => CategoryManager.Instance.GetById(CategoryId);
+        public Category? Category => App.CategoryService.GetById(Id);
 
         public bool IsRecurring { get; set; } = false;
     }

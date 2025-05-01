@@ -1,5 +1,4 @@
 ﻿using HouseholdBudget.Data;
-using HouseholdBudget.Managers;
 using HouseholdBudget.Models;
 using System;
 using System.Collections.Generic;
@@ -16,15 +15,18 @@ namespace HouseholdBudget.Services
 
         private readonly DatabaseManager _db;
 
-        public TransactionService(DatabaseManager db)
+        private readonly CategoryService _categoryService;
+
+        public TransactionService(DatabaseManager db, CategoryService categoryService)
         {
             _db = db;
+            _categoryService = categoryService;
             _transactions = _db.LoadTransactions();
         }
 
         public void AddTransaction(Transaction transaction)
         {
-            CategoryManager.Instance.AddIfNotExists(transaction.Category);
+            _categoryService.AddIfNotExists(transaction.Category);
             _transactions.Add(transaction);
             _db.SaveTransaction(transaction);
         }
@@ -67,25 +69,25 @@ namespace HouseholdBudget.Services
             _transactions.Where(t => t.Amount >= min && t.Amount <= max).ToList();
 
         public List<Transaction> GetByCategoryType(CategoryType type) =>
-            _transactions.Where(t => CategoryManager.Instance.GetById(t.CategoryId)?.Type == type).ToList();
+            _transactions.Where(t => _categoryService.GetById(t.CategoryId)?.Type == type).ToList();
 
         public decimal GetTotalAmount() =>
             _transactions.Sum(t => t.Amount);
 
         public decimal GetTotalExpense() =>
             _transactions
-                .Where(t => CategoryManager.Instance.GetById(t.CategoryId)?.Type == CategoryType.Expense)
+                .Where(t => _categoryService.GetById(t.CategoryId)?.Type == CategoryType.Expense)
                 .Sum(t => t.Amount);
 
         public decimal GetTotalIncome() =>
             _transactions
-                .Where(t => CategoryManager.Instance.GetById(t.CategoryId)?.Type == CategoryType.Income)
+                .Where(t => _categoryService.GetById(t.CategoryId)?.Type == CategoryType.Income)
                 .Sum(t => t.Amount);
 
         public decimal GetMonthlyBalance(int year, int month) =>
             GetByMonth(year, month).Sum(t =>
             {
-                var type = CategoryManager.Instance.GetById(t.CategoryId)?.Type;
+                var type = _categoryService.GetById(t.CategoryId)?.Type;
                 return type == CategoryType.Income ? t.Amount : -t.Amount;
             });
 
