@@ -19,7 +19,7 @@ namespace HouseholdBudget
             base.OnStartup(e);
 
             DatabaseManager = new DatabaseManager("householdBudget.db");
-            CategoryService = new CategoryService("categories.json");
+            CategoryService = new CategoryService(DatabaseManager);
             TransactionService = new TransactionService(DatabaseManager, CategoryService);
 
             var mainWindow = new MainWindow();

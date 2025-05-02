@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Models;
+﻿using HouseholdBudget.Data;
+using HouseholdBudget.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,12 +15,12 @@ namespace HouseholdBudget.Services
     {
         private readonly List<Category> _categories = new();
 
-        public readonly string Path;
+        private readonly IDatabaseManager _db;
 
-        public CategoryService(string path)
+        public CategoryService(IDatabaseManager db)
         {
-            Path = path;
-            LoadFromFile();
+            _db = db;
+            _categories = _db.LoadCategories();
         }
 
         public List<Category> GetAll() => _categories;
@@ -27,52 +28,26 @@ namespace HouseholdBudget.Services
         public Category? GetById(Guid id) =>
             _categories.FirstOrDefault(c => c.Id == id);
 
-        public void Add(Category category)
-        {
-            _categories.Add(category);
-            SaveToFile();
-        }
-
         public void AddIfNotExists(Category category)
         {
-            if (!_categories.Any(c => c.Id == category.Id))
-                _categories.Add(category);
+            if (category == null)
+                throw new ArgumentNullException(nameof(category));
 
-            SaveToFile();
+            if (!_categories.Any(c => c.Id == category.Id))
+            {
+                _categories.Add(category);
+                _db.SaveCategory(category);
+            }
         }
 
         public void Remove(Guid id)
         {
             var category = GetById(id);
             if (category != null)
+            {
                 _categories.Remove(category);
-
-            SaveToFile();
-        }
-
-        public void LoadFromFile()
-        {
-            if (!File.Exists(Path))
-                return;
-
-            var json = File.ReadAllText(Path);
-            var loaded = JsonSerializer.Deserialize<List<Category>>(json);
-
-            if (loaded != null)
-            {
-                _categories.Clear();
-                _categories.AddRange(loaded);
+                _db.DeleteCategory(id);
             }
-        }
-
-        public void SaveToFile()
-        {
-            var json = JsonSerializer.Serialize(_categories, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            File.WriteAllText(Path, json);
         }
     }
 }
