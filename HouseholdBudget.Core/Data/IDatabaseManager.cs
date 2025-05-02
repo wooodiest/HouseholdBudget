@@ -1,12 +1,6 @@
-﻿using HouseholdBudget.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Transaction = HouseholdBudget.Models.Transaction;
+﻿using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Data
+namespace HouseholdBudget.Core.Data
 {
     public interface IDatabaseManager
     {

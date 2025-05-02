@@ -1,10 +1,8 @@
-﻿using HouseholdBudget.Data;
-using HouseholdBudget.Services;
-using System.Configuration;
-using System.Data;
+﻿using HouseholdBudget.Core.Data;
+using HouseholdBudget.Core.Services;
 using System.Windows;
 
-namespace HouseholdBudget
+namespace HouseholdBudget.Desktop
 {
     public partial class App : Application
     {
@@ -12,13 +10,13 @@ namespace HouseholdBudget
 
         public static ITransactionService TransactionService { get; private set; } = null!;
 
-        public static CategoryService CategoryService { get; private set; } = null!;
+        public static ICategoryService CategoryService { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            DatabaseManager = new DatabaseManager("householdBudget.db");
+            DatabaseManager = new LocalDatabaseManager("householdBudget.db");
             CategoryService = new CategoryService(DatabaseManager);
             TransactionService = new TransactionService(DatabaseManager, CategoryService);
 

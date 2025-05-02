@@ -1,22 +1,16 @@
-﻿using HouseholdBudget.Data;
-using HouseholdBudget.Helpers;
-using HouseholdBudget.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Transaction = HouseholdBudget.Models.Transaction;
+﻿using HouseholdBudget.Core.Data;
+using HouseholdBudget.Core.Helpers;
+using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Services
+namespace HouseholdBudget.Core.Services
 {
     public class TransactionService : ITransactionService
     {
         private readonly List<Transaction> _transactions = new();
         private readonly IDatabaseManager _db;
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public TransactionService(IDatabaseManager db, CategoryService categoryService)
+        public TransactionService(IDatabaseManager db, ICategoryService categoryService)
         {
             _db = db;
             _categoryService = categoryService;
@@ -78,8 +72,6 @@ namespace HouseholdBudget.Services
 
             return query.ToList();
         }
-
-
         public decimal GetTotalAmount() =>
             _transactions.Sum(t => t.Amount);
 
@@ -100,7 +92,6 @@ namespace HouseholdBudget.Services
                 {
                     var type = _categoryService.GetById(t.CategoryId)?.Type;
                     return type == CategoryType.Income ? t.Amount : -t.Amount;
-        });
+                });
     }
-
 }

@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="HouseholdBudget.Desktop.Views.TransactionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:HouseholdBudget.Core.Models;assembly=HouseholdBudget.Core"
+             xmlns:local="clr-namespace:HouseholdBudget.Desktop.Views">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0 0 0 10" VerticalAlignment="Center">
+            <Label Content="Description:" VerticalAlignment="Center" />
+            <TextBox Width="120" Margin="5"
+                     ToolTip="Enter a description"
+                     Text="{Binding NewTransaction.Description, UpdateSourceTrigger=PropertyChanged}" />
+
+            <Label Content="Amount:" VerticalAlignment="Center" />
+            <TextBox Width="80" Margin="5"
+                     ToolTip="Enter transaction amount"
+                     Text="{Binding NewTransaction.Amount, UpdateSourceTrigger=PropertyChanged}" />
+
+            <Label Content="Date:" VerticalAlignment="Center" />
+            <DatePicker Margin="5"
+                        SelectedDate="{Binding NewTransaction.Date}"
+                        ToolTip="Pick transaction date" />
+
+            <Label Content="Category:" VerticalAlignment="Center" />
+            <ComboBox Width="120" Margin="5"
+                      ItemsSource="{Binding Categories}"
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding SelectedCategory}"
+                      ToolTip="Select a category" />
+
+            <Button Margin="5" Content="Add Transaction" Command="{Binding AddTransactionCommand}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0 0 0 10" VerticalAlignment="Center">
+            <Label Content="New Category:" VerticalAlignment="Center" />
+            <TextBox Width="150" Margin="5"
+                     ToolTip="Enter category name"
+                     Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Content="Add Category" Command="{Binding AddCategoryCommand}" Margin="5"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" Margin="0"
+                  ItemsSource="{Binding Transactions}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" />
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" />
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" />
+                <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

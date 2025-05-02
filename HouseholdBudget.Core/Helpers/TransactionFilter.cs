@@ -1,11 +1,6 @@
-﻿using HouseholdBudget.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Helpers
+namespace HouseholdBudget.Core.Helpers
 {
     public class TransactionFilter
     {
@@ -27,5 +22,4 @@ namespace HouseholdBudget.Helpers
 
         public bool? IsRecurring { get; set; }
     }
-
 }

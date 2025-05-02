@@ -1,17 +1,15 @@
-﻿using HouseholdBudget.Data;
-using HouseholdBudget.Models;
+﻿using HouseholdBudget.Core.Data;
+using HouseholdBudget.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace HouseholdBudget.Services
+namespace HouseholdBudget.Core.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly List<Category> _categories = new();
 

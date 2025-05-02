@@ -1,12 +1,7 @@
-﻿using HouseholdBudget.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Transaction = HouseholdBudget.Models.Transaction;
+﻿using HouseholdBudget.Core.Helpers;
+using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Services
+namespace HouseholdBudget.Core.Services
 {
     public interface ITransactionService
     {

@@ -1,19 +1,13 @@
-﻿using HouseholdBudget.Models;
+﻿using HouseholdBudget.Core.Models;
 using Microsoft.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Transaction = HouseholdBudget.Models.Transaction;
 
-namespace HouseholdBudget.Data
+namespace HouseholdBudget.Core.Data
 {
-    public class DatabaseManager : IDatabaseManager
+    public class LocalDatabaseManager : IDatabaseManager
     {
         private string _dbFile;
 
-        public DatabaseManager(string dbFile)
+        public LocalDatabaseManager(string dbFile)
         {
             _dbFile = dbFile;
 
@@ -52,11 +46,11 @@ namespace HouseholdBudget.Data
             INSERT INTO Transactions (Id, Date, Description, Amount, CategoryId, IsRecurring)
             VALUES ($id, $date, $desc, $amount, $catId, $recurring);
             ";
-            command.Parameters.AddWithValue("$id",        transaction.Id.ToString());
-            command.Parameters.AddWithValue("$date",      transaction.Date.ToString("o"));
-            command.Parameters.AddWithValue("$desc",      transaction.Description ?? "");
-            command.Parameters.AddWithValue("$amount",    transaction.Amount);
-            command.Parameters.AddWithValue("$catId",     transaction.CategoryId.ToString());
+            command.Parameters.AddWithValue("$id", transaction.Id.ToString());
+            command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
+            command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
+            command.Parameters.AddWithValue("$amount", transaction.Amount);
+            command.Parameters.AddWithValue("$catId", transaction.CategoryId.ToString());
             command.Parameters.AddWithValue("$recurring", transaction.IsRecurring ? 1 : 0);
 
             command.ExecuteNonQuery();
@@ -77,11 +71,11 @@ namespace HouseholdBudget.Data
             {
                 var transaction = new Transaction
                 {
-                    Id          = Guid.Parse(reader.GetString(0)),
-                    Date        = DateTime.Parse(reader.GetString(1)),
+                    Id = Guid.Parse(reader.GetString(0)),
+                    Date = DateTime.Parse(reader.GetString(1)),
                     Description = reader.GetString(2),
-                    Amount      = reader.GetDecimal(3),
-                    CategoryId  = Guid.Parse(reader.GetString(4)),
+                    Amount = reader.GetDecimal(3),
+                    CategoryId = Guid.Parse(reader.GetString(4)),
                     IsRecurring = reader.GetInt32(5) == 1
                 };
 
@@ -119,11 +113,11 @@ namespace HouseholdBudget.Data
                 IsRecurring = $recurring
             WHERE Id = $id;
             ";
-            command.Parameters.AddWithValue("$id",        transaction.Id.ToString());
-            command.Parameters.AddWithValue("$date",      transaction.Date.ToString("o"));
-            command.Parameters.AddWithValue("$desc",      transaction.Description ?? "");
-            command.Parameters.AddWithValue("$amount",    transaction.Amount);
-            command.Parameters.AddWithValue("$catId",     transaction.CategoryId.ToString());
+            command.Parameters.AddWithValue("$id", transaction.Id.ToString());
+            command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
+            command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
+            command.Parameters.AddWithValue("$amount", transaction.Amount);
+            command.Parameters.AddWithValue("$catId", transaction.CategoryId.ToString());
             command.Parameters.AddWithValue("$recurring", transaction.IsRecurring ? 1 : 0);
 
             command.ExecuteNonQuery();
@@ -140,7 +134,7 @@ namespace HouseholdBudget.Data
             INSERT OR REPLACE INTO Categories (Id, Name, Type)
             VALUES ($id, $name, $type);
             ";
-            command.Parameters.AddWithValue("$id",   category.Id.ToString());
+            command.Parameters.AddWithValue("$id", category.Id.ToString());
             command.Parameters.AddWithValue("$name", category.Name);
             command.Parameters.AddWithValue("$type", (int)category.Type);
             command.ExecuteNonQuery();
@@ -161,7 +155,7 @@ namespace HouseholdBudget.Data
             {
                 result.Add(new Category
                 {
-                    Id   = Guid.Parse(reader.GetString(0)),
+                    Id = Guid.Parse(reader.GetString(0)),
                     Name = reader.GetString(1),
                     Type = (CategoryType)reader.GetInt32(2)
                 });
