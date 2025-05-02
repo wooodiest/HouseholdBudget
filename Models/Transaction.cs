@@ -12,13 +12,11 @@ namespace HouseholdBudget.Models
 
         public required DateTime Date { get; set; }
 
-        public string? Description { get; set; }
+        public required string Description { get; set; }
 
         public required decimal Amount { get; set; }
 
         public Guid CategoryId { get; set; }
-
-        public Category? Category => App.CategoryService.GetById(Id);
 
         public bool IsRecurring { get; set; } = false;
     }

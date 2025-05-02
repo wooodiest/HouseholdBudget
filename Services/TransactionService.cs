@@ -1,4 +1,5 @@
 ﻿using HouseholdBudget.Data;
+using HouseholdBudget.Helpers;
 using HouseholdBudget.Models;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,10 @@ using Transaction = HouseholdBudget.Models.Transaction;
 
 namespace HouseholdBudget.Services
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly List<Transaction> _transactions = new();
-
         private readonly IDatabaseManager _db;
-
         private readonly CategoryService _categoryService;
 
         public TransactionService(IDatabaseManager db, CategoryService categoryService)
@@ -26,7 +25,6 @@ namespace HouseholdBudget.Services
 
         public void AddTransaction(Transaction transaction)
         {
-            _categoryService.AddIfNotExists(transaction.Category);
             _transactions.Add(transaction);
             _db.SaveTransaction(transaction);
         }
@@ -40,36 +38,47 @@ namespace HouseholdBudget.Services
 
         public void Clear() => _transactions.Clear();
 
-        /// 
-
         public List<Transaction> GetAll() => _transactions;
 
-        public List<Transaction> GetByCategory(Guid categoryId) =>
-            _transactions.Where(t => t.CategoryId == categoryId).ToList();
+        public List<Transaction> GetByFilter(TransactionFilter filter)
+        {
+            IEnumerable<Transaction> query = _transactions;
 
-        public List<Transaction> GetByCategoryList(List<Guid> categoryIds) =>
-           _transactions.Where(t => categoryIds.Contains(t.CategoryId)).ToList();
+            if (filter.CategoryIds != null)
+                query = query.Where(t => filter.CategoryIds.Contains(t.CategoryId));
 
-        public List<Transaction> GetByDate(DateTime date) =>
-            _transactions.Where(t => t.Date.Date == date.Date).ToList();
+            if (filter.Date != null)
+                query = query.Where(t => t.Date.Date == filter.Date.Value.Date);
 
-        public List<Transaction> GetByDateRange(DateTime start, DateTime end) =>
-            _transactions.Where(t => t.Date.Date >= start.Date && t.Date.Date <= end.Date).ToList();
+            if (filter.StartDate != null)
+                query = query.Where(t => t.Date.Date >= filter.StartDate.Value.Date);
 
-        public List<Transaction> GetByMonth(int year, int month) =>
-            _transactions.Where(t => t.Date.Year == year && t.Date.Month == month).ToList();
+            if (filter.EndDate != null)
+                query = query.Where(t => t.Date.Date <= filter.EndDate.Value.Date);
 
-        public List<Transaction> GetRecurringTransactions() =>
-            _transactions.Where(t => t.IsRecurring).ToList();
+            if (!string.IsNullOrWhiteSpace(filter.DescriptionKeyword))
+                query = query.Where(t => t.Description != null &&
+                    t.Description.Contains(filter.DescriptionKeyword, StringComparison.OrdinalIgnoreCase));
 
-        public List<Transaction> GetByDescriptionKeyword(string keyword) =>
-           _transactions.Where(t => t.Description != null && t.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (filter.MinAmount != null)
+                query = query.Where(t => t.Amount >= filter.MinAmount.Value);
 
-        public List<Transaction> GetByAmountRange(decimal min, decimal max) =>
-            _transactions.Where(t => t.Amount >= min && t.Amount <= max).ToList();
+            if (filter.MaxAmount != null)
+                query = query.Where(t => t.Amount <= filter.MaxAmount.Value);
 
-        public List<Transaction> GetByCategoryType(CategoryType type) =>
-            _transactions.Where(t => _categoryService.GetById(t.CategoryId)?.Type == type).ToList();
+            if (filter.IsRecurring != null)
+                query = query.Where(t => t.IsRecurring == filter.IsRecurring.Value);
+
+            if (filter.CategoryType != null)
+                query = query.Where(t =>
+                {
+                    var category = _categoryService.GetById(t.CategoryId);
+                    return category != null && category.Type == filter.CategoryType.Value;
+                });
+
+            return query.ToList();
+        }
+
 
         public decimal GetTotalAmount() =>
             _transactions.Sum(t => t.Amount);
@@ -85,12 +94,13 @@ namespace HouseholdBudget.Services
                 .Sum(t => t.Amount);
 
         public decimal GetMonthlyBalance(int year, int month) =>
-            GetByMonth(year, month).Sum(t =>
-            {
-                var type = _categoryService.GetById(t.CategoryId)?.Type;
-                return type == CategoryType.Income ? t.Amount : -t.Amount;
-            });
-
-        
+            _transactions
+                .Where(t => t.Date.Year == year && t.Date.Month == month)
+                .Sum(t =>
+                {
+                    var type = _categoryService.GetById(t.CategoryId)?.Type;
+                    return type == CategoryType.Income ? t.Amount : -t.Amount;
+        });
     }
+
 }

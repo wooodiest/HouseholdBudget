@@ -10,7 +10,7 @@ namespace HouseholdBudget
     {
         public static IDatabaseManager DatabaseManager { get; private set; } = null!;
 
-        public static TransactionService TransactionService { get; private set; } = null!;
+        public static ITransactionService TransactionService { get; private set; } = null!;
 
         public static CategoryService CategoryService { get; private set; } = null!;
 
