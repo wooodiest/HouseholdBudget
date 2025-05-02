@@ -8,7 +8,7 @@ namespace HouseholdBudget
 {
     public partial class App : Application
     {
-        public static DatabaseManager DatabaseManager { get; private set; } = null!;
+        public static IDatabaseManager DatabaseManager { get; private set; } = null!;
 
         public static TransactionService TransactionService { get; private set; } = null!;
 

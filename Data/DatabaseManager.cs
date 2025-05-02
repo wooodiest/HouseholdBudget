@@ -8,18 +8,14 @@ using Transaction = HouseholdBudget.Models.Transaction;
 
 namespace HouseholdBudget.Data
 {
-    public class DatabaseManager
+    public class DatabaseManager : IDatabaseManager
     {
         private string _dbFile;
 
         public DatabaseManager(string dbFile)
         {
             _dbFile = dbFile;
-            InitializeDatabase();
-        }
 
-        private void InitializeDatabase()
-        {
             using var connection = new SqliteConnection($"Data Source={_dbFile}");
             connection.Open();
 
@@ -86,6 +82,44 @@ namespace HouseholdBudget.Data
             }
 
             return result;
+        }
+
+        public void DeleteTransaction(Guid transactionId)
+        {
+            using var connection = new SqliteConnection($"Data Source={_dbFile}");
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM Transactions WHERE Id = $id";
+            command.Parameters.AddWithValue("$id", transactionId.ToString());
+
+            command.ExecuteNonQuery();
+        }
+
+        public void UpdateTransaction(Transaction transaction)
+        {
+            using var connection = new SqliteConnection($"Data Source={_dbFile}");
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+            UPDATE Transactions
+            SET Date = $date,
+                Description = $desc,
+                Amount = $amount,
+                CategoryId = $catId,
+                IsRecurring = $recurring
+            WHERE Id = $id;
+            ";
+            command.Parameters.AddWithValue("$id", transaction.Id.ToString());
+            command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
+            command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
+            command.Parameters.AddWithValue("$amount", transaction.Amount);
+            command.Parameters.AddWithValue("$catId", transaction.CategoryId.ToString());
+            command.Parameters.AddWithValue("$recurring", transaction.IsRecurring ? 1 : 0);
+
+            command.ExecuteNonQuery();
         }
     }
 }

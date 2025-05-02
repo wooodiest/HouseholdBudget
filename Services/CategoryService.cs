@@ -19,7 +19,7 @@ namespace HouseholdBudget.Services
         public CategoryService(string path)
         {
             Path = path;
-            LoadFromFile(Path);
+            LoadFromFile();
         }
 
         public List<Category> GetAll() => _categories;
@@ -30,7 +30,7 @@ namespace HouseholdBudget.Services
         public void Add(Category category)
         {
             _categories.Add(category);
-            SaveToFile(Path);
+            SaveToFile();
         }
 
         public void AddIfNotExists(Category category)
@@ -38,7 +38,7 @@ namespace HouseholdBudget.Services
             if (!_categories.Any(c => c.Id == category.Id))
                 _categories.Add(category);
 
-            SaveToFile(Path);
+            SaveToFile();
         }
 
         public void Remove(Guid id)
@@ -47,15 +47,15 @@ namespace HouseholdBudget.Services
             if (category != null)
                 _categories.Remove(category);
 
-            SaveToFile(Path);
+            SaveToFile();
         }
 
-        public void LoadFromFile(string path)
+        public void LoadFromFile()
         {
-            if (!File.Exists(path))
+            if (!File.Exists(Path))
                 return;
 
-            var json = File.ReadAllText(path);
+            var json = File.ReadAllText(Path);
             var loaded = JsonSerializer.Deserialize<List<Category>>(json);
 
             if (loaded != null)
@@ -65,14 +65,14 @@ namespace HouseholdBudget.Services
             }
         }
 
-        public void SaveToFile(string path)
+        public void SaveToFile()
         {
             var json = JsonSerializer.Serialize(_categories, new JsonSerializerOptions
             {
                 WriteIndented = true
             });
 
-            File.WriteAllText(path, json);
+            File.WriteAllText(Path, json);
         }
     }
 }

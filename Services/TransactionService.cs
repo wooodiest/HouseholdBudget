@@ -13,11 +13,11 @@ namespace HouseholdBudget.Services
     {
         private readonly List<Transaction> _transactions = new();
 
-        private readonly DatabaseManager _db;
+        private readonly IDatabaseManager _db;
 
         private readonly CategoryService _categoryService;
 
-        public TransactionService(DatabaseManager db, CategoryService categoryService)
+        public TransactionService(IDatabaseManager db, CategoryService categoryService)
         {
             _db = db;
             _categoryService = categoryService;
