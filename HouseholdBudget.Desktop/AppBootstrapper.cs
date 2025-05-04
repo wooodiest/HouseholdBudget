@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Core.Data;
+﻿using HouseholdBudget.Core.Core;
+using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +15,7 @@ namespace HouseholdBudget.Desktop
             services.AddSingleton<IDatabaseManager>(provider =>
                 new LocalDatabaseManager(dbPath));
 
-            //services.AddSingleton<IUserContext, UserContext>();
+            services.AddSingleton<IUserContext, UserContext>();
             services.AddSingleton<ICategoryService, CategoryService>();
             services.AddSingleton<ITransactionService, TransactionService>();
 

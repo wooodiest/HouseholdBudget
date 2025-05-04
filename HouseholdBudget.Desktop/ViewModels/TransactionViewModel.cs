@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Core.Models;
+﻿using HouseholdBudget.Core.Core;
+using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services;
 using HouseholdBudget.ViewModels;
 using System.Collections.ObjectModel;
@@ -33,6 +34,8 @@ namespace HouseholdBudget.Desktop.ViewModels
 
         public string NewCategoryName { get; set; } = "";
 
+        public string CurrentUserName => _userContext.CurrentUser.Name;
+
         public ICommand AddTransactionCommand { get; }
         public ICommand AddCategoryCommand { get; }
 
@@ -40,10 +43,13 @@ namespace HouseholdBudget.Desktop.ViewModels
 
         private readonly ICategoryService _categoryService;
 
-        public TransactionViewModel(ITransactionService service, ICategoryService categoryService)
+        private readonly IUserContext _userContext;
+
+        public TransactionViewModel(ITransactionService service, ICategoryService categoryService, IUserContext userContext)
         {
             _transactionService = service;
             _categoryService = categoryService;
+            _userContext = userContext;
 
             LoadTransactions();
             LoadCategories();
