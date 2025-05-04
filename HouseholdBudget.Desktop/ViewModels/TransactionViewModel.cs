@@ -13,14 +13,7 @@ namespace HouseholdBudget.Desktop.ViewModels
 
         public ObservableCollection<Category> Categories { get; } = new();
 
-        public Transaction NewTransaction { get; set; } = new()
-        {
-            Id = Guid.NewGuid(),
-            UserId = Guid.Empty, // This will be set when the transaction is added
-            Date = DateTime.Now,
-            Description = "Empty description",
-            Amount = 0
-        };
+        public Transaction NewTransaction { get; set; } = new() { Description = "Empty description",};
 
         private Category? _selectedCategory;
         public Category? SelectedCategory
@@ -78,21 +71,14 @@ namespace HouseholdBudget.Desktop.ViewModels
             if (NewTransaction.Amount <= 0 || SelectedCategory == null)
                 return;
 
-            NewTransaction.Id = Guid.NewGuid();
-            NewTransaction.CategoryId = SelectedCategory.Id;
+            NewTransaction.CategoryId  = SelectedCategory.Id;
+            NewTransaction.IsRecurring = false;
 
             _transactionService.AddTransaction(NewTransaction);
             Transactions.Add(NewTransaction);
 
-            NewTransaction = new Transaction
-            {
-                Id = Guid.NewGuid(),
-                UserId = _userContext.CurrentUser.Id,
+            NewTransaction = new Transaction {
                 Description = "Empty description",
-                Date = DateTime.Now,
-                Amount = 0,
-                CategoryId = SelectedCategory.Id
-
             };
             OnPropertyChanged(nameof(NewTransaction));
         }
@@ -102,17 +88,12 @@ namespace HouseholdBudget.Desktop.ViewModels
             if (string.IsNullOrWhiteSpace(NewCategoryName))
                 return;
 
-            var newCat = new Category
-            {
-                Id = Guid.NewGuid(),
-                UserId = _userContext.CurrentUser.Id,
-                Name = NewCategoryName,
-                Type = CategoryType.Expense
-            };
+            var category = _categoryService.GetOrAddCategory(NewCategoryName, CategoryType.Expense, out bool isNew);
 
-            _categoryService.AddIfNotExists(newCat);
-            Categories.Add(newCat);
-            SelectedCategory = newCat;
+            if (isNew)
+                Categories.Add(category);
+
+            SelectedCategory = category;
             NewCategoryName = "";
             OnPropertyChanged(nameof(NewCategoryName));
         }

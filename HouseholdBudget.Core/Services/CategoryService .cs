@@ -1,6 +1,7 @@
 ﻿using HouseholdBudget.Core.Core;
 using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
+using System.Xml.Linq;
 
 namespace HouseholdBudget.Core.Services
 {
@@ -8,15 +9,16 @@ namespace HouseholdBudget.Core.Services
     {
         private readonly List<Category> _categories = new();
 
-        private readonly IDatabaseManager _db;
+        private readonly IDatabaseManager _database;
 
         private readonly IUserContext _userContext;
 
-        public CategoryService(IUserContext userContext, IDatabaseManager db)
+        public CategoryService(IUserContext userContext, IDatabaseManager database)
         {
             _userContext = userContext;
-            _db = db;
-            _categories = _db.LoadCategoriesForUser(userContext.CurrentUser.Id);
+            _database    = database;
+
+            _categories = _database.LoadCategoriesForUser(userContext.CurrentUser.Id);
         }
 
         public List<Category> GetAll() => _categories;
@@ -24,17 +26,34 @@ namespace HouseholdBudget.Core.Services
         public Category? GetById(Guid id) =>
             _categories.FirstOrDefault(c => c.Id == id);
 
-        public void AddIfNotExists(Category category)
+        public Category GetOrAddCategory(string name, CategoryType type, out bool isNew)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            var userId = _userContext.CurrentUser.Id;
 
-            category.UserId = _userContext.CurrentUser.Id;
-            if (!_categories.Any(c => c.Id == category.Id))
+            var existing = _categories.FirstOrDefault(c =>
+                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                c.Type == type &&
+                c.UserId == userId);
+
+            if (existing != null)
             {
-                _categories.Add(category);
-                _db.SaveCategory(category);
+                isNew = false;
+                return existing;
             }
+
+            var category = new Category
+            {
+                Id     = Guid.NewGuid(),
+                Name   = name,
+                Type   = type,
+                UserId = userId
+            };
+
+            _categories.Add(category);
+            _database.SaveCategory(category);
+
+            isNew = true;
+            return category;
         }
 
         public void Remove(Guid id)
@@ -43,7 +62,7 @@ namespace HouseholdBudget.Core.Services
             if (category != null)
             {
                 _categories.Remove(category);
-                _db.DeleteCategory(id);
+                _database.DeleteCategory(id);
             }
         }
     }

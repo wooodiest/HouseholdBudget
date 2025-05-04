@@ -8,13 +8,13 @@
 
     public class Category
     {
-        public required Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.Empty;
 
-        public Guid UserId { get; set; }
+        public Guid UserId { get; set; } = Guid.Empty;
 
-        public required string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public required CategoryType Type { get; set; }
+        public CategoryType Type { get; set; } = CategoryType.Expense;
 
     }
 }

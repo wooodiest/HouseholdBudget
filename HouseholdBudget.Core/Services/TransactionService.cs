@@ -8,23 +8,31 @@ namespace HouseholdBudget.Core.Services
     public class TransactionService : ITransactionService
     {
         private readonly List<Transaction> _transactions = new();
-        private readonly IDatabaseManager _db;
-        private readonly ICategoryService _categoryService;
-        private readonly IUserContext _userContext;
 
-        public TransactionService(IUserContext userContext, IDatabaseManager db, ICategoryService categoryService)
+        private readonly IDatabaseManager _database;
+        private readonly ICategoryService _categoryService;
+        private readonly IUserContext     _userContext;
+
+        public TransactionService(IUserContext userContext, IDatabaseManager database, ICategoryService categoryService)
         {
-            _userContext = userContext;
-            _db = db;
+            _userContext     = userContext;
+            _database        = database;
             _categoryService = categoryService;
-            _transactions = _db.LoadTransactionsForUser(_userContext.CurrentUser.Id);
+
+            _transactions = _database.LoadTransactionsForUser(_userContext.CurrentUser.Id);
         }
 
         public void AddTransaction(Transaction transaction)
         {
+            transaction.Id     = Guid.NewGuid();
             transaction.UserId = _userContext.CurrentUser.Id;
+            transaction.Date   = DateTime.UtcNow;
+
+            /// TODO:
+            /// Validate transaction
+
             _transactions.Add(transaction);
-            _db.SaveTransaction(transaction);
+            _database.SaveTransaction(transaction);
         }
 
         public void RemoveTransaction(Guid id)

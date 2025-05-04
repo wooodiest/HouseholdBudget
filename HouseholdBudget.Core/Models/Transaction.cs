@@ -1,18 +1,20 @@
-﻿namespace HouseholdBudget.Core.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HouseholdBudget.Core.Models
 {
     public class Transaction
     {
-        public required Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.Empty;
 
-        public required Guid UserId { get; set; }
+        public Guid UserId { get; set; } = Guid.Empty;
 
-        public required DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        public required string Description { get; set; }
+        public Guid CategoryId { get; set; } = Guid.Empty;
 
-        public required decimal Amount { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        public Guid CategoryId { get; set; }
+        public decimal Amount { get; set; } = 0;
 
         public bool IsRecurring { get; set; } = false;
     }
