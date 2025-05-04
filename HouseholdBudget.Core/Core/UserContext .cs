@@ -8,7 +8,6 @@ namespace HouseholdBudget.Core.Core
         {
             Id           = Guid.Empty,
             Name         = "Default User",
-            Email        = string.Empty,
             PasswordHash = string.Empty,
             CreatedAt    = DateTime.UtcNow,
         };

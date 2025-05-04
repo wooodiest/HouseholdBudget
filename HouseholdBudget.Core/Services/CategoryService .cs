@@ -1,11 +1,6 @@
-﻿using HouseholdBudget.Core.Data;
+﻿using HouseholdBudget.Core.Core;
+using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace HouseholdBudget.Core.Services
 {
@@ -15,10 +10,13 @@ namespace HouseholdBudget.Core.Services
 
         private readonly IDatabaseManager _db;
 
-        public CategoryService(IDatabaseManager db)
+        private readonly IUserContext _userContext;
+
+        public CategoryService(IUserContext userContext, IDatabaseManager db)
         {
+            _userContext = userContext;
             _db = db;
-            _categories = _db.LoadCategories();
+            _categories = _db.LoadCategoriesForUser(userContext.CurrentUser.Id);
         }
 
         public List<Category> GetAll() => _categories;
@@ -31,6 +29,7 @@ namespace HouseholdBudget.Core.Services
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
 
+            category.UserId = _userContext.CurrentUser.Id;
             if (!_categories.Any(c => c.Id == category.Id))
             {
                 _categories.Add(category);

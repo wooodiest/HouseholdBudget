@@ -6,7 +6,7 @@ namespace HouseholdBudget.Core.Data
     {
         void SaveTransaction(Transaction transaction);
 
-        List<Transaction> LoadTransactions();
+        public List<Transaction> LoadTransactionsForUser(Guid userId);
 
         void DeleteTransaction(Guid transactionId);
 
@@ -14,7 +14,7 @@ namespace HouseholdBudget.Core.Data
 
         void SaveCategory(Category category);
 
-        List<Category> LoadCategories();
+        public List<Category> LoadCategoriesForUser(Guid userId);
 
         void DeleteCategory(Guid categoryId);
     }

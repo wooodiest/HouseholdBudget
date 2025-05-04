@@ -15,14 +15,12 @@ namespace HouseholdBudget.Desktop
 
             Services = AppBootstrapper.Configure();
 
-            var userContext = Services.GetRequiredService<IUserContext>();
-            userContext.SetUser(new User {
-                Id           = Guid.NewGuid(),
-                Name         = "Michał Kuchnicki",
-                Email        = "michalkuchnickiisc@gmail.com",
-                PasswordHash = "password",
-                CreatedAt    = DateTime.UtcNow,
-            });
+            var loginService = Services.GetRequiredService<ILoginService>();
+            //loginService.Register("Michał Kuchnicki", "Brooklyn99");  
+            loginService.TryLogin("Michał Kuchnicki", "Brooklyn99");    
+
+            ////loginService.Register("Maria Mrozek", "Marysiaaa");  
+            //loginService.TryLogin("Maria Mrozek", "Marysiaaa"); 
 
             var mainWindow = new MainWindow(Services);
             mainWindow.Show();

@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Core.Data;
+﻿using HouseholdBudget.Core.Core;
+using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Helpers;
 using HouseholdBudget.Core.Models;
 
@@ -9,16 +10,19 @@ namespace HouseholdBudget.Core.Services
         private readonly List<Transaction> _transactions = new();
         private readonly IDatabaseManager _db;
         private readonly ICategoryService _categoryService;
+        private readonly IUserContext _userContext;
 
-        public TransactionService(IDatabaseManager db, ICategoryService categoryService)
+        public TransactionService(IUserContext userContext, IDatabaseManager db, ICategoryService categoryService)
         {
+            _userContext = userContext;
             _db = db;
             _categoryService = categoryService;
-            _transactions = _db.LoadTransactions();
+            _transactions = _db.LoadTransactionsForUser(_userContext.CurrentUser.Id);
         }
 
         public void AddTransaction(Transaction transaction)
         {
+            transaction.UserId = _userContext.CurrentUser.Id;
             _transactions.Add(transaction);
             _db.SaveTransaction(transaction);
         }

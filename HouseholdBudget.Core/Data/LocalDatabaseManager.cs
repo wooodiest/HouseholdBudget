@@ -19,6 +19,7 @@ namespace HouseholdBudget.Core.Data
             @"
             CREATE TABLE IF NOT EXISTS Transactions (
                 Id TEXT PRIMARY KEY,
+                UserId TEXT NOT NULL,
                 Date TEXT NOT NULL,
                 Description TEXT,
                 Amount REAL NOT NULL,
@@ -28,6 +29,7 @@ namespace HouseholdBudget.Core.Data
 
             CREATE TABLE IF NOT EXISTS Categories (
                 Id TEXT PRIMARY KEY,
+                UserId TEXT NOT NULL,
                 Name TEXT NOT NULL,
                 Type INTEGER NOT NULL -- np. 0 = wydatek, 1 = przychód
             );
@@ -43,10 +45,11 @@ namespace HouseholdBudget.Core.Data
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-            INSERT INTO Transactions (Id, Date, Description, Amount, CategoryId, IsRecurring)
-            VALUES ($id, $date, $desc, $amount, $catId, $recurring);
+            INSERT INTO Transactions (Id, UserId, Date, Description, Amount, CategoryId, IsRecurring)
+            VALUES ($id, $userId, $date, $desc, $amount, $catId, $recurring);
             ";
             command.Parameters.AddWithValue("$id", transaction.Id.ToString());
+            command.Parameters.AddWithValue("$userId", transaction.UserId.ToString());
             command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
             command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
             command.Parameters.AddWithValue("$amount", transaction.Amount);
@@ -56,7 +59,7 @@ namespace HouseholdBudget.Core.Data
             command.ExecuteNonQuery();
         }
 
-        public List<Transaction> LoadTransactions()
+        public List<Transaction> LoadTransactionsForUser(Guid userId)
         {
             var result = new List<Transaction>();
 
@@ -64,22 +67,22 @@ namespace HouseholdBudget.Core.Data
             connection.Open();
 
             var command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Transactions";
+            command.CommandText = "SELECT * FROM Transactions WHERE UserId = $userId";
+            command.Parameters.AddWithValue("$userId", userId.ToString());
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                var transaction = new Transaction
+                result.Add(new Transaction
                 {
                     Id = Guid.Parse(reader.GetString(0)),
-                    Date = DateTime.Parse(reader.GetString(1)),
-                    Description = reader.GetString(2),
-                    Amount = reader.GetDecimal(3),
-                    CategoryId = Guid.Parse(reader.GetString(4)),
-                    IsRecurring = reader.GetInt32(5) == 1
-                };
-
-                result.Add(transaction);
+                    UserId = Guid.Parse(reader.GetString(1)),
+                    Date = DateTime.Parse(reader.GetString(2)),
+                    Description = reader.GetString(3),
+                    Amount = reader.GetDecimal(4),
+                    CategoryId = Guid.Parse(reader.GetString(5)),
+                    IsRecurring = reader.GetInt32(6) == 1
+                });
             }
 
             return result;
@@ -131,16 +134,17 @@ namespace HouseholdBudget.Core.Data
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-            INSERT OR REPLACE INTO Categories (Id, Name, Type)
-            VALUES ($id, $name, $type);
+            INSERT OR REPLACE INTO Categories (Id, UserId, Name, Type)
+            VALUES ($id, $userId, $name, $type);
             ";
             command.Parameters.AddWithValue("$id", category.Id.ToString());
+            command.Parameters.AddWithValue("$userId", category.UserId.ToString());
             command.Parameters.AddWithValue("$name", category.Name);
             command.Parameters.AddWithValue("$type", (int)category.Type);
             command.ExecuteNonQuery();
         }
 
-        public List<Category> LoadCategories()
+        public List<Category> LoadCategoriesForUser(Guid userId)
         {
             var result = new List<Category>();
 
@@ -148,7 +152,8 @@ namespace HouseholdBudget.Core.Data
             connection.Open();
 
             var command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Categories";
+            command.CommandText = "SELECT * FROM Categories WHERE UserId = $userId";
+            command.Parameters.AddWithValue("$userId", userId.ToString());
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -156,8 +161,9 @@ namespace HouseholdBudget.Core.Data
                 result.Add(new Category
                 {
                     Id = Guid.Parse(reader.GetString(0)),
-                    Name = reader.GetString(1),
-                    Type = (CategoryType)reader.GetInt32(2)
+                    UserId = Guid.Parse(reader.GetString(1)),
+                    Name = reader.GetString(2),
+                    Type = (CategoryType)reader.GetInt32(3)
                 });
             }
 

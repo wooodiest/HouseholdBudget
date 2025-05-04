@@ -16,6 +16,7 @@ namespace HouseholdBudget.Desktop.ViewModels
         public Transaction NewTransaction { get; set; } = new()
         {
             Id = Guid.NewGuid(),
+            UserId = Guid.Empty, // This will be set when the transaction is added
             Date = DateTime.Now,
             Description = "Empty description",
             Amount = 0
@@ -86,6 +87,7 @@ namespace HouseholdBudget.Desktop.ViewModels
             NewTransaction = new Transaction
             {
                 Id = Guid.NewGuid(),
+                UserId = _userContext.CurrentUser.Id,
                 Description = "Empty description",
                 Date = DateTime.Now,
                 Amount = 0,
@@ -103,6 +105,7 @@ namespace HouseholdBudget.Desktop.ViewModels
             var newCat = new Category
             {
                 Id = Guid.NewGuid(),
+                UserId = _userContext.CurrentUser.Id,
                 Name = NewCategoryName,
                 Type = CategoryType.Expense
             };
