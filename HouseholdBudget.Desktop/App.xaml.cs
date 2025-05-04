@@ -6,21 +6,15 @@ namespace HouseholdBudget.Desktop
 {
     public partial class App : Application
     {
-        public static IDatabaseManager DatabaseManager { get; private set; } = null!;
-
-        public static ITransactionService TransactionService { get; private set; } = null!;
-
-        public static ICategoryService CategoryService { get; private set; } = null!;
+        public static IServiceProvider Services { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            DatabaseManager = new LocalDatabaseManager("householdBudget.db");
-            CategoryService = new CategoryService(DatabaseManager);
-            TransactionService = new TransactionService(DatabaseManager, CategoryService);
+            Services = AppBootstrapper.Configure();
 
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow(Services);
             mainWindow.Show();
         }
     }
