@@ -9,9 +9,18 @@ namespace HouseholdBudget.Desktop.ViewModels
 {
     public class TransactionViewModel : BaseViewModel
     {
-        public ObservableCollection<Transaction> Transactions { get; } = new();
+        private readonly ITransactionService _transactionService;
+        private readonly ICategoryService    _categoryService;
+        private readonly IUserContext        _userContext;
 
+        public ICommand AddTransactionCommand { get; }
+        public ICommand AddCategoryCommand { get; }
+
+        public ObservableCollection<TransactionViewModelItem> Transactions { get; } = new();
         public ObservableCollection<Category> Categories { get; } = new();
+
+        public string CurrentUserName => _userContext.CurrentUser.Name;
+        public string NewCategoryName { get; set; } = "";
 
         public Transaction NewTransaction { get; set; } = new() { Description = "Empty description",};
 
@@ -25,19 +34,6 @@ namespace HouseholdBudget.Desktop.ViewModels
                 OnPropertyChanged();
             }
         }
-
-        public string NewCategoryName { get; set; } = "";
-
-        public string CurrentUserName => _userContext.CurrentUser.Name;
-
-        public ICommand AddTransactionCommand { get; }
-        public ICommand AddCategoryCommand { get; }
-
-        private readonly ITransactionService _transactionService;
-
-        private readonly ICategoryService _categoryService;
-
-        private readonly IUserContext _userContext;
 
         public TransactionViewModel(ITransactionService service, ICategoryService categoryService, IUserContext userContext)
         {
@@ -55,8 +51,18 @@ namespace HouseholdBudget.Desktop.ViewModels
         private void LoadTransactions()
         {
             Transactions.Clear();
+
             foreach (var tx in _transactionService.GetAll())
-                Transactions.Add(tx);
+            {
+                Transactions.Add(new TransactionViewModelItem
+                {
+                    Id          = tx.Id,
+                    Date        = tx.Date,
+                    Description = tx.Description,
+                    Amount      = tx.Amount,
+                    CategoryName = _categoryService.GetById(tx.CategoryId)?.Name ?? "(none)"
+                });
+            }
         }
 
         private void LoadCategories()
@@ -75,7 +81,15 @@ namespace HouseholdBudget.Desktop.ViewModels
             NewTransaction.IsRecurring = false;
 
             _transactionService.AddTransaction(NewTransaction);
-            Transactions.Add(NewTransaction);
+
+            Transactions.Add(new TransactionViewModelItem
+            {
+                Id           = NewTransaction.Id,
+                Date         = NewTransaction.Date,
+                Description  = NewTransaction.Description,
+                Amount       = NewTransaction.Amount,
+                CategoryName = SelectedCategory.Name
+            });
 
             NewTransaction = new Transaction {
                 Description = "Empty description",
