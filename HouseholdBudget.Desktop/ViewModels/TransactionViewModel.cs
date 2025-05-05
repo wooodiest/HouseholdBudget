@@ -20,9 +20,12 @@ namespace HouseholdBudget.Desktop.ViewModels
         public ObservableCollection<Category> Categories { get; } = new();
 
         public string CurrentUserName => _userContext.CurrentUser.Name;
-        public string NewCategoryName { get; set; } = "";
 
-        public Transaction NewTransaction { get; set; } = new() { Description = "Empty description",};
+        public string NewCategoryName { get; set; } = "";
+        public string NewTransactionDescription { get; set; } = "Empty description";
+        public decimal NewTransactionAmount { get; set; }
+        public DateTime NewTransactionDate { get; set; } = DateTime.Now;
+        public bool NewTransactionIsRecurring { get; set; } = false;
 
         private Category? _selectedCategory;
         public Category? SelectedCategory
@@ -74,27 +77,36 @@ namespace HouseholdBudget.Desktop.ViewModels
 
         private void AddTransaction()
         {
-            if (NewTransaction.Amount <= 0 || SelectedCategory == null)
+            if (NewTransactionAmount <= 0 || SelectedCategory == null)
                 return;
 
-            NewTransaction.CategoryId  = SelectedCategory.Id;
-            NewTransaction.IsRecurring = false;
+            var created = _transactionService.AddTransaction(
+                description: NewTransactionDescription,
+                amount:      NewTransactionAmount,
+                categoryID:  SelectedCategory.Id,
+                dateTime:    NewTransactionDate,
+                isRecurring: NewTransactionIsRecurring
+            );
 
-            _transactionService.AddTransaction(NewTransaction);
 
             Transactions.Add(new TransactionViewModelItem
             {
-                Id           = NewTransaction.Id,
-                Date         = NewTransaction.Date,
-                Description  = NewTransaction.Description,
-                Amount       = NewTransaction.Amount,
+                Id           = created.Id,
+                Date         = created.Date,
+                Description  = created.Description,
+                Amount       = created.Amount,
                 CategoryName = SelectedCategory.Name
             });
 
-            NewTransaction = new Transaction {
-                Description = "Empty description",
-            };
-            OnPropertyChanged(nameof(NewTransaction));
+            NewTransactionDescription = "Empty description";
+            NewTransactionAmount      = 0;
+            NewTransactionDate        = DateTime.Now;
+            NewTransactionIsRecurring = false;
+
+            OnPropertyChanged(nameof(NewTransactionDescription));
+            OnPropertyChanged(nameof(NewTransactionAmount));
+            OnPropertyChanged(nameof(NewTransactionDate));
+            OnPropertyChanged(nameof(NewTransactionIsRecurring));
         }
 
         private void AddCategory()

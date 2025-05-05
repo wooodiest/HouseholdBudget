@@ -21,18 +21,23 @@ namespace HouseholdBudget.Core.Services
 
             _transactions = _database.LoadTransactionsForUser(_userContext.CurrentUser.Id);
         }
-
-        public void AddTransaction(Transaction transaction)
+        public Transaction AddTransaction(string description, decimal amount, Guid categoryID, DateTime dateTime, bool isRecurring)
         {
-            transaction.Id     = Guid.NewGuid();
-            transaction.UserId = _userContext.CurrentUser.Id;
-            transaction.Date   = DateTime.UtcNow;
-
-            /// TODO:
-            /// Validate transaction
+            var transaction = new Transaction
+            {
+                Id          = Guid.NewGuid(),
+                UserId      = _userContext.CurrentUser.Id,
+                Date        = dateTime,
+                Description = description,
+                Amount      = amount,
+                CategoryId  = categoryID,
+                IsRecurring = isRecurring
+            };
 
             _transactions.Add(transaction);
             _database.SaveTransaction(transaction);
+
+            return transaction;
         }
 
         public void RemoveTransaction(Guid id)

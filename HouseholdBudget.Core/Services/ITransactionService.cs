@@ -5,7 +5,7 @@ namespace HouseholdBudget.Core.Services
 {
     public interface ITransactionService
     {
-        void AddTransaction(Transaction transaction);
+        public Transaction AddTransaction(string description, decimal amount, Guid categoryID, DateTime dateTime, bool isRecurring);
 
         void RemoveTransaction(Guid id);
 

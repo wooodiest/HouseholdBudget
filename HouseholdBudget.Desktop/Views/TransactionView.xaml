@@ -21,18 +21,16 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0 0 0 10" VerticalAlignment="Center">
             <Label Content="Description:" VerticalAlignment="Center" />
             <TextBox Width="120" Margin="5"
-                     ToolTip="Enter a description"
-                     Text="{Binding NewTransaction.Description, UpdateSourceTrigger=PropertyChanged}" />
+                ToolTip="Enter a description"
+                Text="{Binding NewTransactionDescription, UpdateSourceTrigger=PropertyChanged}" />
 
-            <Label Content="Amount:" VerticalAlignment="Center" />
             <TextBox Width="80" Margin="5"
-                     ToolTip="Enter transaction amount"
-                     Text="{Binding NewTransaction.Amount, UpdateSourceTrigger=PropertyChanged}" />
+                ToolTip="Enter transaction amount"
+                Text="{Binding NewTransactionAmount, UpdateSourceTrigger=PropertyChanged}" />
 
-            <Label Content="Date:" VerticalAlignment="Center" />
             <DatePicker Margin="5"
-                        SelectedDate="{Binding NewTransaction.Date}"
-                        ToolTip="Pick transaction date" />
+                SelectedDate="{Binding NewTransactionDate}"
+                ToolTip="Pick transaction date" />
 
             <Label Content="Category:" VerticalAlignment="Center" />
             <ComboBox Width="120" Margin="5"
