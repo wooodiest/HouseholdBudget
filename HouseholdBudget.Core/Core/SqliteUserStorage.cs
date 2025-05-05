@@ -6,10 +6,11 @@ namespace HouseholdBudget.Core.Core
     public class SqliteUserStorage : IUserStorage
     {
         private readonly string _dbFile;
+        private readonly IAppConfiguration _appConfiguration;
 
-        public SqliteUserStorage(string dbFile)
+        public SqliteUserStorage(IAppConfiguration appConfiguration)
         {
-            _dbFile = dbFile;
+            _dbFile = appConfiguration.GetValue("UserStorageFile");
             EnsureUserTableExists();
         }
 

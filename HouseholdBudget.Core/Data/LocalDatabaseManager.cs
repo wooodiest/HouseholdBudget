@@ -1,4 +1,5 @@
-﻿using HouseholdBudget.Core.Models;
+﻿using HouseholdBudget.Core.Core;
+using HouseholdBudget.Core.Models;
 using Microsoft.Data.Sqlite;
 using System.Text.Json;
 
@@ -7,11 +8,11 @@ namespace HouseholdBudget.Core.Data
     public class LocalDatabaseManager : IDatabaseManager
     {
         private string _dbFile;
+        private readonly IAppConfiguration _appConfiguration;
 
-
-        public LocalDatabaseManager(string dbFile)
+        public LocalDatabaseManager(IAppConfiguration appConfiguration)
         {
-            _dbFile = dbFile;
+            _dbFile = appConfiguration.GetValue("DatabaseFile");
 
             using var connection = new SqliteConnection($"Data Source={_dbFile}");
             connection.Open();
