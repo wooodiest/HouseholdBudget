@@ -16,6 +16,8 @@ namespace HouseholdBudget.Core.Models
 
         public decimal Amount { get; set; } = 0;
 
+        public Currency Currency { get; set; }
+
         public bool IsRecurring { get; set; } = false;
     }
 }

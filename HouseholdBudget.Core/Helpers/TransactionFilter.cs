@@ -18,6 +18,8 @@ namespace HouseholdBudget.Core.Helpers
 
         public decimal? MaxAmount { get; set; }
 
+        public Currency? Currency { get; set; }
+
         public CategoryType? CategoryType { get; set; }
 
         public bool? IsRecurring { get; set; }

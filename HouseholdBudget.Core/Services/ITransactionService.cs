@@ -5,7 +5,7 @@ namespace HouseholdBudget.Core.Services
 {
     public interface ITransactionService
     {
-        public Transaction AddTransaction(string description, decimal amount, Guid categoryID, DateTime dateTime, bool isRecurring);
+        public Transaction AddTransaction(string description, decimal amount, Currency currency, Guid categoryID, DateTime dateTime, bool isRecurring);
 
         void RemoveTransaction(Guid id);
 
@@ -15,12 +15,12 @@ namespace HouseholdBudget.Core.Services
 
         List<Transaction> GetByFilter(TransactionFilter filter);
 
-        decimal GetTotalAmount();
+        Task<decimal> GetTotalAmountAsync(Currency? targetCurrency = null);
 
-        decimal GetTotalExpense();
+        Task<decimal> GetTotalExpenseAsync(Currency? targetCurrency = null);
 
-        decimal GetTotalIncome();
+        Task<decimal> GetTotalIncomeAsync(Currency? targetCurrency = null);
 
-        decimal GetMonthlyBalance(int year, int month);
+        Task<decimal> GetMonthlyBalanceAsync(int year, int month, Currency? targetCurrency = null);
     }
 }

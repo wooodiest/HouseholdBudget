@@ -1,10 +1,5 @@
 ﻿using HouseholdBudget.Core.Models;
 using Microsoft.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HouseholdBudget.Core.Core
 {
@@ -30,7 +25,8 @@ namespace HouseholdBudget.Core.Core
                 Id TEXT PRIMARY KEY,
                 Name TEXT NOT NULL,
                 PasswordHash TEXT NOT NULL,
-                CreatedAt TEXT NOT NULL
+                CreatedAt TEXT NOT NULL,
+                DeafaultCurrencyCode TEXT NOT NULL
             );
             ";
             command.ExecuteNonQuery();
@@ -51,11 +47,11 @@ namespace HouseholdBudget.Core.Core
 
             return new User
             {
-                Id           = Guid.Parse(reader.GetString(0)),
-                Name         = reader.GetString(1),
-                PasswordHash = reader.GetString(2),
-                CreatedAt    = DateTime.Parse(reader.GetString(3)),
-                IsGuest      = false
+                Id                  = Guid.Parse(reader.GetString(0)),
+                Name                = reader.GetString(1),
+                PasswordHash        = reader.GetString(2),
+                CreatedAt           = DateTime.Parse(reader.GetString(3)),
+                DefaultCurrencyCode = reader.GetString(4),
             };
         }
 
@@ -67,13 +63,14 @@ namespace HouseholdBudget.Core.Core
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-            INSERT OR REPLACE INTO Users (Id, Name, PasswordHash, CreatedAt)
-            VALUES ($id, $name, $hash, $created);
+            INSERT OR REPLACE INTO Users (Id, Name, PasswordHash, CreatedAt, DeafaultCurrencyCode)
+            VALUES ($id, $name, $hash, $created, $currency);
             ";
-            command.Parameters.AddWithValue("$id",      user.Id.ToString());
-            command.Parameters.AddWithValue("$name",    user.Name);
-            command.Parameters.AddWithValue("$hash",    user.PasswordHash);
-            command.Parameters.AddWithValue("$created", user.CreatedAt.ToString("o"));
+            command.Parameters.AddWithValue("$id",       user.Id.ToString());
+            command.Parameters.AddWithValue("$name",     user.Name);
+            command.Parameters.AddWithValue("$hash",     user.PasswordHash);
+            command.Parameters.AddWithValue("$created",  user.CreatedAt.ToString("o"));
+            command.Parameters.AddWithValue("$currency", user.DefaultCurrencyCode);
 
             command.ExecuteNonQuery();
         }
@@ -93,11 +90,11 @@ namespace HouseholdBudget.Core.Core
             {
                 users.Add(new User
                 {
-                    Id           = Guid.Parse(reader.GetString(0)),
-                    Name         = reader.GetString(1),
-                    PasswordHash = reader.GetString(2),
-                    CreatedAt    = DateTime.Parse(reader.GetString(3)),
-                    IsGuest      = false
+                    Id                  = Guid.Parse(reader.GetString(0)),
+                    Name                = reader.GetString(1),
+                    PasswordHash        = reader.GetString(2),
+                    CreatedAt           = DateTime.Parse(reader.GetString(3)),
+                    DefaultCurrencyCode = reader.GetString(4),
                 });
             }
 

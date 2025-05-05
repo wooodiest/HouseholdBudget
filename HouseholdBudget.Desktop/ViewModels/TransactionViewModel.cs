@@ -9,9 +9,11 @@ namespace HouseholdBudget.Desktop.ViewModels
 {
     public class TransactionViewModel : BaseViewModel
     {
-        private readonly ITransactionService _transactionService;
-        private readonly ICategoryService    _categoryService;
-        private readonly IUserContext        _userContext;
+        private readonly ITransactionService   _transactionService;
+        private readonly ICategoryService      _categoryService;
+        private readonly IUserContext          _userContext;
+        private readonly IExchangeRateService  _exchangeRateService;
+        private readonly IExchangeRateProvider _exchangeRateProvider;
 
         public ICommand AddTransactionCommand { get; }
         public ICommand AddCategoryCommand { get; }
@@ -38,17 +40,20 @@ namespace HouseholdBudget.Desktop.ViewModels
             }
         }
 
-        public TransactionViewModel(ITransactionService service, ICategoryService categoryService, IUserContext userContext)
+        public TransactionViewModel(ITransactionService service, ICategoryService categoryService, IUserContext userContext,
+            IExchangeRateProvider exchangeRateProvider, IExchangeRateService exchangeRateService)
         {
-            _transactionService = service;
-            _categoryService = categoryService;
-            _userContext = userContext;
+            _transactionService   = service;
+            _categoryService      = categoryService;
+            _userContext          = userContext;
+            _exchangeRateProvider = exchangeRateProvider;
+            _exchangeRateService  = exchangeRateService;
 
             LoadTransactions();
             LoadCategories();
 
             AddTransactionCommand = new RelayCommand(AddTransaction);
-            AddCategoryCommand = new RelayCommand(AddCategory);
+            AddCategoryCommand    = new RelayCommand(AddCategory);
         }
 
         private void LoadTransactions()
@@ -63,6 +68,7 @@ namespace HouseholdBudget.Desktop.ViewModels
                     Date        = tx.Date,
                     Description = tx.Description,
                     Amount      = tx.Amount,
+                    Currency    = tx.Currency,
                     CategoryName = _categoryService.GetById(tx.CategoryId)?.Name ?? "(none)"
                 });
             }
@@ -83,11 +89,11 @@ namespace HouseholdBudget.Desktop.ViewModels
             var created = _transactionService.AddTransaction(
                 description: NewTransactionDescription,
                 amount:      NewTransactionAmount,
+                currency:    _exchangeRateProvider.GetCurrencyByCodeAsync("PLN").Result,
                 categoryID:  SelectedCategory.Id,
                 dateTime:    NewTransactionDate,
                 isRecurring: NewTransactionIsRecurring
             );
-
 
             Transactions.Add(new TransactionViewModelItem
             {
@@ -95,6 +101,7 @@ namespace HouseholdBudget.Desktop.ViewModels
                 Date         = created.Date,
                 Description  = created.Description,
                 Amount       = created.Amount,
+                Currency     = created.Currency,
                 CategoryName = SelectedCategory.Name
             });
 

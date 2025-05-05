@@ -8,9 +8,7 @@
 
         public required string PasswordHash { get; init; } = string.Empty;
 
-        ///public required Currency DefaultCurrency { get; init; }
-
-        public bool IsGuest { get; init; } = false;
+        public required string DefaultCurrencyCode { get; init; }
 
         public required DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 

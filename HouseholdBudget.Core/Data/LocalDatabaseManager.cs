@@ -1,11 +1,13 @@
 ﻿using HouseholdBudget.Core.Models;
 using Microsoft.Data.Sqlite;
+using System.Text.Json;
 
 namespace HouseholdBudget.Core.Data
 {
     public class LocalDatabaseManager : IDatabaseManager
     {
         private string _dbFile;
+
 
         public LocalDatabaseManager(string dbFile)
         {
@@ -23,6 +25,7 @@ namespace HouseholdBudget.Core.Data
                 Date TEXT NOT NULL,
                 Description TEXT,
                 Amount REAL NOT NULL,
+                Currency TEXT NOT NULL,
                 CategoryId TEXT NOT NULL,
                 IsRecurring INTEGER NOT NULL
             );
@@ -45,14 +48,15 @@ namespace HouseholdBudget.Core.Data
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-            INSERT INTO Transactions (Id, UserId, Date, Description, Amount, CategoryId, IsRecurring)
-            VALUES ($id, $userId, $date, $desc, $amount, $catId, $recurring);
+            INSERT INTO Transactions (Id, UserId, Date, Description, Amount, Currency, CategoryId, IsRecurring)
+            VALUES ($id, $userId, $date, $desc, $amount, $currency, $catId, $recurring);
             ";
             command.Parameters.AddWithValue("$id", transaction.Id.ToString());
             command.Parameters.AddWithValue("$userId", transaction.UserId.ToString());
             command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
             command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
             command.Parameters.AddWithValue("$amount", transaction.Amount);
+            command.Parameters.AddWithValue("$currency", JsonSerializer.Serialize(transaction.Currency));
             command.Parameters.AddWithValue("$catId", transaction.CategoryId.ToString());
             command.Parameters.AddWithValue("$recurring", transaction.IsRecurring ? 1 : 0);
 
@@ -80,8 +84,9 @@ namespace HouseholdBudget.Core.Data
                     Date = DateTime.Parse(reader.GetString(2)),
                     Description = reader.GetString(3),
                     Amount = reader.GetDecimal(4),
-                    CategoryId = Guid.Parse(reader.GetString(5)),
-                    IsRecurring = reader.GetInt32(6) == 1
+                    Currency = JsonSerializer.Deserialize<Currency>(reader.GetString(5)) ?? new Currency(),
+                    CategoryId = Guid.Parse(reader.GetString(6)),
+                    IsRecurring = reader.GetInt32(7) == 1
                 });
             }
 
@@ -112,6 +117,7 @@ namespace HouseholdBudget.Core.Data
             SET Date = $date,
                 Description = $desc,
                 Amount = $amount,
+                Currency = $currency,
                 CategoryId = $catId,
                 IsRecurring = $recurring
             WHERE Id = $id;
@@ -120,6 +126,7 @@ namespace HouseholdBudget.Core.Data
             command.Parameters.AddWithValue("$date", transaction.Date.ToString("o"));
             command.Parameters.AddWithValue("$desc", transaction.Description ?? "");
             command.Parameters.AddWithValue("$amount", transaction.Amount);
+            command.Parameters.AddWithValue("$currency", JsonSerializer.Serialize(transaction.Currency));
             command.Parameters.AddWithValue("$catId", transaction.CategoryId.ToString());
             command.Parameters.AddWithValue("$recurring", transaction.IsRecurring ? 1 : 0);
 

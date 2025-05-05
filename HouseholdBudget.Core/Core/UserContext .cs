@@ -6,10 +6,11 @@ namespace HouseholdBudget.Core.Core
     {
         private static readonly User _defaultUser = new()
         {
-            Id           = Guid.Empty,
-            Name         = "Default User",
-            PasswordHash = string.Empty,
-            CreatedAt    = DateTime.UtcNow,
+            Id                  = Guid.Empty,
+            Name                = "Default User",
+            PasswordHash        = string.Empty,
+            CreatedAt           = DateTime.UtcNow,
+            DefaultCurrencyCode = "PLN"
         };
 
         public User CurrentUser { get; private set; } = _defaultUser;

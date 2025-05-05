@@ -13,13 +13,13 @@ namespace HouseholdBudget.Desktop
 
             services.AddSingleton<IUserStorage>(new SqliteUserStorage("householdBudgetUsers.db"));
             services.AddSingleton<ILoginService, LoginService>();
-
-            string dbPath = "householdBudget.db";
-            services.AddSingleton<IDatabaseManager>(provider =>
-                new LocalDatabaseManager(dbPath));
-
+            services.AddSingleton<IDatabaseManager>(new LocalDatabaseManager("householdBudget.db"));
             services.AddSingleton<IUserContext, UserContext>();
-            services.AddSingleton<ICategoryService, CategoryService>();           
+
+            services.AddSingleton<IExchangeRateProvider, DummyExchangeRateProvider>();
+            services.AddSingleton<IExchangeRateService, ExchangeRateService>();
+            services.AddSingleton<ICategoryService, CategoryService>();
+            
             services.AddSingleton<ITransactionService, TransactionService>();
 
             return services.BuildServiceProvider();

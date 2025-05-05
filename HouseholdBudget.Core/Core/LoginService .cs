@@ -42,10 +42,11 @@ namespace HouseholdBudget.Core.Core
         {
             var user = new User
             {
-                Id           = Guid.NewGuid(),
-                Name         = username,
-                PasswordHash = HashPassword(password),
-                CreatedAt    = DateTime.UtcNow
+                Id                  = Guid.NewGuid(),
+                Name                = username,
+                PasswordHash        = HashPassword(password),
+                CreatedAt           = DateTime.UtcNow,
+                DefaultCurrencyCode = "PLN", 
             };
 
             _userStorage.Save(user);

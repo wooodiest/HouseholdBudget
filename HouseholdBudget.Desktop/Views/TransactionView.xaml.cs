@@ -20,7 +20,10 @@ namespace HouseholdBudget.Desktop.Views
             var tx   = provider.GetRequiredService<ITransactionService>();
             var cat  = provider.GetRequiredService<ICategoryService>();
             var user = provider.GetRequiredService<IUserContext>();
-            DataContext = new TransactionViewModel(tx, cat, user);
+            var prov = provider.GetRequiredService<IExchangeRateProvider>();
+            var rate = provider.GetRequiredService<IExchangeRateService>();
+
+            DataContext = new TransactionViewModel(tx, cat, user, prov, rate);
         }
     }
 
