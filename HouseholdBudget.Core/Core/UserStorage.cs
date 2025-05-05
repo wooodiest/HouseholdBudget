@@ -3,12 +3,12 @@ using Microsoft.Data.Sqlite;
 
 namespace HouseholdBudget.Core.Core
 {
-    public class SqliteUserStorage : IUserStorage
+    public class UserStorage : IUserStorage
     {
         private readonly string _dbFile;
         private readonly IAppConfiguration _appConfiguration;
 
-        public SqliteUserStorage(IAppConfiguration appConfiguration)
+        public UserStorage(IAppConfiguration appConfiguration)
         {
             _dbFile = appConfiguration.GetValue("UserStorageFile");
             EnsureUserTableExists();

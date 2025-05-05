@@ -12,7 +12,7 @@ namespace HouseholdBudget.Desktop
             var services = new ServiceCollection();
 
             services.AddSingleton<IAppConfiguration, AppConfiguration>();
-            services.AddSingleton<IUserStorage, SqliteUserStorage>();
+            services.AddSingleton<IUserStorage, UserStorage>();
             services.AddSingleton<ILoginService, LoginService>();
             services.AddSingleton<IDatabaseManager, LocalDatabaseManager>();
             services.AddSingleton<IUserContext, UserContext>();
