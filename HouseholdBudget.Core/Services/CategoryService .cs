@@ -23,8 +23,28 @@ namespace HouseholdBudget.Core.Services
 
         public List<Category> GetAll() => _categories;
 
+
         public Category? GetById(Guid id) =>
             _categories.FirstOrDefault(c => c.Id == id);
+
+        public Category? GetByName(string name)
+        {
+            var userId = _userContext.CurrentUser.Id;
+
+            return _categories.FirstOrDefault(c =>
+                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                c.UserId == userId);
+        }
+
+        public bool Exists(string name, CategoryType type)
+        {
+            var userId = _userContext.CurrentUser.Id;
+
+            return _categories.Any(c =>
+                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                c.Type == type &&
+                c.UserId == userId);
+        }
 
         public Category GetOrAddCategory(string name, CategoryType type, out bool isNew)
         {
@@ -64,6 +84,25 @@ namespace HouseholdBudget.Core.Services
                 _categories.Remove(category);
                 _database.DeleteCategory(id);
             }
+        }
+
+        public void ClearAll()
+        {
+            foreach (var cat in _categories)
+            {
+                _categories.Remove(cat);
+                _database.DeleteCategory(cat.Id);
+            }
+        }
+
+        public void Rename(Guid id, string newName)
+        {
+            var category = GetById(id);
+            if (category == null) 
+                return;
+
+            category.Name = newName;
+            _database.SaveCategory(category);
         }
     }
 }
