@@ -22,6 +22,7 @@ namespace HouseholdBudget.Desktop
             services.AddSingleton<ICategoryService, CategoryService>();
             
             services.AddSingleton<ITransactionService, TransactionService>();
+            services.AddSingleton<IBudgetService, BudgetService>();
 
             return services.BuildServiceProvider();
         }
