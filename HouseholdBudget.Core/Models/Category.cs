@@ -101,13 +101,13 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         /// <param name="name">The category name to validate.</param>
         /// <returns>A list of validation error messages. Empty if the name is valid.</returns>
-        public static IReadOnlyList<string> ValidateName(string name)
+        public static IReadOnlyList<string> ValidateName(string? name)
         {
             var errors = new List<string>();
 
             if (string.IsNullOrWhiteSpace(name))
                 errors.Add("Category name is required.");
-            if (name.Length > MaxNameLength)
+            else if (name.Length > MaxNameLength)
                 errors.Add($"Category name cannot exceed {MaxNameLength} characters.");
 
             return errors;

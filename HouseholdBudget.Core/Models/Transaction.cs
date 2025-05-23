@@ -137,13 +137,13 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         /// <param name="newTags">The list of new tags to assign.</param>
         /// <exception cref="ValidationException">Thrown if any tag is invalid or duplicated.</exception>
-        public void UpdateTags(IEnumerable<string> newTags)
+        public void UpdateTags(IEnumerable<string>? newTags)
         {
             var errors = ValidateTags(newTags).ToList();
             if (errors.Count > 0)
                 throw new ValidationException(string.Join("; ", errors));
 
-            Tags = newTags.ToList();
+            Tags = newTags?.ToList() ?? new List<string>();
             MarkAsUpdated();
         }
 
