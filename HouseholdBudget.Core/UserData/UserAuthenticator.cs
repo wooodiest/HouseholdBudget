@@ -71,6 +71,11 @@ namespace HouseholdBudget.Core.UserData
             return user;
         }
 
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _repository.GetUserByEmailAsync(email) is not null;   
+        }
+
         private static IReadOnlyList<string> ValidatePassword(string password)
         {
             var errors = new List<string>();
@@ -93,5 +98,6 @@ namespace HouseholdBudget.Core.UserData
 
             return errors;
         }
+ 
     }
 }

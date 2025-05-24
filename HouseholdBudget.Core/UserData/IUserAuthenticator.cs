@@ -25,5 +25,12 @@
         /// <returns>The newly registered user.</returns>
         /// <exception cref="ValidationException">Thrown when input data is invalid or user already exists.</exception>
         Task<User> RegisterAsync(string name, string email, string password, string defaultCurrencyCode);
+
+        /// <summary>
+        /// Determines whether a user with the specified email address already exists.
+        /// </summary>
+        /// <param name="email">The email address to check.</param>
+        /// <returns><c>true</c> if a user with the specified email exists; otherwise, <c>false</c>.</returns>
+        Task<bool> EmailExistsAsync(string email);
     }
 }
