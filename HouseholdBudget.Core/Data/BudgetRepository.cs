@@ -1,4 +1,5 @@
 ﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.UserData;
 using Microsoft.EntityFrameworkCore;
 
 namespace HouseholdBudget.Core.Data
@@ -19,6 +20,19 @@ namespace HouseholdBudget.Core.Data
         public BudgetRepository(BudgetDbContext context)
         {
             _context = context;
+        }
+
+        /// <inheritdoc/>
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
         }
 
         /// <inheritdoc/>

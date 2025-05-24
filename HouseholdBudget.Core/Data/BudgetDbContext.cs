@@ -1,4 +1,5 @@
 ﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.UserData;
 using Microsoft.EntityFrameworkCore;
 
 namespace HouseholdBudget.Core.Data
@@ -9,6 +10,11 @@ namespace HouseholdBudget.Core.Data
     /// </summary>
     public class BudgetDbContext : DbContext
     {
+        /// <summary>
+        /// Gets or sets the collection of users in the database.
+        /// </summary>
+        public DbSet<User> Users => Set<User>();
+
         /// <summary>
         /// Gets or sets the collection of transactions in the database.
         /// </summary>

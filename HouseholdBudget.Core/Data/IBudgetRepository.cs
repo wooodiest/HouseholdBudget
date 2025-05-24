@@ -1,4 +1,5 @@
 ﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.UserData;
 
 namespace HouseholdBudget.Core.Data
 {
@@ -8,6 +9,20 @@ namespace HouseholdBudget.Core.Data
     /// </summary>
     public interface IBudgetRepository
     {
+        /// <summary>
+        /// Retrieves a user by their email address.
+        /// </summary>
+        /// <param name="email">The user's email address.</param>
+        /// <returns>The user if found; otherwise, <c>null</c>.</returns>
+        Task<User?> GetUserByEmailAsync(string email);
+
+        /// <summary>
+        /// Adds a new user to the persistence context.
+        /// Changes must be explicitly committed using <see cref="SaveChangesAsync"/>.
+        /// </summary>
+        /// <param name="user">The user entity to add.</param>
+        Task AddUserAsync(User user);
+
         /// <summary>
         /// Asynchronously retrieves all transactions associated with the specified user.
         /// </summary>
