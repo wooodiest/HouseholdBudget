@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.UserData;
 using Microsoft.EntityFrameworkCore;
 
 namespace HouseholdBudget.Tests.Data
@@ -25,6 +26,42 @@ namespace HouseholdBudget.Tests.Data
         {
             return Category.Create(userId, "Groceries");
         }
+
+        private static User CreateSampleUser()
+        {
+            return User.Create("Alice", "alice@example.com", "HASH", "USD");
+        }
+
+        [Fact]
+        public async Task AddUserAsync_ShouldAddAndRetrieveUser()
+        {
+            using var context = CreateInMemoryContext();
+            var repository = new BudgetRepository(context);
+            var user = CreateSampleUser();
+
+            await repository.AddUserAsync(user);
+            await repository.SaveChangesAsync();
+
+            var result = await context.Users.FindAsync(user.Id);
+            result.Should().NotBeNull();
+            result!.Email.Should().Be(user.Email);
+        }
+
+        [Fact]
+        public async Task GetUserByEmailAsync_ShouldReturnCorrectUser()
+        {
+            using var context = CreateInMemoryContext();
+            var repository = new BudgetRepository(context);
+            var user = CreateSampleUser();
+
+            await repository.AddUserAsync(user);
+            await repository.SaveChangesAsync();
+
+            var result = await repository.GetUserByEmailAsync(user.Email);
+            result.Should().NotBeNull();
+            result!.Email.Should().Be(user.Email);
+        }
+
 
         [Fact]
         public async Task AddTransactionAsync_ShouldAddAndRetrieveTransaction()
