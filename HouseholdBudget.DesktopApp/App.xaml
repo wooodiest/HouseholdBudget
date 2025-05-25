@@ -106,6 +106,25 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="StyledComboBox" TargetType="ComboBox">
+                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Margin" Value="0 10 0 0" />
+                <Setter Property="Cursor" Value="Hand" />
+
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource AccentHoverBrush}" />
+                    </Trigger>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                        <Setter Property="Background" Value="{StaticResource AccentPressedBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
         </ResourceDictionary>
     </Application.Resources>

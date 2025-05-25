@@ -6,6 +6,9 @@ using HouseholdBudget.DesktopApp.Helpers;
 using HouseholdBudget.DesktopApp.Infrastructure;
 using System.Windows;
 using System.ComponentModel.DataAnnotations;
+using HouseholdBudget.Core.Models;
+using System.Collections.ObjectModel;
+using HouseholdBudget.Core.Services;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
@@ -21,17 +24,27 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly IUserAuthenticator _authenticator;
         private readonly IWindowManager _windowManager;
         private readonly IUserSessionService _session;
+        private readonly IExchangeRateProvider _exchangeRateProvider;
 
-        public RegisterViewModel(IUserAuthenticator authenticator, IWindowManager windowManager, IUserSessionService session)
+        public RegisterViewModel(IUserAuthenticator authenticator, IWindowManager windowManager,
+            IUserSessionService session, IExchangeRateProvider exchangeRateProvider)
         {
             _authenticator = authenticator;
             _windowManager = windowManager;
             _session = session;
+            _exchangeRateProvider = exchangeRateProvider;
 
-            RegisterCommand = new RelayCommand(async _ => {
+            RegisterCommand = new RelayCommand(async _ =>
+            {
                 try
                 {
                     ErrorMessage = "";
+
+                    if (SelectedCurrency == null)
+                    {
+                        ErrorMessage = "Please select a currency.";
+                        return;
+                    }
 
                     if (await _authenticator.EmailExistsAsync(Email))
                     {
@@ -40,13 +53,13 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     }
 
                     var password = _getPassword();
-                    var user = await _authenticator.RegisterAsync(Name, Email, password, Currency);
+                    var user = await _authenticator.RegisterAsync(Name, Email, password, SelectedCurrency.Code);
 
                     var success = await _session.LoginAsync(Email, password);
                     if (success)
                     {
                         _windowManager.ShowMainWindow();
-                    }    
+                    }
                 }
                 catch (ValidationException ex)
                 {
@@ -57,7 +70,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     ErrorMessage = "Unexpected error: " + ex.Message;
                 }
             });
-            _session = session;
+
+            _ = LoadCurrenciesAsync();
         }
 
         public string Name
@@ -72,10 +86,27 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             set { _email = value; OnPropertyChanged(); }
         }
 
-        public string Currency
+        private Currency? _selectedCurrency;
+        public ObservableCollection<Currency> SupportedCurrencies { get; } = new();
+
+        public Currency? SelectedCurrency
         {
-            get => _currency;
-            set { _currency = value; OnPropertyChanged(); }
+            get => _selectedCurrency;
+            set
+            {
+                _selectedCurrency = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task LoadCurrenciesAsync()
+        {
+            var currencies = await _exchangeRateProvider.GetSupportedCurrenciesAsync();
+            SupportedCurrencies.Clear();
+            foreach (var c in currencies)
+                SupportedCurrencies.Add(c);
+
+            SelectedCurrency = SupportedCurrencies.FirstOrDefault();
         }
 
         public string ErrorMessage

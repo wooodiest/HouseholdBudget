@@ -1,4 +1,5 @@
 ﻿using HouseholdBudget.Core.Data;
+using HouseholdBudget.Core.Services;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Infrastructure;
 using HouseholdBudget.DesktopApp.ViewModels;
@@ -16,15 +17,22 @@ namespace HouseholdBudget.DesktopApp
         {
             var services = new ServiceCollection();
 
+            // Database
             services.AddDbContext<BudgetDbContext>(options =>
                 options.UseSqlite("Data Source=household.db"));
             services.AddScoped<IBudgetRepository, BudgetRepository>();
 
+            // User management
             services.AddScoped<IUserAuthenticator, UserAuthenticator>();
             services.AddScoped<IUserSessionService, UserSessionService>();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+            // Exchange rate services
+            services.AddSingleton<IExchangeRateProvider, LocalExchangeRateProvider>();
+            services.AddSingleton<IExchangeRateService, ExchangeRateService>();
+
+            // Windows and view models
             services.AddSingleton<IWindowManager, WindowManager>();
 
             services.AddTransient<MainWindow>();
