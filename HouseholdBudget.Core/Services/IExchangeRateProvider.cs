@@ -24,7 +24,6 @@ namespace HouseholdBudget.Core.Services
         /// </exception>
         Task<ExchangeRate> GetExchangeRateAsync(string fromCurrencyCode, string toCurrencyCode);
 
-
         /// <summary>
         /// Asynchronously retrieves a currency by its ISO 4217 code.
         /// </summary>
@@ -36,7 +35,6 @@ namespace HouseholdBudget.Core.Services
         /// <exception cref="ArgumentException">
         /// Thrown when the currency code is invalid or empty.
         /// </exception>
-
         Task<Currency?> GetCurrencyByCodeAsync(string currencyCode);
 
         /// <summary>
