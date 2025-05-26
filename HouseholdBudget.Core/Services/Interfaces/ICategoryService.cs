@@ -1,6 +1,6 @@
 ﻿using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Interfaces
 {
     /// <summary>
     /// Defines a contract for managing category data within a household budget system,

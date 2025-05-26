@@ -1,9 +1,9 @@
 ﻿using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
-using HouseholdBudget.Core.Services;
+using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Local
 {
     /// <summary>
     /// Local implementation of the <see cref="IBudgetService"/> that analyzes financial transactions

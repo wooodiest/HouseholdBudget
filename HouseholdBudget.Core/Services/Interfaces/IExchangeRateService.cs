@@ -1,6 +1,6 @@
 ﻿using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Interfaces
 {
     /// <summary>
     /// Defines the contract for a service responsible for converting monetary amounts between different currencies.

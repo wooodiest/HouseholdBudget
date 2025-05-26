@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Remote\" />
+  </ItemGroup>
+
 </Project>

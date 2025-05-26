@@ -1,6 +1,7 @@
 ﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.Services.Interfaces;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Local
 {
     /// <summary>
     /// Provides a local, in-memory implementation of <see cref="IExchangeRateProvider"/> 

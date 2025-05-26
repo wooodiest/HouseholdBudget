@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
-using HouseholdBudget.Core.Services;
+using HouseholdBudget.Core.Services.Local;
 using HouseholdBudget.Core.UserData;
 using Moq;
 

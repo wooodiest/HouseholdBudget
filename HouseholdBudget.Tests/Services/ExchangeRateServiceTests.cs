@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using HouseholdBudget.Core.Models;
-using HouseholdBudget.Core.Services;
+using HouseholdBudget.Core.Services.Interfaces;
+using HouseholdBudget.Core.Services.Shared;
 using Moq;
 using Xunit;
 

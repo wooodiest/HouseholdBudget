@@ -1,6 +1,6 @@
 ﻿using HouseholdBudget.Core.Models;
 
-namespace HouseholdBudget.Core.Services;
+namespace HouseholdBudget.Core.Services.Interfaces;
 
 /// <summary>
 /// Provides high-level operations for analyzing, aggregating, and reporting

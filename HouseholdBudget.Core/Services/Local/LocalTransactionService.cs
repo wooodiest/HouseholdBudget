@@ -1,9 +1,10 @@
 ﻿using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Events.Transactions;
 using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Local
 {
     /// <summary>
     /// Local implementation of the <see cref="ITransactionService"/> interface. This class manages the lifecycle of

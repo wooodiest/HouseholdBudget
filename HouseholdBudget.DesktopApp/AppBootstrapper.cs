@@ -1,6 +1,8 @@
 ﻿using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Events.Transactions;
-using HouseholdBudget.Core.Services;
+using HouseholdBudget.Core.Services.Interfaces;
+using HouseholdBudget.Core.Services.Local;
+using HouseholdBudget.Core.Services.Shared;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Infrastructure;
 using HouseholdBudget.DesktopApp.ViewModels;

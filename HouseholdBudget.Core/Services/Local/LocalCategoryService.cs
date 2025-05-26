@@ -1,8 +1,9 @@
 ﻿using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Local
 {
     /// <summary>
     /// Local implementation of <see cref="ICategoryService"/> that interacts with 
@@ -87,7 +88,7 @@ namespace HouseholdBudget.Core.Services
             if (_cachedCategories is null)
             {
                 var user = EnsureAuthenticated();
-                _cachedCategories = [.. (await _repository.GetCategoriesByUserAsync(user.Id))];
+                _cachedCategories = [.. await _repository.GetCategoriesByUserAsync(user.Id)];
             }
 
             return _cachedCategories;

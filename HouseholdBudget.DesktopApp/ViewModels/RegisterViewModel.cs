@@ -8,7 +8,7 @@ using System.Windows;
 using System.ComponentModel.DataAnnotations;
 using HouseholdBudget.Core.Models;
 using System.Collections.ObjectModel;
-using HouseholdBudget.Core.Services;
+using HouseholdBudget.Core.Services.Interfaces;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {

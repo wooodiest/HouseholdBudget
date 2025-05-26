@@ -1,11 +1,12 @@
 ﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HouseholdBudget.Core.Services
+namespace HouseholdBudget.Core.Services.Shared
 {
     public class ExchangeRateService : IExchangeRateService
     {
