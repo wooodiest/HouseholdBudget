@@ -6,11 +6,11 @@ using HouseholdBudget.Core.UserData;
 namespace HouseholdBudget.Core.Services.Local
 {
     /// <summary>
-    /// Local implementation of the <see cref="IBudgetService"/> that analyzes financial transactions
+    /// Local implementation of the <see cref="IBudgetAnalysisService"/> that analyzes financial transactions
     /// associated with the currently authenticated user. This service provides aggregate budget totals,
     /// category breakdowns, and daily trend data using the user's default currency.
     /// </summary>
-    public class LocalBudgetService : IBudgetService
+    public class LocalBudgetAnalysisService : IBudgetAnalysisService
     {
         private readonly ITransactionService   _transactionService;
         private readonly IUserSessionService   _userSession;
@@ -18,13 +18,13 @@ namespace HouseholdBudget.Core.Services.Local
         private readonly IExchangeRateProvider _exchangeRateProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LocalBudgetService"/> class.
+        /// Initializes a new instance of the <see cref="LocalBudgetAnalysisService"/> class.
         /// </summary>
         /// <param name="transactionService">Provides access to user transactions.</param>
         /// <param name="userSession">Provides access to the current user and their preferences.</param>
         /// <param name="exchangeRateService">Service for converting amounts between currencies.</param>
         /// <param name="exchangeRateProvider">Provider for resolving supported currencies.</param>
-        public LocalBudgetService(
+        public LocalBudgetAnalysisService(
             ITransactionService transactionService,
             IUserSessionService userSession,
             IExchangeRateService exchangeRateService,

@@ -8,7 +8,7 @@ namespace HouseholdBudget.Core.Services.Interfaces;
 /// This service abstracts monthly, yearly, and category-level budget summaries
 /// and offers insights into spending and earnings patterns.
 /// </summary>
-public interface IBudgetService
+public interface IBudgetAnalysisService
 {
     /// <summary>
     /// Retrieves a detailed summary of the user's budget for the specified month.

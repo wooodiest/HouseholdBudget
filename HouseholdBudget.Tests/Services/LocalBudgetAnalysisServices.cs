@@ -12,7 +12,7 @@ using Xunit;
 
 namespace HouseholdBudget.Tests.Services;
 
-public class LocalBudgetServiceTests
+public class LocalBudgetAnalysisServices
 {
     private readonly Mock<ITransactionService> _transactionServiceMock = new();
     private readonly Mock<IUserSessionService> _userSessionMock = new();
@@ -31,11 +31,11 @@ public class LocalBudgetServiceTests
     private readonly Currency _usd = Currency.Create("USD", "$", "US Dollar");
     private readonly Currency _eur = Currency.Create("EUR", "€", "Euro");
 
-    private LocalBudgetService CreateService()
+    private LocalBudgetAnalysisService CreateService()
     {
         _userSessionMock.Setup(u => u.GetUser()).Returns(_user);
         _exchangeProviderMock.Setup(e => e.GetCurrencyByCodeAsync("USD")).ReturnsAsync(_usd);
-        return new LocalBudgetService(
+        return new LocalBudgetAnalysisService(
             _transactionServiceMock.Object,
             _userSessionMock.Object,
             _exchangeServiceMock.Object,
@@ -141,7 +141,7 @@ public class LocalBudgetServiceTests
     public async Task ShouldThrow_WhenUserIsNotAuthenticated()
     {
         _userSessionMock.Setup(u => u.GetUser()).Returns((User?)null);
-        var service = new LocalBudgetService(
+        var service = new LocalBudgetAnalysisService(
             _transactionServiceMock.Object,
             _userSessionMock.Object,
             _exchangeServiceMock.Object,
@@ -158,7 +158,7 @@ public class LocalBudgetServiceTests
         _userSessionMock.Setup(u => u.GetUser()).Returns(_user);
         _exchangeProviderMock.Setup(e => e.GetCurrencyByCodeAsync("USD")).ReturnsAsync((Currency?)null);
 
-        var service = new LocalBudgetService(
+        var service = new LocalBudgetAnalysisService(
             _transactionServiceMock.Object,
             _userSessionMock.Object,
             _exchangeServiceMock.Object,

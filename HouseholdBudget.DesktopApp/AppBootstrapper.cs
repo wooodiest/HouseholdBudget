@@ -52,7 +52,7 @@ namespace HouseholdBudget.DesktopApp
             // Register domain-specific business services.
             services.AddScoped<ICategoryService, LocalCategoryService>();
             services.AddScoped<ITransactionService, LocalTransactionService>();
-            services.AddScoped<IBudgetService, LocalBudgetService>();
+            services.AddScoped<IBudgetAnalysisService, LocalBudgetAnalysisService>();
 
             // ---------- Domain Event Dispatcher ----------
             // Register the dispatcher and dynamic event handlers for transaction events.
