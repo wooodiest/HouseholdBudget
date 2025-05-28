@@ -49,6 +49,16 @@ namespace HouseholdBudget.Core.Data
                 .ToListAsync();
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<BudgetPlan>> GetBudgetPlansByUserAsync(Guid userId)
+        {
+            return await _context.BudgetPlans
+                .Include(p => p.CategoryPlans).
+                Include(p => p.Currency)
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task AddTransactionAsync(Transaction transaction) =>
             await _context.Transactions.AddAsync(transaction);
 
@@ -81,6 +91,26 @@ namespace HouseholdBudget.Core.Data
         public async Task RemoveCategoryAsync(Category category)
         {
             _context.Categories.Remove(category);
+            await Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBudgetPlanAsync(BudgetPlan plan)
+        {
+            await _context.BudgetPlans.AddAsync(plan);
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateBudgetPlanAsync(BudgetPlan plan)
+        {
+            _context.BudgetPlans.Update(plan);
+            await Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public async Task RemoveBudgetPlanAsync(BudgetPlan plan)
+        {
+            _context.BudgetPlans.Remove(plan);
             await Task.CompletedTask;
         }
 

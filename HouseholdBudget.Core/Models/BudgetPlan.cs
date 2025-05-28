@@ -3,66 +3,107 @@
 namespace HouseholdBudget.Core.Models
 {
     /// <summary>
-    /// Represents a financial budget plan for a specific time range, including planned total allocation
-    /// and per-category budget limits. This plan does not compute totals itself, and assumes external services
-    /// will handle normalization and evaluation based on user's currency.
+    /// Represents a comprehensive financial budget plan for a specific time range, 
+    /// including planned total allocation, per-category budget limits, and execution tracking.
+    /// This plan serves as a blueprint for financial management and does not perform currency
+    /// conversions or total computations internally. External services are responsible for
+    /// currency normalization and financial evaluation.
     /// </summary>
     public class BudgetPlan : AuditableEntity
     {
         /// <summary>
-        /// The maximum allowed length of the plan description.
+        /// Maximum allowed length for the budget plan name.
+        /// </summary>
+        public const int MaxNameLength = 100;
+
+        /// <summary>
+        /// Maximum allowed length for the budget plan description.
         /// </summary>
         public const int MaxDescriptionLength = 250;
 
         /// <summary>
-        /// Optional description to help identify or label this budget plan.
+        /// Unique identifier of the user who created the budget plan.
+        /// </summary>
+        public Guid UserId { get; private set; }
+
+        /// <summary>
+        /// The display name of the budget plan. Used for quick identification in UI elements.
+        /// Must not exceed <see cref="MaxNameLength"/> characters.
+        /// </summary>
+        [MaxLength(MaxNameLength)]
+        public string Name { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Detailed description providing context about the budget plan's purpose or scope.
+        /// Must not exceed <see cref="MaxDescriptionLength"/> characters.
         /// </summary>
         [MaxLength(MaxDescriptionLength)]
         public string Description { get; private set; } = string.Empty;
 
         /// <summary>
-        /// Start date of the budget plan period.
+        /// The starting date of the budget period.
         /// </summary>
         [Required]
         public DateTime StartDate { get; private set; }
 
         /// <summary>
-        /// End date of the budget plan period.
+        /// The ending date of the budget period.
         /// </summary>
         [Required]
         public DateTime EndDate { get; private set; }
 
         /// <summary>
-        /// The total amount allocated for the entire budget plan.
+        /// The total monetary amount allocated for the entire budget plan.
+        /// Must be a non-negative value expressed in the base <see cref="Currency"/>.
         /// </summary>
         [Range(0, double.MaxValue)]
         public decimal TotalAmount { get; private set; } = 0.0m;
 
         /// <summary>
-        /// The base currency used for the budget plan totals.
+        /// The cumulative amount of executed financial activity against this budget plan.
+        /// Automatically updated when linked transactions are processed.
+        /// </summary>
+        [Range(0, double.MaxValue)]
+        public decimal ExecutedAmount { get; private set; } = 0.0m;
+
+        /// <summary>
+        /// The base currency in which all amounts within this budget plan are expressed.
+        /// Required for currency consistency and conversion operations.
         /// </summary>
         [Required]
         public Currency Currency { get; private set; } = null!;
 
         /// <summary>
-        /// The category-specific breakdown of the plan.
+        /// Collection of category-specific budget allocations that comprise this plan.
+        /// Each entry defines the monetary limit for a specific financial category.
         /// </summary>
         public List<CategoryBudgetPlan> CategoryPlans { get; private set; } = new();
 
+        /// <summary>
+        /// Private constructor for ORM compatibility and factory pattern enforcement.
+        /// Prevents uncontrolled instance creation outside of factory methods.
+        /// </summary>
         private BudgetPlan() { }
 
         /// <summary>
-        /// Factory method to create a validated instance of <see cref="BudgetPlan"/>.
+        /// Factory method for creating valid <see cref="BudgetPlan"/> instances with
+        /// comprehensive input validation. Ensures business rule compliance at creation.
         /// </summary>
-        /// <param name="startDate">The starting date of the budget plan.</param>
-        /// <param name="endDate">The ending date of the budget plan.</param>
-        /// <param name="totalAmount">Total amount planned for this budget.</param>
-        /// <param name="currency">Currency of the planned amount.</param>
-        /// <param name="description">Optional description of the plan.</param>
-        /// <param name="categoryPlans">Optional category plans associated with this budget.</param>
-        /// <returns>A validated instance of <see cref="BudgetPlan"/>.</returns>
-        /// <exception cref="ValidationException">Thrown if input values are invalid.</exception>
+        /// <param name="userId">Unique identifier of the user creating the budget plan.</param>
+        /// <param name="name">Display name for the budget plan.</param>
+        /// <param name="startDate">Start date of the budget period.</param>
+        /// <param name="endDate">End date of the budget period.</param>
+        /// <param name="totalAmount">Total monetary allocation for the plan.</param>
+        /// <param name="currency">Base currency for all amounts.</param>
+        /// <param name="description">Optional descriptive text (max 250 chars).</param>
+        /// <param name="categoryPlans">Optional initial category allocations.</param>
+        /// <returns>A fully initialized, valid BudgetPlan instance.</returns>
+        /// <exception cref="ValidationException">
+        /// Thrown when any input parameter violates business rules or constraints.
+        /// </exception>
         public static BudgetPlan Create(
+            Guid userId,
+            string name,
             DateTime startDate,
             DateTime endDate,
             decimal totalAmount,
@@ -70,11 +111,15 @@ namespace HouseholdBudget.Core.Models
             string? description = null,
             IEnumerable<CategoryBudgetPlan>? categoryPlans = null)
         {
-            var errors = Validate(startDate, endDate, totalAmount, currency, description);
-            if (errors.Count > 0)
-                throw new ValidationException(string.Join("; ", errors));
+            ValidateDateRange(startDate, endDate);
+            ValidateAmount(totalAmount);
+            ValidateCurrency(currency);
+            ValidateDescription(description);
+            ValidateName(name);
 
             return new BudgetPlan {
+                UserId        = userId,
+                Name          = name.Trim(),
                 StartDate     = startDate.Date,
                 EndDate       = endDate.Date,
                 TotalAmount   = totalAmount,
@@ -85,14 +130,43 @@ namespace HouseholdBudget.Core.Models
         }
 
         /// <summary>
-        /// Checks if the given date falls within the plan's time range.
+        /// Increments the executed amount by the specified value.
+        /// Typically called when new financial activity affects this budget plan.
         /// </summary>
+        /// <param name="amount">Positive value to add to execution tracking.</param>
+        public void AddExecution(decimal amount)
+        {
+            ExecutedAmount += amount;
+        }
+
+        /// <summary>
+        /// Resets all execution tracking to zero. Used when recalculating budget performance
+        /// or resetting financial period tracking.
+        /// </summary>
+        public void ClearExecution()
+        {
+            ExecutedAmount = 0;
+            foreach (var cp in CategoryPlans)
+            {
+                cp.ClearExecution();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether a given date falls within this budget plan's active period.
+        /// </summary>
+        /// <param name="date">The date to check (time component ignored).</param>
+        /// <returns>
+        /// True if the date is between <see cref="StartDate"/> and <see cref="EndDate"/>, inclusive.
+        /// </returns>
         public bool IncludesDate(DateTime date) =>
             date.Date >= StartDate.Date && date.Date <= EndDate.Date;
 
         /// <summary>
-        /// Returns a display-friendly summary of the plan.
+        /// Generates a human-readable representation of the budget plan.
+        /// Prioritizes description if available, falling back to default labeling.
         /// </summary>
+        /// <returns>Formatted string containing key plan identifiers.</returns>
         public override string ToString()
         {
             var label = string.IsNullOrWhiteSpace(Description) ? "Budget Plan" : Description;
@@ -100,30 +174,198 @@ namespace HouseholdBudget.Core.Models
         }
 
         /// <summary>
-        /// Validates all properties of a budget plan and returns a list of error messages.
+        /// Updates the display name with validation.
         /// </summary>
-        public static IReadOnlyList<string> Validate(
-            DateTime startDate,
-            DateTime endDate,
-            decimal totalAmount,
-            Currency? currency,
-            string? description)
+        /// <param name="newName">New name value.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if name exceeds <see cref="MaxNameLength"/>.
+        /// </exception>
+        public void UpdateName(string newName)
         {
-            var errors = new List<string>();
+            ValidateName(newName);
+            Name = newName.Trim();
+            MarkAsUpdated();
+        }
 
-            if (startDate > endDate)
-                errors.Add("StartDate must be earlier than or equal to EndDate.");
+        /// <summary>
+        /// Updates the descriptive text with validation.
+        /// </summary>
+        /// <param name="newDescription">New description value.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if description exceeds <see cref="MaxDescriptionLength"/>.
+        /// </exception>
+        public void UpdateDescription(string newDescription)
+        {
+            ValidateDescription(newDescription);
+            Description = newDescription.Trim();
+            MarkAsUpdated();
+        }
 
-            if (totalAmount < 0)
-                errors.Add("TotalAmount must be non-negative.");
+        /// <summary>
+        /// Updates the total allocated amount with validation.
+        /// </summary>
+        /// <param name="newTotal">New total amount (must be non-negative).</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if amount is negative.
+        /// </exception>
+        public void UpdateTotalAmount(decimal newTotal)
+        {
+            ValidateAmount(newTotal);
+            TotalAmount = newTotal;
+            MarkAsUpdated();
+        }
 
-            if (currency == null)
-                errors.Add("Currency is required.");
+        /// <summary>
+        /// Directly sets the executed amount with validation.
+        /// Primarily for reconciliation and data correction scenarios.
+        /// </summary>
+        /// <param name="newTotal">New execution total (must be non-negative).</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if amount is negative.
+        /// </exception>
+        public void UpdateTotalExecutedAmount(decimal newTotal)
+        {
+            ValidateAmount(newTotal);
+            ExecutedAmount = newTotal;
+            MarkAsUpdated();
+        }
 
+        /// <summary>
+        /// Updates the budget period dates with range validation.
+        /// </summary>
+        /// <param name="newStartDate">New start date.</param>
+        /// <param name="newEndDate">New end date.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if start date is after end date.
+        /// </exception>
+        public void UpdateDates(DateTime newStartDate, DateTime newEndDate)
+        {
+            ValidateDateRange(newStartDate, newEndDate);
+            StartDate = newStartDate.Date;
+            EndDate = newEndDate.Date;
+            MarkAsUpdated();
+        }
+
+        /// <summary>
+        /// Updates the base currency with null validation.
+        /// </summary>
+        /// <param name="newCurrency">New currency instance.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if currency is null.
+        /// </exception>
+        public void UpdateCurrency(Currency newCurrency)
+        {
+            ValidateCurrency(newCurrency);
+            Currency = newCurrency;
+            MarkAsUpdated();
+        }
+
+        /// <summary>
+        /// Replaces all category budget plans with a new collection.
+        /// </summary>
+        /// <param name="newPlans">New collection of category plans.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if input is null.
+        /// </exception>
+        public void UpdateCategoryPlans(IEnumerable<CategoryBudgetPlan> newPlans)
+        {
+            if (newPlans == null)
+                throw new ValidationException("Category plans cannot be null.");
+
+            CategoryPlans = newPlans.ToList();
+            MarkAsUpdated();
+        }
+
+        /// <summary>
+        /// Adds a single category budget plan to the collection.
+        /// </summary>
+        /// <param name="plan">Category plan to add.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if input is null.
+        /// </exception>
+        public void AddCategoryPlan(CategoryBudgetPlan plan)
+        {
+            if (plan == null)
+                throw new ValidationException("Category plan cannot be null.");
+
+            CategoryPlans.Add(plan);
+            MarkAsUpdated();
+        }
+
+        /// <summary>
+        /// Removes all category plans associated with the specified category ID.
+        /// </summary>
+        /// <param name="categoryId">Target category identifier.</param>
+        public void RemoveCategoryPlan(Guid categoryId)
+        {
+            CategoryPlans.RemoveAll(p => p.CategoryId == categoryId);
+            MarkAsUpdated();
+        }
+
+        /// <summary>
+        /// Validates name length constraints.
+        /// </summary>
+        /// <param name="name">Name to validate.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if name exceeds <see cref="MaxNameLength"/>.
+        /// </exception>
+        private static void ValidateName(string? name)
+        {
+            if (!string.IsNullOrWhiteSpace(name) && name.Length > MaxNameLength)
+                throw new ValidationException($"Name cannot exceed {MaxNameLength} characters.");
+        }
+
+        /// <summary>
+        /// Validates description length constraints.
+        /// </summary>
+        /// <param name="description">Description to validate.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if description exceeds <see cref="MaxDescriptionLength"/>.
+        /// </exception>
+        private static void ValidateDescription(string? description)
+        {
             if (!string.IsNullOrWhiteSpace(description) && description.Length > MaxDescriptionLength)
-                errors.Add($"Description cannot exceed {MaxDescriptionLength} characters.");
+                throw new ValidationException($"Description cannot exceed {MaxDescriptionLength} characters.");
+        }
 
-            return errors;
+        /// <summary>
+        /// Validates that start date precedes or equals end date.
+        /// </summary>
+        /// <param name="start">Proposed start date.</param>
+        /// <param name="end">Proposed end date.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if start date is after end date.
+        /// </exception>
+        private static void ValidateDateRange(DateTime start, DateTime end)
+        {
+            if (start > end)
+                throw new ValidationException("Start date must be earlier than or equal to end date.");
+        }
+
+        /// <summary>
+        /// Validates that amount is non-negative.
+        /// </summary>
+        /// <param name="amount">Amount to validate.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if amount is negative.
+        /// </exception>
+        private static void ValidateAmount(decimal amount)
+        {
+            if (amount < 0)
+                throw new ValidationException("Total amount must be non-negative.");
+        }
+
+        /// <summary>
+        /// Validates currency is not null.
+        /// </summary>
+        /// <param name="currency">Currency instance to validate.</param>
+        /// <exception cref="ValidationException">
+        /// Thrown if currency is null.
+        /// </exception>
+        private static void ValidateCurrency(Currency? currency)
+        {
+            if (currency == null)
+                throw new ValidationException("Currency must be provided.");
         }
     }
 }

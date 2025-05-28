@@ -2,6 +2,9 @@
 
 namespace HouseholdBudget.Core.Models
 {
+    /// <summary>
+    /// Represents a budget allocation for a specific category within a budget plan.
+    /// </summary>
     public class CategoryBudgetPlan : AuditableEntity
     {
         /// <summary>
@@ -18,11 +21,21 @@ namespace HouseholdBudget.Core.Models
         public decimal Amount { get; init; } = 0.0m;
 
         /// <summary>
+        /// The amount of money that has been executed (spent) against this budget.
+        [Range(0, double.MaxValue)]
+        public decimal ExecutedAmount { get; private set; } = 0.0m;
+
+        /// <summary>
         /// The currency in which the budget amount is defined.
         /// This is typically aligned with the user's default planning currency.
         /// </summary>
         [Required]
         public Currency Currency { get; init; } = null!;
+
+        /// <summary>
+        /// Private constructor required for ORM and factory usage.
+        /// </summary>
+        private CategoryBudgetPlan() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CategoryBudgetPlan"/> class
@@ -47,13 +60,28 @@ namespace HouseholdBudget.Core.Models
         }
 
         /// <summary>
+        /// Updates the budgeted amount for this category.
+        public void AddExecution(decimal amount)
+        {
+            ExecutedAmount += amount;
+        }
+
+        /// <summary>
+        /// Clears the executed amount for this budget plan,
+        /// allowing for a fresh start in tracking expenses.
+        public void ClearExecution()
+        {
+            ExecutedAmount = 0;
+        }
+
+        /// <summary>
         /// Returns a human-readable representation of the budgeted category and amount.
         /// </summary>
         public override string ToString()
         {
             var created = $"Created: {CreatedAt:u}";
             var updated = UpdatedAt.HasValue ? $" | Updated: {UpdatedAt:u}" : "";
-            var amountFormatted = $"{Amount:F2} {Currency?.Code ?? "???"}";
+            var amountFormatted = $"{Amount:F2}/{ExecutedAmount:F2} {Currency?.Code ?? "???"}";
 
             return $"{amountFormatted} | Id: {Id} | {created}{updated}";
         }

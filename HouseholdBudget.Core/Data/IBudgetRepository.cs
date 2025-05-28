@@ -38,6 +38,13 @@ namespace HouseholdBudget.Core.Data
         Task<IEnumerable<Category>> GetCategoriesByUserAsync(Guid userId);
 
         /// <summary>
+        /// Asynchronously retrieves all budget plans created by the specified user.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user.</param>
+        /// <returns>A collection of user-defined categories.</returns>
+        Task<IEnumerable<BudgetPlan>> GetBudgetPlansByUserAsync(Guid userId);
+
+        /// <summary>
         /// Adds a new transaction to the persistence context.
         /// Changes must be explicitly committed using <see cref="SaveChangesAsync"/>.
         /// </summary>
@@ -78,6 +85,27 @@ namespace HouseholdBudget.Core.Data
         /// </summary>
         /// <param name="category">The category to remove.</param>
         Task RemoveCategoryAsync(Category category);
+
+        /// <summary>
+        /// Adds a new budget plan to the persistence context.
+        /// Changes must be explicitly committed using <see cref="SaveChangesAsync"/>.
+        /// </summary>
+        /// <param name="plan">The budget plan to add.</param>
+        Task AddBudgetPlanAsync(BudgetPlan plan);
+
+        /// <summary>
+        /// Marks an existing budget plan for update in the persistence context.
+        /// Changes must be explicitly committed using <see cref="SaveChangesAsync"/>.
+        /// </summary>
+        /// <param name="plan">The budget plan to update.</param>
+        Task UpdateBudgetPlanAsync(BudgetPlan plan);
+
+        /// <summary>
+        /// Marks a budget plan for deletion from the persistence context.
+        /// Changes must be explicitly committed using <see cref="SaveChangesAsync"/>.
+        /// </summary>
+        /// <param name="plan">The budget plan to remove.</param>
+        Task RemoveBudgetPlanAsync(BudgetPlan plan);
 
         /// <summary>
         /// Asynchronously saves all pending changes to the underlying database.

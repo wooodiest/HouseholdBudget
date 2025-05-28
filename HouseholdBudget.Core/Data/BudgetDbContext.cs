@@ -26,6 +26,16 @@ namespace HouseholdBudget.Core.Data
         public DbSet<Category> Categories => Set<Category>();
 
         /// <summary>
+        /// Gets or sets the collection of budget plans in the database.
+        /// </summary>
+        public DbSet<BudgetPlan> BudgetPlans => Set<BudgetPlan>();
+
+        /// <summary>
+        /// Gets or sets the collection of category budget plans in the database.
+        /// </summary>
+        public DbSet<CategoryBudgetPlan> CategoryBudgetPlans => Set<CategoryBudgetPlan>();
+
+        /// <summary>
         /// Gets or sets the collection of supported currencies.
         /// </summary>
         public DbSet<Currency> Currencies => Set<Currency>();

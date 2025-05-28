@@ -53,6 +53,8 @@ namespace HouseholdBudget.DesktopApp
             services.AddScoped<ICategoryService, LocalCategoryService>();
             services.AddScoped<ITransactionService, LocalTransactionService>();
             services.AddScoped<IBudgetAnalysisService, LocalBudgetAnalysisService>();
+            services.AddScoped<IBudgetPlanService, LocalBudgetPlanService>();
+            services.AddScoped<IBudgetExecutionService, LocalBudgetExecutionService>();
 
             // ---------- Domain Event Dispatcher ----------
             // Register the dispatcher and dynamic event handlers for transaction events.
