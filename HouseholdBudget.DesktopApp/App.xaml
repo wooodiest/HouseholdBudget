@@ -55,7 +55,26 @@
                 </Style.Triggers>
             </Style>
 
+            <Style x:Key="StyledTextBox" TargetType="TextBox">
+                <Setter Property="Margin" Value="0 10 0 0"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
 
+            <Style x:Key="StyledPasswordBox" TargetType="PasswordBox">
+                <Setter Property="Margin" Value="0 10 0 0"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+            
             <Style x:Key="StyledButton" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                 <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
@@ -210,6 +229,29 @@
                 </Style.Triggers>
             </Style>
 
+            <Style TargetType="ScrollBar" x:Key="CustomScrollBar">
+                <Setter Property="Width" Value="8"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="Transparent">
+                                <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.LineUpCommand" Visibility="Collapsed" />
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Background="{StaticResource PrimaryBrush}"/>
+                                    </Track.Thumb>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.LineDownCommand" Visibility="Collapsed" />
+                                    </Track.IncreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
             <Style x:Key="ModernDatePicker" TargetType="{x:Type DatePicker}">
                 <Setter Property="Foreground" Value="White"/>

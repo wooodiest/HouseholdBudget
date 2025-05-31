@@ -41,7 +41,7 @@
             <ComboBox
                 ItemsSource="{Binding SupportedCurrencies}"
                 SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
-                Style="{StaticResource StyledComboBox}">
+                Style="{StaticResource ModernComboBox}">
 
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
