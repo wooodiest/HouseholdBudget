@@ -19,10 +19,12 @@ namespace HouseholdBudget.DesktopApp
             var session = ServiceProvider.GetRequiredService<IUserSessionService>();
             var windowManager = ServiceProvider.GetRequiredService<IWindowManager>();
 
-            if (!session.IsAuthenticated)
-                windowManager.ShowLoginWindow();
-            else
-                windowManager.ShowMainWindow();
+            //if (!session.IsAuthenticated)
+            //windowManager.ShowLoginWindow();
+            //else
+            //windowManager.ShowMainWindow();
+
+            windowManager.ShowMainWindow();
         }
     }
 

@@ -1,17 +1,34 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
+using HouseholdBudget.DesktopApp.Commands;
+using HouseholdBudget.DesktopApp.Infrastructure;
+using HouseholdBudget.DesktopApp.Views.Controls;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IUserSessionService _session;
+        private readonly IViewRouter _viewRouter;
 
-        public MainViewModel(IUserSessionService session)
+        public ICommand ShowTransactionsCommand { get; }
+
+        public IViewRouter ViewRouter => _viewRouter;
+
+        public MainViewModel(IServiceProvider serviceProvider, IUserSessionService session, IViewRouter viewRouter)
         {
+            _serviceProvider = serviceProvider;
             _session = session;
+            _viewRouter = viewRouter;
             UpdateUserDisplay();
+
+            ShowTransactionsCommand = new BasicRelayCommand(ShowTransactions);
+            ShowTransactions();
         }
 
         private string _loggedInUserName = "Unknown";
@@ -25,6 +42,13 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         {
             var user = _session.GetUser();
             LoggedInUserName = $"Logged in as: {user?.Name ?? "Unknown"}";
+        }
+
+        private void ShowTransactions()
+        {
+            var vm = _serviceProvider.GetRequiredService<TransactionsViewModel>();
+            var view = new TransactionsView { DataContext = vm };
+            _viewRouter.ShowView(view);
         }
 
         public void Logout()

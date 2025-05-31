@@ -35,6 +35,18 @@ namespace HouseholdBudget.DesktopApp
             Application.Current.Shutdown();
         }
 
+        private void TransactionsButton_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void AddBudget_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void RemoveBudget_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)

@@ -5,6 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
 
+            <!-- ===== Kolory ===== -->
             <Color x:Key="SoftWhiteColor">#FFDDDDDD</Color>
             <Color x:Key="PrimaryColor">#FF5A5AFF</Color>
             <Color x:Key="DarkBackgroundColor">#FF2C2C3E</Color>
@@ -12,7 +13,8 @@
             <Color x:Key="AccentHoverColor">#FF444466</Color>
             <Color x:Key="AccentPressedColor">#FF333344</Color>
             <Color x:Key="BorderColor">#FF5A5A7F</Color>
-            
+
+            <!-- ===== Pędzle (Brushes) ===== -->
             <SolidColorBrush x:Key="SoftWhiteBrush" Color="{StaticResource SoftWhiteColor}" />
             <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
             <SolidColorBrush x:Key="DarkBackgroundBrush" Color="{StaticResource DarkBackgroundColor}"/>
@@ -20,26 +22,39 @@
             <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}"/>
             <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}"/>
             <SolidColorBrush x:Key="BorderBrushColor" Color="{StaticResource BorderColor}"/>
+            <SolidColorBrush x:Key="AccentBrush" Color="#927CFF"/>
+            <SolidColorBrush x:Key="DarkBrush" Color="#1E1C2B"/>
+            <SolidColorBrush x:Key="LightBrush" Color="#EFEFEF"/>
+            <SolidColorBrush x:Key="ErrorBrush" Color="#E74C3C"/>
 
-            <Style x:Key="StyledTextBox" TargetType="TextBox">
-                <Setter Property="Margin" Value="0 10 0 0"/>
-                <Setter Property="Padding" Value="10"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
-                <Setter Property="BorderThickness" Value="1"/>
+            <!-- ===== Style: Buttons, Inputs, Grids ===== -->
+            <Style x:Key="ModernButton" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="Margin" Value="4"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
-            <Style x:Key="StyledPasswordBox" TargetType="PasswordBox">
-                <Setter Property="Margin" Value="0 10 0 0"/>
-                <Setter Property="Padding" Value="10"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-            </Style>
 
             <Style x:Key="StyledButton" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
@@ -82,48 +97,217 @@
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
 
-            <Style TargetType="ScrollBar" x:Key="CustomScrollBar">
-                <Setter Property="Width" Value="8"/>
-                <Setter Property="Background" Value="Transparent"/>
+            <Style x:Key="ModernTextBox" TargetType="TextBox">
+                <Setter Property="Margin" Value="4"/>
+                <Setter Property="Padding" Value="6"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="#444"/>
+                <Setter Property="Background" Value="#2C2C38"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CaretBrush" Value="White"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="ScrollBar">
-                            <Grid Background="Transparent">
-                                <Track x:Name="PART_Track" IsDirectionReversed="true">
-                                    <Track.DecreaseRepeatButton>
-                                        <RepeatButton Command="ScrollBar.LineUpCommand" Visibility="Collapsed" />
-                                    </Track.DecreaseRepeatButton>
-                                    <Track.Thumb>
-                                        <Thumb Background="{StaticResource PrimaryBrush}"/>
-                                    </Track.Thumb>
-                                    <Track.IncreaseRepeatButton>
-                                        <RepeatButton Command="ScrollBar.LineDownCommand" Visibility="Collapsed" />
-                                    </Track.IncreaseRepeatButton>
-                                </Track>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ModernComboBox" TargetType="ComboBox">
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Background" Value="#2C2C38" />
+                <Setter Property="BorderBrush" Value="#444" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="Margin" Value="4"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <ToggleButton Name="ToggleButton"
+                                  Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  Grid.Column="2"
+                                  Focusable="false"
+                                  IsChecked="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                  ClickMode="Press"
+                                  HorizontalContentAlignment="Right">
+                                    <Path x:Name="Arrow"
+                              HorizontalAlignment="Right"
+                              Margin="0,0,6,0"
+                              VerticalAlignment="Center"
+                              Data="M 0 0 L 4 4 L 8 0 Z"
+                              Fill="White"/>
+                                </ToggleButton>
+
+                                <ContentPresenter Name="ContentSite"
+                                      IsHitTestVisible="False"
+                                      Content="{TemplateBinding SelectionBoxItem}"
+                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                      Margin="6,2,24,2"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Left"/>
+
+                                <Popup Name="Popup"
+                           Placement="Bottom"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           AllowsTransparency="True"
+                           Focusable="False"
+                           PopupAnimation="Slide">
+                                    <Grid Name="DropDown"
+                              SnapsToDevicePixels="True"
+                              MinWidth="{TemplateBinding ActualWidth}"
+                              MaxHeight="200"
+                              Background="#2C2C38">
+                                        <Border x:Name="DropDownBorder"
+                                    Background="#2C2C38"
+                                    BorderBrush="#444"
+                                    BorderThickness="1"/>
+                                        <ScrollViewer Margin="4"
+                                          SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True"
+                                            KeyboardNavigation.DirectionalNavigation="Contained" />
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Popup>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Foreground" Value="#888"/>
+                                    <Setter Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+
+            <Style TargetType="ComboBoxItem">
+                <Setter Property="Background" Value="#2C2C38"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+
+            <Style x:Key="ModernDatePicker" TargetType="{x:Type DatePicker}">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="#2C2C38"/>
+                <Setter Property="BorderBrush" Value="#444"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="Margin" Value="4"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DatePicker}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="30" />
+                                </Grid.ColumnDefinitions>
+
+                                <DatePickerTextBox x:Name="PART_TextBox"
+                                       Grid.Column="0"
+                                       Margin="0"
+                                       Background="#2C2C38"
+                                       Foreground="White"
+                                       BorderBrush="#444"
+                                       BorderThickness="1"
+                                       Padding="6,4" />
+
+                                <Button x:Name="PART_Button"
+                            Grid.Column="1"
+                            Background="#444"
+                            BorderBrush="#444"
+                            BorderThickness="1"
+                            Focusable="False"
+                            Cursor="Hand"
+                            Margin="0"
+                            Padding="0">
+                                    <Path Data="M 0 0 L 4 4 L 8 0 Z"
+                              Fill="White"
+                              Width="8"
+                              Height="4"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                                </Button>
+
+                                <Popup x:Name="PART_Popup"
+                           Placement="Bottom"
+                           AllowsTransparency="True"
+                           Focusable="False"
+                           StaysOpen="False"
+                           IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="#2C2C38"
+                                BorderBrush="#444"
+                                BorderThickness="1">
+                                        <Calendar x:Name="PART_Calendar"
+                                      Background="#2C2C38"
+                                      Foreground="White"
+                                      BorderThickness="0" />
+                                    </Border>
+                                </Popup>
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
 
-            <Style x:Key="StyledComboBox" TargetType="ComboBox">
-                <Setter Property="Background" Value="{StaticResource DarkBackgroundBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Padding" Value="10" />
-                <Setter Property="FontSize" Value="14" />
-                <Setter Property="Margin" Value="0 10 0 0" />
-                <Setter Property="Cursor" Value="Hand" />
 
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource AccentHoverBrush}" />
-                    </Trigger>
-                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                        <Setter Property="Background" Value="{StaticResource AccentPressedBrush}" />
-                    </Trigger>
-                </Style.Triggers>
+            <Style x:Key="DarkCalendarStyle" TargetType="{x:Type Calendar}">
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Background" Value="#2C2C38" />
+                <Setter Property="BorderBrush" Value="#444" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Calendar">
+                            <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                                <CalendarItem x:Name="PART_CalendarItem"
+                                  Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+
+
+            <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+                <Setter Property="Background" Value="#1E1C2B"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="GridLinesVisibility" Value="None"/>
+                <Setter Property="RowBackground" Value="#2A2838"/>
+                <Setter Property="AlternatingRowBackground" Value="#322F44"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
             </Style>
 
         </ResourceDictionary>
