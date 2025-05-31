@@ -36,13 +36,13 @@
             <ContentControl x:Name="ContentContainer" Grid.Row="1" Margin="10"/>
 
             <Button x:Name="ToggleButton"
+                    Style="{StaticResource ModernButton}"
                     Grid.Row="2"
+                    FontSize="16"
                     Content="Create an account"
                     HorizontalAlignment="Center"
                     Margin="0 20 0 20"
-                    Background="#FF5A5AFF"
-                    Foreground="White"
-                    Padding="10"
+                    Padding="20 10"
                     BorderThickness="0"
                     Cursor="Hand"
                     Click="ToggleButton_Click"/>

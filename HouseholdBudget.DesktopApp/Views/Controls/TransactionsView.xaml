@@ -11,84 +11,95 @@
         <Grid>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/> 
-            <ColumnDefinition Width="300"/>
-        </Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="TransactionsColumn" Width="*" />
+                <ColumnDefinition x:Name="FilterPanelColumn" Width="0" />
+            </Grid.ColumnDefinitions>
 
         <!-- Filter Panel -->
-            <Border Background="{StaticResource DarkBackgroundBrush}" CornerRadius="8" Padding="16" Margin="5" Grid.Column="1">
-            <StackPanel>
-                <TextBlock Text="Filters" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 16" HorizontalAlignment="Center"/>
+            <Grid Grid.Column="1" x:Name="FilterPanelWrapper">
+                <Border x:Name="FilterPanel"
+                          Background="{StaticResource DarkBackgroundBrush}"
+                          CornerRadius="8"
+                          Padding="16"
+                          Margin="5"
+                          RenderTransformOrigin="1,0">
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="FilterPanelTransform" X="300"/>
+                    </Border.RenderTransform>
+                    
+                    <StackPanel>
+                    <TextBlock Text="Filters" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 16" HorizontalAlignment="Center"/>
 
-                <TextBlock Text="Description contains:" Foreground="LightGray" Margin="10 0"/>
-                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterDescription, Mode=TwoWay}" />
+                    <TextBlock Text="Description contains:" Foreground="LightGray" Margin="10 0"/>
+                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterDescription, Mode=TwoWay}" />
 
-                <TextBlock Text="Min amount:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMinAmount, Mode=TwoWay }" />
+                    <TextBlock Text="Min amount:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMinAmount, Mode=TwoWay }" />
 
-                <TextBlock Text="Max amount:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMaxAmount, Mode=TwoWay}" />
+                    <TextBlock Text="Max amount:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMaxAmount, Mode=TwoWay}" />
 
-                <TextBlock Text="Category:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <ComboBox Style="{StaticResource ModernComboBox }"
-                          ItemsSource="{Binding Categories}"
-                          DisplayMemberPath="Name"
-                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
-                        <ComboBox.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Delete category"
-                                    Command="{Binding DeleteCategoryCommand}"
-                                    CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                            </ContextMenu>
-                        </ComboBox.ContextMenu>
+                    <TextBlock Text="Category:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <ComboBox Style="{StaticResource ModernComboBox }"
+                              ItemsSource="{Binding Categories}"
+                              DisplayMemberPath="Name"
+                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
+                            <ComboBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete category"
+                                        Command="{Binding DeleteCategoryCommand}"
+                                        CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                </ContextMenu>
+                            </ComboBox.ContextMenu>
+                        </ComboBox>
+
+                        <Button Content="Add category"
+                                Style="{StaticResource ModernButton}"
+                                Command="{Binding AddCategoryCommand}"
+                                Margin="0,4,0,0"
+                                Padding="6,8"
+                                HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Transaction type:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <ComboBox Style="{StaticResource ModernComboBox }" ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding FilterSelectedTransactionType, Mode=TwoWay}">
                     </ComboBox>
 
-                    <Button Content="Add category"
-                            Style="{StaticResource ModernButton}"
-                            Command="{Binding AddCategoryCommand}"
-                            Margin="0,4,0,0"
-                            Padding="6,8"
-                            HorizontalAlignment="Stretch" />
+                    <TextBlock Text="From date:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" />
 
-                    <TextBlock Text="Transaction type:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <ComboBox Style="{StaticResource ModernComboBox }" ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding FilterSelectedTransactionType, Mode=TwoWay}">
-                </ComboBox>
+                    <TextBlock Text="To date:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" />
 
-                <TextBlock Text="From date:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" />
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                <TextBlock Text="To date:" Foreground="LightGray" Margin="10 10 0 0"/>
-                <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" />
+                        <Button Content="Apply filters"
+                                Style="{StaticResource ModernButton}"
+                                Command="{Binding ApplyFiltersCommand}"
+                                Grid.Column="0"
+                                Margin="4,0,2,0"
+                                Padding="8,12"
+                                HorizontalAlignment="Stretch"/>
 
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="Apply filters"
-                            Style="{StaticResource ModernButton}"
-                            Command="{Binding ApplyFiltersCommand}"
-                            Grid.Column="0"
-                            Margin="4,0,2,0"
-                            Padding="8,12"
-                            HorizontalAlignment="Stretch"/>
-
-                    <Button Content="Clear filters"
-                            Style="{StaticResource ModernButton}"
-                            Background="{StaticResource ErrorBrush}"
-                            Command="{Binding ClearFiltersCommand}"
-                            Grid.Column="1"
-                            Margin="2,0,4,0"
-                            Padding="8,12"
-                            HorizontalAlignment="Stretch"/>
-                </Grid>
+                        <Button Content="Clear filters"
+                                Style="{StaticResource ModernButton}"
+                                Background="{StaticResource ErrorBrush}"
+                                Command="{Binding ClearFiltersCommand}"
+                                Grid.Column="1"
+                                Margin="2,0,4,0"
+                                Padding="8,12"
+                                HorizontalAlignment="Stretch"/>
+                    </Grid>
 
 
-            </StackPanel>
-        </Border>
+                </StackPanel>
+            </Border>
+         </Grid>
 
-        <!-- Transactions Table -->
+            <!-- Transactions Table -->
         <StackPanel Grid.Column="0" Margin="20">
             <TextBlock Text="Transactions"
                        FontSize="22"
@@ -97,10 +108,38 @@
                        Margin="0 0 0 16"/>
 
             <StackPanel Orientation="Horizontal" Margin="0 0 0 16">
-                <Button Content="Add" Style="{StaticResource ModernButton}" Command="{Binding AddTransactionCommand}" />
-                <Button Content="Edit" Style="{StaticResource ModernButton}" Command="{Binding EditTransactionCommand}" />
-                <Button Content="Delete" Style="{StaticResource ModernButton}" Background="{StaticResource ErrorBrush}" Command="{Binding DeleteTransactionCommand}" />
-            </StackPanel>
+                    <Button Content="Add"
+                            Style="{StaticResource ModernButton}"
+                            Command="{Binding AddTransactionCommand}"
+                            Grid.Column="0"
+                            Margin="4,0,2,0"
+                            MinWidth="75"
+                            Padding="8,12"
+                            Click="ToggleFilterPanel_Click"/>
+                    <Button Content="Edit"
+                            Style="{StaticResource ModernButton}"
+                            Command="{Binding EditTransactionCommand}"
+                            Grid.Column="0"
+                            Margin="4,0,2,0"
+                            MinWidth="75"
+                            Padding="8,12"/>
+                    <Button Content="☰ Filters"
+                            Style="{StaticResource ModernButton}"
+                            Grid.Column="0"
+                            Margin="4,0,2,0"
+                            MinWidth="75"
+                            Padding="8,12"
+                            Click="ToggleFilterPanel_Click"/>
+                    <Button Content="Delete"
+                            Style="{StaticResource ModernButton}"
+                            Command="{Binding DeleteTransactionCommand}"
+                            Background="{StaticResource ErrorBrush}"
+                            Grid.Column="0"
+                            Margin="4,0,2,0"
+                            MinWidth="75"
+                            Padding="8,12"/>
+                    
+                </StackPanel>
 
             <DataGrid ItemsSource="{Binding Transactions}"
                       AutoGenerateColumns="False"

@@ -30,7 +30,11 @@
                    TextWrapping="Wrap"/>
 
         <Button Content="Login"
-                Style="{StaticResource StyledButton}"
+                Style="{StaticResource ModernButton}"
+                FontSize="16"
+                HorizontalAlignment="Stretch"
+                Padding="20 10"
+                Margin="0 10"
                 Click="Login_Click"/>
     </StackPanel>
 </UserControl>

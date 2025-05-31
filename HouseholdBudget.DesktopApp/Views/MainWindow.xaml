@@ -88,7 +88,7 @@
                                 Margin="10"
                                 Height="40"
                                 HorizontalAlignment="Stretch"
-                                FontSize="16"
+                                FontSize="18"
                                 Click="TransactionsButton_Click"/>
 
                         <TextBlock Grid.Row="1"

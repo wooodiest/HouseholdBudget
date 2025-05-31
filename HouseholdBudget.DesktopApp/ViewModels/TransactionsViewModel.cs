@@ -8,6 +8,8 @@ using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.DesktopApp.Commands;
 using HouseholdBudget.DesktopApp.Views;
 using HouseholdBudget.DesktopApp.Helpers;
+using System.Windows.Media.Animation;
+using System.Windows.Media;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
