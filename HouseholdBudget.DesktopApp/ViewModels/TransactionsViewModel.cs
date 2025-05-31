@@ -8,6 +8,7 @@ using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.DesktopApp.Commands;
 using HouseholdBudget.DesktopApp.Views;
 using HouseholdBudget.DesktopApp.Helpers;
+using HouseholdBudget.Core.UserData;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 
@@ -17,6 +18,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
     {
         private readonly ITransactionService _transactionService;
         private readonly ICategoryService _categoryService;
+        private readonly IUserSessionService _userSessionService;
+        private readonly IExchangeRateProvider _exchangeRateProvider;
 
         public ObservableCollection<TransactionViewModel> Transactions { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
@@ -56,10 +59,14 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public TransactionsViewModel(
             ITransactionService transactionService,
-            ICategoryService categoryService)
+            ICategoryService categoryService,
+            IUserSessionService userSessionService,
+            IExchangeRateProvider exchangeRateProvider)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
+            _userSessionService = userSessionService;
+            _exchangeRateProvider = exchangeRateProvider;
 
             AddTransactionCommand = new BasicRelayCommand(AddTransaction);
             EditTransactionCommand = new BasicRelayCommand(EditTransaction, () => SelectedTransaction != null);
@@ -68,8 +75,6 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             ClearFiltersCommand = new BasicRelayCommand(ClearFilters);
             AddCategoryCommand = new BasicRelayCommand(async () => await AddCategoryAsync());
             DeleteCategoryCommand = new DelegateCommand<Category?>(async (category) => await DeleteCategoryAsync(category), c => c != null);
-
-
 
             _ = InitAsync();
         }
@@ -182,9 +187,18 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             OnPropertyChanged(nameof(FilterEndDate));
         }
 
-        private void AddTransaction()
+        private async void AddTransaction()
         {
-            // TODO: otwórz okno dialogowe DodajTransakcję
+            var window = new AddTransactionWindow(_transactionService, _categoryService, _exchangeRateProvider, _userSessionService)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true && window.Result != null)
+            {
+                var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
+                Transactions.Add(new TransactionViewModel(window.Result, cat?.Name ?? "(none)"));
+            }
         }
 
         private void EditTransaction()
@@ -195,7 +209,9 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private async void DeleteTransaction()
         {
-            if (SelectedTransaction == null) return;
+            if (SelectedTransaction == null) 
+                return;
+
             await _transactionService.DeleteAsync(SelectedTransaction.Model.Id);
             await LoadTransactionsAsync();
         }
