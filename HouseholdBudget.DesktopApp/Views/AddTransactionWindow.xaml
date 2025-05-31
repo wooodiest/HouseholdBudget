@@ -15,7 +15,7 @@
             Padding="24"
             Effect="{DynamicResource DropShadow}">
         <StackPanel>
-            <TextBlock Text="Add New Transaction"
+            <TextBlock Text="{Binding HeaderText}"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="{StaticResource SoftWhiteBrush}"
@@ -121,13 +121,13 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Content="Add"
+                <Button Content="{Binding ButtonText}"
                         Style="{StaticResource ModernButton}"
                         Command="{Binding ApplyFiltersCommand}"
                         Grid.Column="0"
                         Margin="4,0,2,0"
                         Padding="8,12"
-                        Click="Add_Click"
+                        Click="Action_Click"
                         HorizontalAlignment="Stretch"/>
 
                 <Button Content="Cancel"

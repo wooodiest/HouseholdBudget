@@ -180,6 +180,31 @@ namespace HouseholdBudget.Core.Services.Local
             await PersistUpdateAsync(transaction);
         }
 
+        /// <inheritdoc />
+        public async Task UpdateAsync(Guid id, Guid? newCategoryId = null, decimal? newAmount = null, Currency? newCurrency = null, string? newDescription = null, IEnumerable<string>? newTags = null, DateTime? newDate = null, TransactionType? newType = null)
+        {
+            var transaction = await GetRequiredTransactionAsync(id);
+
+            if (newCategoryId != null)
+                transaction.ChangeCategory(newCategoryId.Value);
+            if (newAmount != null)
+                transaction.UpdateAmount(newAmount.Value);
+            if (newCurrency != null)
+                transaction.ChangeCurrency(newCurrency);
+            if (newDate != null)
+                transaction.UpdateDate(newDate.Value);
+            if (newTags != null)
+                transaction.UpdateTags(newTags);
+            if (newType != null)
+                transaction.UpdateType(newType.Value);
+
+            if (newDescription != null)
+                transaction.UpdateDescription(newDescription ?? transaction.Description);
+
+            await PersistUpdateAsync(transaction);
+        }
+
+
         /// <summary>
         /// Retrieves transactions from cache or loads them from the repository if cache is null.
         /// Ensures that the result is sorted chronologically.
@@ -235,5 +260,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             _cachedTransactions?.Sort((a, b) => a.Date.CompareTo(b.Date));
         }
+
+        
     }
 }

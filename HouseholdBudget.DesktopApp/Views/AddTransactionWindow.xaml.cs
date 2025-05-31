@@ -20,22 +20,28 @@ namespace HouseholdBudget.DesktopApp.Views
         private readonly IExchangeRateProvider _exchangeRateProvider;
         private readonly IUserSessionService _session;
 
+        private readonly bool _isEditMode;
+        private readonly Transaction? _existingTransaction;
+
         public AddTransactionWindow(ITransactionService transactionService, ICategoryService categoryService,
-            IExchangeRateProvider exchangeRateProvider, IUserSessionService userSessionService)
+            IExchangeRateProvider exchangeRateProvider, IUserSessionService userSessionService, Transaction? existing = null)
         {
             _transactionService   = transactionService;
             _categoryService      = categoryService;
             _exchangeRateProvider = exchangeRateProvider;
             _session              = userSessionService;
 
+            _isEditMode = existing != null;
+            _existingTransaction = existing;
+
             InitializeComponent();
-            _viewModel = new AddTransactionViewModel(_categoryService, _exchangeRateProvider, _session);
+            _viewModel = new AddTransactionViewModel(_categoryService, _exchangeRateProvider, _session, existing);
             DataContext = _viewModel;
 
             Loaded += async (_, _) => await Task.Run(() => _viewModel.LoadCategoriesCommand.Execute(null));
         }
 
-        private async void Add_Click(object sender, RoutedEventArgs e)
+        private async void Action_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel.SelectedCategory == null || string.IsNullOrWhiteSpace(_viewModel.Description))
             {
@@ -54,14 +60,36 @@ namespace HouseholdBudget.DesktopApp.Views
                     return;
                 }
 
-                Result = await _transactionService.CreateAsync(
-                    _viewModel.SelectedCategory.Id,
-                    parsedAmount,
-                    currency!,
-                    _viewModel.SelectedType,
-                    _viewModel.Description,
-                    null,
-                    _viewModel.Date);
+                if (_isEditMode)
+                {
+                    var freshTransaction = await _transactionService.GetByIdAsync(_existingTransaction.Id);
+                    if (freshTransaction == null)
+                    {
+                        MessageBox.Show("Transaction no longer exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    await _transactionService.UpdateAsync(
+                        freshTransaction.Id,
+                        _viewModel.SelectedCategory.Id,
+                        parsedAmount,
+                        currency!,
+                        _viewModel.Description,
+                        null,
+                        _viewModel.Date,
+                        _viewModel.SelectedType);
+                }
+                else
+                {
+                    Result = await _transactionService.CreateAsync(
+                        _viewModel.SelectedCategory.Id,
+                        parsedAmount,
+                        currency!,
+                        _viewModel.SelectedType,
+                        _viewModel.Description,
+                        null,
+                        _viewModel.Date);
+                }  
             } catch (Exception ex)
             {
                 MessageBox.Show($"Failed to add transaction:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

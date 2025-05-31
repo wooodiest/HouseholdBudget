@@ -26,7 +26,13 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private readonly IUserSessionService _session;
 
+        private readonly bool _isEditMode;
+        public string HeaderText => _isEditMode ? "Modify Transaction" : "Add New Transaction";
+        public string ButtonText => _isEditMode ? "Modify" : "Add";
+
         public ObservableCollection<Category> Categories { get; set; } = new();
+
+        private readonly Transaction? _existingTransaction;
 
         public TransactionType SelectedType { get; set; } = TransactionType.Expense;
         public Category? SelectedCategory { get; set; }
@@ -51,23 +57,43 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public ICommand AddCategoryCommand { get; }
         public ICommand DeleteCategoryCommand { get; }
 
-        public AddTransactionViewModel(ICategoryService categoryService, IExchangeRateProvider exchangeRateProvider, IUserSessionService userSessionService)
+        public AddTransactionViewModel(ICategoryService categoryService, IExchangeRateProvider exchangeRateProvider,
+            IUserSessionService userSessionService, Transaction? existingTransaction = null)
         {
             _categoryService = categoryService;
             _exchangeRateProvider = exchangeRateProvider;
             _session = userSessionService;
+            _existingTransaction = existingTransaction;
+            _isEditMode = existingTransaction != null;
 
             LoadCategoriesCommand = new BasicRelayCommand(async () => await LoadCategoriesAsync());
-            AddCategoryCommand    = new BasicRelayCommand(async () => await AddCategoryAsync());
+            AddCategoryCommand = new BasicRelayCommand(async () => await AddCategoryAsync());
             DeleteCategoryCommand = new DelegateCommand<Category?>(async (c) => await DeleteCategoryAsync(c), c => c != null);
 
             _ = LoadCurrenciesAsync();
+
+            if (_existingTransaction != null)
+            {
+                SelectedType     = _existingTransaction.Type;
+                Date             = _existingTransaction.Date;
+                Description      = _existingTransaction.Description;
+                AmountText       = _existingTransaction.Amount.ToString("F2");
+                SelectedCurrency = _existingTransaction.Currency.Code;
+            }
         }
 
         private async Task LoadCategoriesAsync()
         {
             var categories = await _categoryService.GetUserCategoriesAsync();
             Categories = new ObservableCollection<Category>(categories);
+
+            if (_existingTransaction != null)
+            {
+                SelectedCategory = Categories.FirstOrDefault(c => c.Id == _existingTransaction.CategoryId);
+                OnPropertyChanged(nameof(SelectedCategory));
+            }
+
+
             OnPropertyChanged(nameof(Categories));
         }
 

@@ -28,7 +28,17 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public TransactionViewModel? SelectedTransaction
         {
             get => _selectedTransaction;
-            set => SetField(ref _selectedTransaction, value);
+            set
+            {
+                if (_selectedTransaction != value)
+                {
+                    _selectedTransaction = value;
+                    OnPropertyChanged();
+
+                    ((BasicRelayCommand)EditTransactionCommand).RaiseCanExecuteChanged();
+                    ((BasicRelayCommand)DeleteTransactionCommand).RaiseCanExecuteChanged();
+                }
+            }
         }
 
         private Category? _selectedCategory;
@@ -201,11 +211,24 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
-        private void EditTransaction()
+        private async void EditTransaction()
         {
-            if (SelectedTransaction == null) return;
-            // TODO: otwórz okno dialogowe EdytujTransakcję z SelectedTransaction.Model
+            if (SelectedTransaction == null)
+                return;
+
+            var window = new AddTransactionWindow(_transactionService, _categoryService,
+                _exchangeRateProvider, _userSessionService, SelectedTransaction.Model)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+
+            if (window.ShowDialog() == true && window.Result != null)
+            {
+                await LoadTransactionsAsync();
+            }
         }
+
 
         private async void DeleteTransaction()
         {
