@@ -21,19 +21,23 @@ namespace HouseholdBudget.Core.Services.Local
     {
         private readonly List<BudgetPlan> _plans = new();
         private readonly IUserSessionService _userSession;
-        private readonly IBudgetExecutionService _budgetExecutionService;
-        private readonly IBudgetRepository _repository;   
+        private readonly Lazy<IBudgetExecutionService> _budgetExecutionService;
+        private readonly IBudgetRepository _repository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalBudgetPlanService"/> class.
         /// </summary>
         /// <param name="userSession">Provides access to the currently authenticated user context.</param>
-        public LocalBudgetPlanService(IUserSessionService userSession, IBudgetExecutionService budgetExecutionService,
+        /// <param name="budgetExecutionService">Lazily resolved execution service used for refreshing plan state.</param>
+        /// <param name="budgetRepository">Persistence repository for storing plan data.</param>
+        public LocalBudgetPlanService(
+            IUserSessionService userSession,
+            Lazy<IBudgetExecutionService> budgetExecutionService,
             IBudgetRepository budgetRepository)
         {
-            _userSession            = userSession;
+            _userSession = userSession;
             _budgetExecutionService = budgetExecutionService;
-            _repository             = budgetRepository;
+            _repository = budgetRepository;
         }
 
         /// <inheritdoc/>
@@ -71,7 +75,7 @@ namespace HouseholdBudget.Core.Services.Local
 
             await _repository.AddBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             return plan;
         }
@@ -122,7 +126,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             var plan = await RequirePlanAsync(planId);
             plan.UpdateDates(newStartDate, newEndDate);
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
@@ -133,7 +137,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             var plan = await RequirePlanAsync(planId);
             plan.UpdateCurrency(newCurrency);
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
@@ -144,7 +148,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             var plan = await RequirePlanAsync(planId);
             plan.UpdateCategoryPlans(newCategoryPlans);
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
@@ -155,7 +159,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             var plan = await RequirePlanAsync(planId);
             plan.AddCategoryPlan(categoryPlan);
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
@@ -166,7 +170,7 @@ namespace HouseholdBudget.Core.Services.Local
         {
             var plan = await RequirePlanAsync(planId);
             plan.RemoveCategoryPlan(categoryId);
-            await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
@@ -219,9 +223,8 @@ namespace HouseholdBudget.Core.Services.Local
 
             foreach (var plan in relevantPlans)
             {
-                await _budgetExecutionService.RefreshExecutionForPlanAsync(plan.Id);
+                await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
             }
         }
-
     }
 }

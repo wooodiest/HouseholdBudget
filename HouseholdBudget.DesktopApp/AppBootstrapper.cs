@@ -15,6 +15,13 @@ using System;
 
 namespace HouseholdBudget.DesktopApp
 {
+    public class LazyResolver<T> : Lazy<T>
+    {
+        public LazyResolver(IServiceProvider provider)
+            : base(() => provider.GetRequiredService<T>())
+        {
+        }
+    }
     /// <summary>
     /// Responsible for bootstrapping the application and registering all services, 
     /// view models, windows, and infrastructure components in the dependency injection container.
@@ -29,6 +36,9 @@ namespace HouseholdBudget.DesktopApp
         public static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
+
+            // ---------- Core Services ----------
+            services.AddTransient(typeof(Lazy<>), typeof(LazyResolver<>));
 
             // ---------- Database Configuration ----------
             // Configure the EF Core database context with SQLite persistence.
@@ -68,12 +78,14 @@ namespace HouseholdBudget.DesktopApp
             // ---------- UI Layer ----------
             // Register view models and window managers for WPF.
             services.AddSingleton<IWindowManager, WindowManager>();
+            services.AddSingleton<IViewRouter, ViewRouter>();
 
             services.AddTransient<MainWindow>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<LoginWindow>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<RegisterViewModel>();
+            services.AddTransient<TransactionsViewModel>();
 
             // Custom factory for the combined AuthViewModel with login/register tabs.
             services.AddTransient<AuthViewModel>(provider =>
