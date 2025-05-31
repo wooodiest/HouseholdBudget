@@ -39,10 +39,10 @@ namespace HouseholdBudget.Core.Services.Local
         }
 
         /// <inheritdoc />
-        public async Task<Category> CreateCategoryAsync(string name, CategoryType type)
+        public async Task<Category> CreateCategoryAsync(string name)
         {
             var user     = EnsureAuthenticated();
-            var category = Category.Create(user.Id, name, type);
+            var category = Category.Create(user.Id, name);
 
             await _repository.AddCategoryAsync(category);
             await _repository.SaveChangesAsync();

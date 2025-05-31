@@ -3,21 +3,6 @@ using System.Diagnostics;
 
 namespace HouseholdBudget.Core.Models
 {
-    /// <summary>
-    /// Defines the type of a financial category.
-    /// </summary>
-    public enum CategoryType
-    {
-        /// <summary>
-        /// Represents a source of income.
-        /// </summary>
-        Income,
-
-        /// <summary>
-        /// Represents an expense or cost.
-        /// </summary>
-        Expense
-    }
 
     /// <summary>
     /// Represents a financial category used to group transactions for a specific user.
@@ -42,11 +27,6 @@ namespace HouseholdBudget.Core.Models
         public string Name { get; private set; } = string.Empty;
 
         /// <summary>
-        /// Indicates whether the category is for income or expenses.
-        /// </summary>
-        public CategoryType Type { get; private set; } = CategoryType.Expense;
-
-        /// <summary>
         /// Private constructor required for ORM and factory usage.
         /// </summary>
         private Category() { }
@@ -56,17 +36,15 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         /// <param name="userId">The ID of the user who owns the category.</param>
         /// <param name="name">The name of the category.</param>
-        /// <param name="type">The type of the category (Income or Expense).</param>
         /// <returns>A new valid <see cref="Category"/> instance.</returns>
         /// <exception cref="ValidationException">Thrown when the name is invalid.</exception>
-        public static Category Create(Guid userId, string name, CategoryType type = CategoryType.Expense)
+        public static Category Create(Guid userId, string name)
         {
             EnsureNameIsValid(name);
 
             return new Category {
                 UserId = userId,
-                Name   = name,
-                Type   = type
+                Name   = name
             };
         }
 
@@ -81,19 +59,6 @@ namespace HouseholdBudget.Core.Models
             Name = newName;
 
             MarkAsUpdated();
-        }
-
-        /// <summary>
-        /// Changes the type of the category (e.g., from Expense to Income).
-        /// </summary>
-        /// <param name="newType">The new category type to assign.</param>
-        public void ChangeType(CategoryType newType)
-        {
-            if (Type != newType)
-            {
-                Type = newType;
-                MarkAsUpdated();
-            }
         }
 
         /// <summary>
@@ -130,7 +95,7 @@ namespace HouseholdBudget.Core.Models
             var created = $"Created: {CreatedAt:u}";
             var updated = UpdatedAt.HasValue ? $" | Updated: {UpdatedAt:u}" : "";
 
-            return $"{Type}: {Name ?? "???"} | UserId: {UserId} | Id: {Id} | {created}{updated}";
+            return $"{Name ?? "???"} | UserId: {UserId} | Id: {Id} | {created}{updated}";
         }
 
     }

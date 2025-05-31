@@ -18,9 +18,8 @@ namespace HouseholdBudget.Core.Services.Interfaces
         /// Creates a new category for the currently authenticated user.
         /// </summary>
         /// <param name="name">The name of the new category.</param>
-        /// <param name="type">The type of category, such as Income or Expense.</param>
         /// <returns>The newly created <see cref="Category"/> instance.</returns>
-        Task<Category> CreateCategoryAsync(string name, CategoryType type);
+        Task<Category> CreateCategoryAsync(string name);
 
         /// <summary>
         /// Retrieves a category by its unique identifier.

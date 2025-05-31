@@ -11,12 +11,12 @@
         <Grid>
         
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/> 
             <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Filter Panel -->
-        <Border Background="{StaticResource DarkBackgroundBrush}" CornerRadius="8" Padding="16" Margin="20">
+            <Border Background="{StaticResource DarkBackgroundBrush}" CornerRadius="8" Padding="16" Margin="5" Grid.Column="1">
             <StackPanel>
                 <TextBlock Text="Filters" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 16" HorizontalAlignment="Center"/>
 
@@ -33,9 +33,24 @@
                 <ComboBox Style="{StaticResource ModernComboBox }"
                           ItemsSource="{Binding Categories}"
                           DisplayMemberPath="Name"
-                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
+                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
+                        <ComboBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Delete category"
+                                    Command="{Binding DeleteCategoryCommand}"
+                                    CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </ComboBox.ContextMenu>
+                    </ComboBox>
 
-                <TextBlock Text="Transaction type:" Foreground="LightGray" Margin="10 10 0 0"/>
+                    <Button Content="Add category"
+                            Style="{StaticResource ModernButton}"
+                            Command="{Binding AddCategoryCommand}"
+                            Margin="0,4,0,0"
+                            Padding="6,8"
+                            HorizontalAlignment="Stretch" />
+
+                    <TextBlock Text="Transaction type:" Foreground="LightGray" Margin="10 10 0 0"/>
                 <ComboBox Style="{StaticResource ModernComboBox }" ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding FilterSelectedTransactionType, Mode=TwoWay}">
                 </ComboBox>
 
@@ -74,7 +89,7 @@
         </Border>
 
         <!-- Transactions Table -->
-        <StackPanel Grid.Column="1" Margin="20">
+        <StackPanel Grid.Column="0" Margin="20">
             <TextBlock Text="Transactions"
                        FontSize="22"
                        FontWeight="Bold"

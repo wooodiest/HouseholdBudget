@@ -1,10 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.DesktopApp.Commands;
+using HouseholdBudget.DesktopApp.Views;
+using HouseholdBudget.DesktopApp.Helpers;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
@@ -45,6 +48,9 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public ICommand DeleteTransactionCommand { get; }
         public ICommand ApplyFilterCommand { get; }
         public ICommand ClearFiltersCommand { get; }
+        public ICommand AddCategoryCommand { get; }
+        public ICommand DeleteCategoryCommand { get; }
+
 
         public TransactionsViewModel(
             ITransactionService transactionService,
@@ -58,6 +64,10 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             DeleteTransactionCommand = new BasicRelayCommand(DeleteTransaction, () => SelectedTransaction != null);
             ApplyFilterCommand = new BasicRelayCommand(async () => await LoadTransactionsAsync());
             ClearFiltersCommand = new BasicRelayCommand(ClearFilters);
+            AddCategoryCommand = new BasicRelayCommand(async () => await AddCategoryAsync());
+            DeleteCategoryCommand = new DelegateCommand<Category?>(async (category) => await DeleteCategoryAsync(category), c => c != null);
+
+
 
             _ = InitAsync();
         }
@@ -99,7 +109,58 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
+        private async Task AddCategoryAsync()
+        {
+            var window = new AddCategoryWindow(_categoryService)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            if (window.ShowDialog() == true)
+            {
+                try
+                {
+                    var newCategory = await _categoryService.CreateCategoryAsync(window.CategoryName!);
+                    Categories.Add(newCategory);
+                    SelectedCategory = newCategory;
 
+                    OnPropertyChanged(nameof(Categories));
+                    OnPropertyChanged(nameof(SelectedCategory));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to add category:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async Task DeleteCategoryAsync(Category? category)
+        {
+            if (category == null) 
+                return;
+
+            var result = MessageBox.Show($"Are you sure you want to delete category '{category.Name}'?",
+                                         "Confirm Deletion",
+                                         MessageBoxButton.YesNo,
+                                         MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                await _categoryService.DeleteCategoryAsync(category.Id);
+                Categories.Remove(category);
+
+                if (SelectedCategory == category)
+                    SelectedCategory = null;
+
+                OnPropertyChanged(nameof(Categories));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to delete category:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private void ClearFilters()
         {
             FilterDescription = string.Empty;

@@ -47,11 +47,6 @@
         public Currency? Currency { get; set; }
 
         /// <summary>
-        /// Optional filter by category type (e.g., Expense, Income).
-        /// </summary>
-        public CategoryType? CategoryType { get; set; }
-
-        /// <summary>
         /// Optional filter by transaction type (e.g., Expense, Income).
         /// </summary>
         public TransactionType? TransactionType { get; set; }

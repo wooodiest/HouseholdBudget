@@ -28,7 +28,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public ICommand LoginCommand { get; }
 
-        private Func<string> _getPassword = () => "";
+        private Func<string> _getPassword = () => "Brooklyn99#";
         private Window? _currentWindow;
         private readonly IUserSessionService _session;
         private readonly IWindowManager _windowManager;

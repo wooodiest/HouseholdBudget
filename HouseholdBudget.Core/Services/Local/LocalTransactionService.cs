@@ -18,7 +18,6 @@ namespace HouseholdBudget.Core.Services.Local
         private readonly IBudgetRepository _repository;
         private readonly IUserSessionService _userSession;
         private readonly ITransactionEventPublisher _eventPublisher;
-        private readonly ICategoryService _categoryService;
 
         /// <summary>
         /// In-memory cache of the user's transactions, sorted by date for performance in filtering.
@@ -32,7 +31,6 @@ namespace HouseholdBudget.Core.Services.Local
         /// <param name="repository">The repository for data access operations.</param>
         /// <param name="userSession">Provides context about the currently authenticated user.</param>
         /// <param name="eventPublisher">Handles publication of domain events after transaction changes.</param>
-        /// <param name="categoryService">Provides access to category metadata used in filtering.</param>
         public LocalTransactionService(
             IBudgetRepository repository,
             IUserSessionService userSession,
@@ -42,7 +40,6 @@ namespace HouseholdBudget.Core.Services.Local
             _repository = repository;
             _userSession = userSession;
             _eventPublisher = eventPublisher;
-            _categoryService = categoryService;
         }
 
         /// <inheritdoc />
@@ -116,24 +113,7 @@ namespace HouseholdBudget.Core.Services.Local
             if (filter.Currency != null)
                 filtered = filtered.Where(t => t.Currency.Code == filter.Currency.Code);
 
-            IEnumerable<Transaction> resultList = filtered.ToList();
-
-            if (filter.CategoryType != null)
-            {
-                var tasks = resultList.Select(async t => {
-                    var category = await _categoryService.GetCategoryByIdAsync(t.CategoryId);
-                    if (category != null && category.Type == filter.CategoryType.Value)
-                    {
-                        return t;
-                    }
-                    return null;
-                }).ToList();
-
-                var results = await Task.WhenAll(tasks);
-                resultList = results.Where(r => r != null).Select(r => r!);
-            }
-
-            return resultList;
+            return filtered;
         }
 
         /// <inheritdoc />
