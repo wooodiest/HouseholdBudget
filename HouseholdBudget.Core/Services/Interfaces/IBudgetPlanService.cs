@@ -41,8 +41,6 @@ namespace HouseholdBudget.Core.Services.Interfaces
             string name,
             DateTime startDate,
             DateTime endDate,
-            decimal totalAmount,
-            Currency currency,
             string? description = null,
             IEnumerable<CategoryBudgetPlan>? categoryPlans = null);
 
@@ -67,26 +65,12 @@ namespace HouseholdBudget.Core.Services.Interfaces
         Task UpdateDescriptionAsync(Guid planId, string newDescription);
 
         /// <summary>
-        /// Updates the total amount allocated to the specified plan.
-        /// </summary>
-        /// <param name="planId">The ID of the plan being modified.</param>
-        /// <param name="newTotalAmount">The new total allocation amount.</param>
-        Task UpdateTotalAmountAsync(Guid planId, decimal newTotalAmount);
-
-        /// <summary>
         /// Updates the start and end dates of a budget plan.
         /// </summary>
         /// <param name="planId">The ID of the plan to adjust.</param>
         /// <param name="newStartDate">The new start date to assign.</param>
         /// <param name="newEndDate">The new end date to assign.</param>
         Task UpdateDatesAsync(Guid planId, DateTime newStartDate, DateTime newEndDate);
-
-        /// <summary>
-        /// Changes the currency in which the plan's amounts are expressed.
-        /// </summary>
-        /// <param name="planId">The ID of the plan being modified.</param>
-        /// <param name="newCurrency">The new currency to apply to the plan.</param>
-        Task UpdateCurrencyAsync(Guid planId, Currency newCurrency);
 
         /// <summary>
         /// Replaces the full list of category-specific budget allocations for a given plan.

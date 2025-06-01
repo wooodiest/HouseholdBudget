@@ -2,6 +2,9 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
+    <Compile Update="Views\AddBudgetWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\AddCategoryWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -9,6 +12,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\Controls\AnalysisView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Controls\BudgetDetailsView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\Controls\LoginView.xaml.cs">

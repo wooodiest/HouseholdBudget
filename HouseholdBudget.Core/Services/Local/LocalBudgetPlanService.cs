@@ -54,8 +54,6 @@ namespace HouseholdBudget.Core.Services.Local
             string name,
             DateTime startDate,
             DateTime endDate,
-            decimal totalAmount,
-            Currency currency,
             string? description = null,
             IEnumerable<CategoryBudgetPlan>? categoryPlans = null)
         {
@@ -66,8 +64,6 @@ namespace HouseholdBudget.Core.Services.Local
                 name,
                 startDate,
                 endDate,
-                totalAmount,
-                currency,
                 description,
                 categoryPlans);
 
@@ -112,31 +108,10 @@ namespace HouseholdBudget.Core.Services.Local
         }
 
         /// <inheritdoc/>
-        public async Task UpdateTotalAmountAsync(Guid planId, decimal newTotalAmount)
-        {
-            var plan = await RequirePlanAsync(planId);
-            plan.UpdateTotalAmount(newTotalAmount);
-
-            await _repository.UpdateBudgetPlanAsync(plan);
-            await _repository.SaveChangesAsync();
-        }
-
-        /// <inheritdoc/>
         public async Task UpdateDatesAsync(Guid planId, DateTime newStartDate, DateTime newEndDate)
         {
             var plan = await RequirePlanAsync(planId);
             plan.UpdateDates(newStartDate, newEndDate);
-            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
-
-            await _repository.UpdateBudgetPlanAsync(plan);
-            await _repository.SaveChangesAsync();
-        }
-
-        /// <inheritdoc/>
-        public async Task UpdateCurrencyAsync(Guid planId, Currency newCurrency)
-        {
-            var plan = await RequirePlanAsync(planId);
-            plan.UpdateCurrency(newCurrency);
             await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
 
             await _repository.UpdateBudgetPlanAsync(plan);

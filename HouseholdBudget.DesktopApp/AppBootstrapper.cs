@@ -87,6 +87,7 @@ namespace HouseholdBudget.DesktopApp
             services.AddTransient<RegisterViewModel>();
             services.AddTransient<TransactionsViewModel>();
             services.AddTransient<BudgetAnalysisViewModel>();
+            services.AddTransient<BudgetDetailsViewModel>();
 
             // Custom factory for the combined AuthViewModel with login/register tabs.
             services.AddTransient<AuthViewModel>(provider =>

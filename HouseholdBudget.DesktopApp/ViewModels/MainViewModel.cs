@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Commands;
@@ -15,16 +17,36 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly IServiceProvider _serviceProvider;
         private readonly IUserSessionService _session;
         private readonly IViewRouter _viewRouter;
+        private readonly IBudgetPlanService _budgetService;
+
+        public ObservableCollection<BudgetPlan> Budgets { get; } = new();
+        private BudgetPlan? _selectedBudget;
+        public BudgetPlan? SelectedBudget
+        {
+            get => _selectedBudget;
+            set
+            {
+                if (_selectedBudget != value)
+                {
+                    _selectedBudget = value;
+                    OnPropertyChanged();
+                    if (value != null)
+                        ShowBudget(value);
+                }
+            }
+        }
 
         public ICommand ShowTransactionsCommand { get; }
 
         public IViewRouter ViewRouter => _viewRouter;
 
-        public MainViewModel(IServiceProvider serviceProvider, IUserSessionService session, IViewRouter viewRouter)
+        public MainViewModel(IServiceProvider serviceProvider, IUserSessionService session, 
+            IViewRouter viewRouter, IBudgetPlanService budgetPlanService)
         {
             _serviceProvider = serviceProvider;
             _session = session;
             _viewRouter = viewRouter;
+            _budgetService = budgetPlanService;
             UpdateUserDisplay();
 
             ShowTransactionsCommand = new BasicRelayCommand(ShowTransactions);
@@ -56,6 +78,23 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var view = new AnalysisView(_serviceProvider);
             _viewRouter.ShowView(view);
         }
+
+        public void ShowBudget(BudgetPlan plan)
+        {
+            var vm = _serviceProvider.GetRequiredService<BudgetDetailsViewModel>();
+            vm.Load(plan);
+            var view = new BudgetDetailsView { DataContext = vm };
+            _viewRouter.ShowView(view);
+        }
+
+        public async void LoadBudgets()
+        {
+            var plans = await _budgetService.GetAllPlansAsync();
+            Budgets.Clear();
+            foreach (var plan in plans)
+                Budgets.Add(plan);
+        }
+
 
         public void Logout()
         {

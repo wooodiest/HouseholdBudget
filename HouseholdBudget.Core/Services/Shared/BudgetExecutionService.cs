@@ -56,19 +56,16 @@ namespace HouseholdBudget.Core.Services.Shared
                 if (!plan.IncludesDate(transaction.Date))
                     continue;
 
-                var convertedAmount = await _exchangeRateService.ConvertAsync(
-                    transaction.Amount,
-                    transaction.Currency,
-                    plan.Currency
-                );
-
-                plan.AddExecution(convertedAmount);
-
                 var categoryPlan = plan.CategoryPlans
                     .FirstOrDefault(cp => cp.CategoryId == transaction.CategoryId);
 
                 if (categoryPlan != null)
                 {
+                    var convertedAmount = await _exchangeRateService.ConvertAsync(
+                        transaction.Amount,
+                        transaction.Currency,
+                        categoryPlan.Currency
+                    );
                     categoryPlan.AddExecution(convertedAmount);
                 }
             }
@@ -110,19 +107,16 @@ namespace HouseholdBudget.Core.Services.Shared
 
                 foreach (var transaction in relevantTransactions)
                 {
-                    var convertedAmount = await _exchangeRateService.ConvertAsync(
-                        transaction.Amount,
-                        transaction.Currency,
-                        plan.Currency
-                    );
-
-                    plan.AddExecution(convertedAmount);
-
                     var categoryPlan = plan.CategoryPlans
                         .FirstOrDefault(cp => cp.CategoryId == transaction.CategoryId);
 
                     if (categoryPlan != null)
                     {
+                        var convertedAmount = await _exchangeRateService.ConvertAsync(
+                            transaction.Amount,
+                            transaction.Currency,
+                            categoryPlan.Currency
+                        );
                         categoryPlan.AddExecution(convertedAmount);
                     }
                 }

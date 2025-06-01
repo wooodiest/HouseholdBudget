@@ -53,27 +53,6 @@ namespace HouseholdBudget.Core.Models
         public DateTime EndDate { get; private set; }
 
         /// <summary>
-        /// The total monetary amount allocated for the entire budget plan.
-        /// Must be a non-negative value expressed in the base <see cref="Currency"/>.
-        /// </summary>
-        [Range(0, double.MaxValue)]
-        public decimal TotalAmount { get; private set; } = 0.0m;
-
-        /// <summary>
-        /// The cumulative amount of executed financial activity against this budget plan.
-        /// Automatically updated when linked transactions are processed.
-        /// </summary>
-        [Range(0, double.MaxValue)]
-        public decimal ExecutedAmount { get; private set; } = 0.0m;
-
-        /// <summary>
-        /// The base currency in which all amounts within this budget plan are expressed.
-        /// Required for currency consistency and conversion operations.
-        /// </summary>
-        [Required]
-        public Currency Currency { get; private set; } = null!;
-
-        /// <summary>
         /// Collection of category-specific budget allocations that comprise this plan.
         /// Each entry defines the monetary limit for a specific financial category.
         /// </summary>
@@ -93,8 +72,6 @@ namespace HouseholdBudget.Core.Models
         /// <param name="name">Display name for the budget plan.</param>
         /// <param name="startDate">Start date of the budget period.</param>
         /// <param name="endDate">End date of the budget period.</param>
-        /// <param name="totalAmount">Total monetary allocation for the plan.</param>
-        /// <param name="currency">Base currency for all amounts.</param>
         /// <param name="description">Optional descriptive text (max 250 chars).</param>
         /// <param name="categoryPlans">Optional initial category allocations.</param>
         /// <returns>A fully initialized, valid BudgetPlan instance.</returns>
@@ -106,14 +83,10 @@ namespace HouseholdBudget.Core.Models
             string name,
             DateTime startDate,
             DateTime endDate,
-            decimal totalAmount,
-            Currency currency,
             string? description = null,
             IEnumerable<CategoryBudgetPlan>? categoryPlans = null)
         {
             ValidateDateRange(startDate, endDate);
-            ValidateAmount(totalAmount);
-            ValidateCurrency(currency);
             ValidateDescription(description);
             ValidateName(name);
 
@@ -122,21 +95,9 @@ namespace HouseholdBudget.Core.Models
                 Name          = name.Trim(),
                 StartDate     = startDate.Date,
                 EndDate       = endDate.Date,
-                TotalAmount   = totalAmount,
-                Currency      = currency,
                 Description   = description?.Trim() ?? string.Empty,
                 CategoryPlans = categoryPlans?.ToList() ?? new()
             };
-        }
-
-        /// <summary>
-        /// Increments the executed amount by the specified value.
-        /// Typically called when new financial activity affects this budget plan.
-        /// </summary>
-        /// <param name="amount">Positive value to add to execution tracking.</param>
-        public void AddExecution(decimal amount)
-        {
-            ExecutedAmount += amount;
         }
 
         /// <summary>
@@ -145,7 +106,6 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         public void ClearExecution()
         {
-            ExecutedAmount = 0;
             foreach (var cp in CategoryPlans)
             {
                 cp.ClearExecution();
@@ -202,35 +162,6 @@ namespace HouseholdBudget.Core.Models
         }
 
         /// <summary>
-        /// Updates the total allocated amount with validation.
-        /// </summary>
-        /// <param name="newTotal">New total amount (must be non-negative).</param>
-        /// <exception cref="ValidationException">
-        /// Thrown if amount is negative.
-        /// </exception>
-        public void UpdateTotalAmount(decimal newTotal)
-        {
-            ValidateAmount(newTotal);
-            TotalAmount = newTotal;
-            MarkAsUpdated();
-        }
-
-        /// <summary>
-        /// Directly sets the executed amount with validation.
-        /// Primarily for reconciliation and data correction scenarios.
-        /// </summary>
-        /// <param name="newTotal">New execution total (must be non-negative).</param>
-        /// <exception cref="ValidationException">
-        /// Thrown if amount is negative.
-        /// </exception>
-        public void UpdateTotalExecutedAmount(decimal newTotal)
-        {
-            ValidateAmount(newTotal);
-            ExecutedAmount = newTotal;
-            MarkAsUpdated();
-        }
-
-        /// <summary>
         /// Updates the budget period dates with range validation.
         /// </summary>
         /// <param name="newStartDate">New start date.</param>
@@ -243,20 +174,6 @@ namespace HouseholdBudget.Core.Models
             ValidateDateRange(newStartDate, newEndDate);
             StartDate = newStartDate.Date;
             EndDate = newEndDate.Date;
-            MarkAsUpdated();
-        }
-
-        /// <summary>
-        /// Updates the base currency with null validation.
-        /// </summary>
-        /// <param name="newCurrency">New currency instance.</param>
-        /// <exception cref="ValidationException">
-        /// Thrown if currency is null.
-        /// </exception>
-        public void UpdateCurrency(Currency newCurrency)
-        {
-            ValidateCurrency(newCurrency);
-            Currency = newCurrency;
             MarkAsUpdated();
         }
 

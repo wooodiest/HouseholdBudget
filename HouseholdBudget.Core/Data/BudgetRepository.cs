@@ -52,8 +52,7 @@ namespace HouseholdBudget.Core.Data
         public async Task<IEnumerable<BudgetPlan>> GetBudgetPlansByUserAsync(Guid userId)
         {
             return await _context.BudgetPlans
-                .Include(p => p.CategoryPlans).
-                Include(p => p.Currency)
+                .Include(p => p.CategoryPlans)
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
         }
