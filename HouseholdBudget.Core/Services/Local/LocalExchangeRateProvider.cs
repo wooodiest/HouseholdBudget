@@ -53,6 +53,9 @@ namespace HouseholdBudget.Core.Services.Local
             fromCurrencyCode = fromCurrencyCode.ToUpperInvariant();
             toCurrencyCode = toCurrencyCode.ToUpperInvariant();
 
+            if (fromCurrencyCode == toCurrencyCode)
+                return Task.FromResult(ExchangeRate.Create(fromCurrencyCode, toCurrencyCode, 1.0m));
+
             if (!_currencies.ContainsKey(fromCurrencyCode) || !_currencies.ContainsKey(toCurrencyCode))
                 throw new ArgumentException("One or both currency codes are not supported.");
 

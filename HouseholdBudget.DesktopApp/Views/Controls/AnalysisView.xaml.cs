@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using HouseholdBudget.DesktopApp.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 
 namespace HouseholdBudget.DesktopApp.Views.Controls
 {
@@ -23,6 +12,18 @@ namespace HouseholdBudget.DesktopApp.Views.Controls
         public AnalysisView()
         {
             InitializeComponent();
+
+            Loaded += AnalysisView_Loaded;
+        }
+
+        private void AnalysisView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (DataContext is BudgetAnalysisViewModel vm)
+            {
+                vm.TrendPlot = TrendPlot;
+                vm.PiePlot = PiePlot;
+                _ = vm.LoadAsync();
+            }
         }
     }
 }
