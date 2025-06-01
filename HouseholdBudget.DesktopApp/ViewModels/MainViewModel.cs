@@ -53,8 +53,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public void ShowAnalysis()
         {
-            var vm = _serviceProvider.GetRequiredService<BudgetAnalysisViewModel>();
-            var view = new AnalysisView { DataContext = vm };
+            var view = new AnalysisView(_serviceProvider);
             _viewRouter.ShowView(view);
         }
 

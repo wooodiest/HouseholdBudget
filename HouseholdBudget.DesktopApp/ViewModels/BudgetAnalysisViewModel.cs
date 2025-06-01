@@ -1,111 +1,224 @@
-﻿using HouseholdBudget.Core.Services.Interfaces;
-using HouseholdBudget.Core.Models;
+﻿using HouseholdBudget.Core.Models;
+using HouseholdBudget.Core.Services.Interfaces;
 using ScottPlot;
-using ScottPlot.Plottables;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using HouseholdBudget.DesktopApp.Commands;
-using System.Threading.Tasks;
+using ScottPlot.Plottables;
 using ScottPlot.WPF;
+using System.Drawing;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
     public class BudgetAnalysisViewModel : INotifyPropertyChanged
     {
         private readonly IBudgetAnalysisService _analysisService;
+        private readonly ICategoryService _categoryService;
 
         public WpfPlot? TrendPlot { get; set; }
         public WpfPlot? PiePlot { get; set; }
+        public WpfPlot? CustomTrendPlot { get; set; }
 
         public ObservableCollection<int> Years { get; } = new(Enumerable.Range(2020, 10));
-        public ObservableCollection<string> Months { get; } = new(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Take(12).ToList());
+        public ObservableCollection<string> Months { get; } =
+            new(DateTimeFormatInfo.CurrentInfo!.MonthNames.Where(m => !string.IsNullOrEmpty(m)).ToList());
 
         public string SelectedMonth { get; set; } = DateTime.Now.ToString("MMMM");
         public int SelectedYear { get; set; } = DateTime.Now.Year;
 
-        public ICommand RefreshCommand { get; }
+        public DateTime? CustomStartDate { get; set; } = DateTime.Now.AddDays(-30);
+        public DateTime? CustomEndDate { get; set; } = DateTime.Now;
 
-        public BudgetAnalysisViewModel(IBudgetAnalysisService analysisService)
+        public ICommand RefreshCommand { get; }
+        public ICommand ApplyCustomDateRangeCommand { get; }
+
+        public BudgetAnalysisViewModel(IBudgetAnalysisService analysisService, ICategoryService categoryService)
         {
             _analysisService = analysisService;
-            RefreshCommand = new BasicRelayCommand(async () => await LoadAsync());
-            _ = LoadAsync();
+            _categoryService = categoryService;
+
+            RefreshCommand = new BasicRelayCommand(async () => await LoadMonthlyAsync());
+            ApplyCustomDateRangeCommand = new BasicRelayCommand(async () => await LoadCustomRangeAsync());
         }
 
-        public async Task LoadAsync()
+        public async Task LoadMonthlyAsync()
         {
-            int month = DateTime.ParseExact(SelectedMonth, "MMMM", null).Month;
+            if (!DateTime.TryParseExact(SelectedMonth, "MMMM", CultureInfo.CurrentCulture, DateTimeStyles.None, out var dt))
+                return;
+
+            int month = dt.Month;
             var summary = await _analysisService.GetMonthlySummaryAsync(SelectedYear, month);
 
             DrawTrend(summary);
             DrawPie(summary);
         }
 
+        public async Task LoadCustomRangeAsync()
+        {
+            if (CustomStartDate == null || CustomEndDate == null)
+                return;
+
+            var trend = await _analysisService.GetDailyTrendAsync(CustomStartDate.Value, CustomEndDate.Value);
+
+            var currency = trend.FirstOrDefault()?.Currency;
+
+            var summary = new MonthlyBudgetSummary
+            {
+                Currency = currency,
+                DailyTrend = trend.ToList()
+            };
+
+            DrawCustomTrend(summary);
+        }
+
         private void DrawTrend(MonthlyBudgetSummary summary)
         {
-            if (TrendPlot is null) return;
+            if (TrendPlot is null)
+                return;
+
             var plt = TrendPlot.Plot;
             plt.Clear();
 
-            var dates = summary.DailyTrend.Select(p => p.Date.ToOADate()).ToArray();
-            var incomes = summary.DailyTrend.Select(p => (double)p.TotalIncome).ToArray();
-            var expenses = summary.DailyTrend.Select(p => (double)p.TotalExpenses).ToArray();
+            var data = summary.DailyTrend;
+            if (data.Count == 0)
+            {
+                plt.Title("No data");
+                TrendPlot.Refresh();
+                return;
+            }
 
-            var incomePlot = plt.Add.Scatter(dates, incomes);
-            incomePlot.Label = "Income";
-            var expensePlot = plt.Add.Scatter(dates, expenses);
-            expensePlot.Label = "Expenses";
+            var dates   = data.Select(p => p.Date.ToOADate()).ToArray();
+            var income  = data.Select(p => (double)p.TotalIncome).ToArray();
+            var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
 
-            plt.Axes.DateTimeTicksBottom();
-            plt.Title($"Daily Budget Trend ({SelectedMonth} {SelectedYear})");
-            plt.XLabel("Date");
-            plt.YLabel($"Amount ({summary.Currency.Code})");
+            plt.Add.Scatter(dates, income).Label = "Income";
+            plt.Add.Scatter(dates, expense).Label = "Expenses";
+
+            plt.Title($"Monthly Trend ({SelectedMonth} {SelectedYear})");
             plt.Legend.IsVisible = true;
+            plt.Axes.DateTimeTicksBottom();
+            plt.Axes.AutoScale();
 
+            ApplyTheme(plt);
             TrendPlot.Refresh();
         }
 
-        private void DrawPie(MonthlyBudgetSummary summary)
+        private async void DrawPie(MonthlyBudgetSummary summary)
         {
-            if (PiePlot is null) return;
+            if (PiePlot is null)
+                return;
 
             var plt = PiePlot.Plot;
             plt.Clear();
 
             var data = summary.Categories.Where(c => c.Amount > 0).ToList();
+            if (data.Count == 0)
+            {
+                plt.Title("No category data");
+                PiePlot.Refresh();
+                return;
+            }
+
+            var categoryTasks   = data.Select(c => _categoryService.GetCategoryByIdAsync(c.CategoryId)).ToArray();
+            var categoryObjects = await Task.WhenAll(categoryTasks);
+
             double[] values = data.Select(c => (double)c.Amount).ToArray();
-            string[] labels = data.Select(c => $"Cat {c.CategoryId}").ToArray(); // tymczasowe
+            string[] labels = categoryObjects.Select(c => c?.Name ?? "Unknown").ToArray();
 
-            if (values.Length > 0)
+            var pie = plt.Add.Pie(values);
+            for (int i = 0; i < pie.Slices.Count; i++)
             {
-                var pie = plt.Add.Pie(values);
-
-                // Dodajemy legendę z ręcznie przypisanymi nazwami
-                for (int i = 0; i < labels.Length; i++)
-                {
-                    pie.Slices[i].Label = labels[i];
-                }
-
-                plt.Legend.IsVisible = true;
-                plt.Title("Expenses by Category");
-            }
-            else
-            {
-                plt.Title("No data to display");
+                pie.Slices[i].Label = labels[i];
+                pie.Slices[i].LabelFontColor = ScottPlot.Color.FromHex("#DDDDDD");
+                pie.Slices[i].LabelFontSize = 16;
             }
 
+            plt.Title("Expenses by Category");
+            plt.Legend.IsVisible = false;
+
+
+            plt.Axes.Margins(0.0, 0.0);
+
+            plt.Axes.Bottom.TickLabelStyle.IsVisible = false;
+            plt.Axes.Bottom.MajorTickStyle.Length = 0;
+            plt.Axes.Bottom.MinorTickStyle.Length = 0;
+            
+            plt.Axes.Left.TickLabelStyle.IsVisible = false;
+            plt.Axes.Left.MajorTickStyle.Length = 0;
+            plt.Axes.Left.MinorTickStyle.Length = 0;
+
+            plt.Axes.SetLimits(-1.0, 1.0, -1.0, 1.0);
+            plt.Axes.AutoScale();
+
+            plt.Layout.Frameless();
+
+            ApplyTheme(plt);
             PiePlot.Refresh();
         }
 
+        private void DrawCustomTrend(MonthlyBudgetSummary summary)
+        {
+            if (CustomTrendPlot is null)
+                return;
 
+            var plt = CustomTrendPlot.Plot;
+            plt.Clear();
+            ApplyTheme(plt);
 
+            var data = summary.DailyTrend;
+            if (data.Count == 0)
+            {
+                plt.Title("No data in selected range");
+                CustomTrendPlot.Refresh();
+                return;
+            }
+
+            var dates   = data.Select(p => p.Date.ToOADate()).ToArray();
+            var income  = data.Select(p => (double)p.TotalIncome).ToArray();
+            var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
+
+            plt.Add.Scatter(dates, income).Label = "Income";
+            plt.Add.Scatter(dates, expense).Label = "Expenses";
+
+            plt.Title("Custom Range Trend");
+            plt.Legend.IsVisible = true;
+            plt.Axes.DateTimeTicksBottom();
+            plt.Axes.AutoScale();
+
+            ApplyTheme(plt);
+            CustomTrendPlot.Refresh();
+        }
+
+        public void ApplyTheme(Plot plot)
+        {
+            var background = ScottPlot.Color.FromHex("#2C2C3E"); 
+            var dataBackground = ScottPlot.Color.FromHex("#1E1E2F"); 
+            var axisColor = ScottPlot.Color.FromHex("#DDDDDD");
+            var gridColor = ScottPlot.Color.FromHex("#444444"); 
+            var legendBg = ScottPlot.Color.FromHex("#444466"); 
+
+            plot.FigureBackground.Color = background;
+            plot.DataBackground.Color = dataBackground;
+
+            plot.Axes.Color(axisColor);
+            plot.Grid.MajorLineColor = gridColor;
+
+            plot.Axes.Color(axisColor);
+
+            plot.Legend.BackgroundColor = legendBg;
+            plot.Legend.FontColor = axisColor;
+            plot.Legend.OutlineColor = axisColor;
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged([CallerMemberName] string? name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

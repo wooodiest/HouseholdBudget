@@ -74,7 +74,7 @@
                 <Setter Property="BorderBrush" Value="{StaticResource BorderBrushColor}"/>
                 <Setter Property="BorderThickness" Value="1"/>
             </Style>
-            
+
             <Style x:Key="StyledButton" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                 <Setter Property="Foreground" Value="{StaticResource SoftWhiteBrush}"/>
@@ -200,7 +200,7 @@
                                 </Popup>
                             </Grid>
                             <ControlTemplate.Triggers>
-                                
+
                                 <Trigger Property="IsEnabled" Value="false">
                                     <Setter Property="Foreground" Value="#888"/>
                                     <Setter Property="Opacity" Value="0.6"/>

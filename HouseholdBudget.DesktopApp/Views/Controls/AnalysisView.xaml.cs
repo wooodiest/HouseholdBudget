@@ -1,4 +1,7 @@
-﻿using HouseholdBudget.DesktopApp.ViewModels;
+﻿using HouseholdBudget.Core.Services.Interfaces;
+using HouseholdBudget.DesktopApp.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 using System.Windows.Controls;
 
 
@@ -9,21 +12,28 @@ namespace HouseholdBudget.DesktopApp.Views.Controls
     /// </summary>
     public partial class AnalysisView : UserControl
     {
-        public AnalysisView()
+        private readonly BudgetAnalysisViewModel _vm;
+
+        public AnalysisView(IServiceProvider serviceProvider)
         {
             InitializeComponent();
 
-            Loaded += AnalysisView_Loaded;
+            var analysisService = serviceProvider.GetRequiredService<IBudgetAnalysisService>();
+            var categoryService = serviceProvider.GetRequiredService<ICategoryService>();
+            _vm = new BudgetAnalysisViewModel(analysisService, categoryService);
+            this.DataContext = _vm;
+
+            Loaded += OnLoaded;
         }
 
-        private void AnalysisView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is BudgetAnalysisViewModel vm)
-            {
-                vm.TrendPlot = TrendPlot;
-                vm.PiePlot = PiePlot;
-                _ = vm.LoadAsync();
-            }
+            _vm.TrendPlot = TrendPlot;
+            _vm.PiePlot = PiePlot;
+            _vm.CustomTrendPlot = CustomTrendPlot;
+
+            _ = _vm.LoadMonthlyAsync();
+            _ = _vm.LoadCustomRangeAsync();
         }
     }
 }
