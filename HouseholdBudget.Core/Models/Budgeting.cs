@@ -12,9 +12,10 @@
     /// Represents the breakdown of budget data grouped by a specific category.
     /// </summary>
     /// <param name="CategoryId">The unique identifier of the category.</param>
-    /// <param name="Amount">Total amount for this category within the filtered period.</param>
+    /// <param name="TotalIncome">Total income for this category within the filtered period.</param>
+    /// <param name="TotalExpenses">Total expenses for this category within the filtered period.</param>
     /// <param name="Currency">The currency of the aggregated amount.</param>
-    public record CategoryBudgetBreakdown(Guid CategoryId, decimal Amount, Currency Currency);
+    public record CategoryBudgetBreakdown(Guid CategoryId, decimal TotalIncome, decimal TotalExpenses, Currency Currency);
 
     /// <summary>
     /// Represents the daily total income and expenses used to plot budget trends.

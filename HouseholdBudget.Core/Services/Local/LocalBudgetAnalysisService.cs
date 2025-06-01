@@ -77,9 +77,18 @@ namespace HouseholdBudget.Core.Services.Local
                 var categoryId = transaction.CategoryId;
 
                 if (!grouped.ContainsKey(categoryId))
-                    grouped[categoryId] = new CategoryBudgetBreakdown(categoryId, 0, baseCurrency);
+                    grouped[categoryId] = new CategoryBudgetBreakdown(categoryId, 0, 0, baseCurrency);
 
-                grouped[categoryId] = grouped[categoryId] with { Amount = grouped[categoryId].Amount + converted };
+                var current = grouped[categoryId];
+
+                if (transaction.Type == TransactionType.Income)
+                {
+                    grouped[categoryId] = current with { TotalIncome = current.TotalIncome + converted };
+                }
+                else if (transaction.Type == TransactionType.Expense)
+                {
+                    grouped[categoryId] = current with { TotalExpenses = current.TotalExpenses + converted };
+                }
             }
 
             return grouped.Values.ToList();

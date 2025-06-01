@@ -29,7 +29,8 @@ namespace HouseholdBudget.DesktopApp.Views.Controls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             _vm.TrendPlot = TrendPlot;
-            _vm.PiePlot = PiePlot;
+            _vm.IncomePiePlot = IncomePiePlot;
+            _vm.ExpensePiePlot = ExpensePiePlot;
             _vm.CustomTrendPlot = CustomTrendPlot;
 
             _ = _vm.LoadMonthlyAsync();

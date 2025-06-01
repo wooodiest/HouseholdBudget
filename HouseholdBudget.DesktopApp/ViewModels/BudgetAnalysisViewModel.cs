@@ -23,7 +23,9 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly ICategoryService _categoryService;
 
         public WpfPlot? TrendPlot { get; set; }
-        public WpfPlot? PiePlot { get; set; }
+        public WpfPlot? ExpensePiePlot { get; set; }
+        public WpfPlot? IncomePiePlot { get; set; }
+
         public WpfPlot? CustomTrendPlot { get; set; }
 
         public ObservableCollection<int> Years { get; } = new(Enumerable.Range(2020, 10));
@@ -62,7 +64,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var summary = await _analysisService.GetMonthlySummaryAsync(SelectedYear, month);
 
             DrawTrend(summary);
-            DrawPie(summary);
+            DrawPie(summary, isIncome: true);
+            DrawPie(summary, isIncome: false);
         }
 
         public async Task LoadCustomRangeAsync()
@@ -103,38 +106,56 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var income  = data.Select(p => (double)p.TotalIncome).ToArray();
             var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
 
-            plt.Add.Scatter(dates, income).Label = "Income";
-            plt.Add.Scatter(dates, expense).Label = "Expenses";
+            var incomePlot = plt.Add.Scatter(dates, income);
+            incomePlot.Label = "Income";
+
+            var expensePlot = plt.Add.Scatter(dates, expense);
+            expensePlot.Label = "Expenses";
 
             plt.Title($"Monthly Trend ({SelectedMonth} {SelectedYear})");
             plt.Legend.IsVisible = true;
+            plt.Legend.Alignment = Alignment.UpperRight;
             plt.Axes.DateTimeTicksBottom();
             plt.Axes.AutoScale();
+
+
+            plt.Axes.Bottom.TickLabelStyle.FontSize = 16;
+            plt.Axes.Left.TickLabelStyle.FontSize = 16;
 
             ApplyTheme(plt);
             TrendPlot.Refresh();
         }
 
-        private async void DrawPie(MonthlyBudgetSummary summary)
+        private async void DrawPie(MonthlyBudgetSummary summary, bool isIncome)
         {
-            if (PiePlot is null)
+            var plot = isIncome ? IncomePiePlot : ExpensePiePlot;
+
+            if (plot is null)
                 return;
 
-            var plt = PiePlot.Plot;
+            var plt = plot.Plot;
             plt.Clear();
 
-            var data = summary.Categories.Where(c => c.Amount > 0).ToList();
+            var typeName = isIncome ? "Income" : "Expenses";
+            var color    = isIncome ? "#44BB44" : "#BB4444";
+
+            var data = summary.Categories
+                .Where(c => isIncome ? c.TotalIncome > 0 : c.TotalExpenses > 0)
+                .ToList();
+
             if (data.Count == 0)
             {
                 plt.Title("No category data");
-                PiePlot.Refresh();
+                plot.Refresh();
                 return;
             }
 
             var categoryTasks   = data.Select(c => _categoryService.GetCategoryByIdAsync(c.CategoryId)).ToArray();
             var categoryObjects = await Task.WhenAll(categoryTasks);
 
-            double[] values = data.Select(c => (double)c.Amount).ToArray();
+            double[] values = data
+                    .Select(c => (double)(isIncome ? c.TotalIncome : c.TotalExpenses))
+                    .ToArray();
             string[] labels = categoryObjects.Select(c => c?.Name ?? "Unknown").ToArray();
 
             var pie = plt.Add.Pie(values);
@@ -145,27 +166,28 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 pie.Slices[i].LabelFontSize = 16;
             }
 
-            plt.Title("Expenses by Category");
+            plt.Title($"{typeName} by Category");
             plt.Legend.IsVisible = false;
 
+            string currencySymbol = summary.Currency?.Symbol ?? "$";
+            double total = data.Sum(c => (double)(isIncome ? c.TotalIncome : c.TotalExpenses));
+            var annotation = plt.Add.Annotation($"Total: {total:N2} {currencySymbol}");
+            annotation.LabelBackgroundColor = ScottPlot.Color.FromHex("#DDDDDD");
+            annotation.LabelFontSize = 16;
 
             plt.Axes.Margins(0.0, 0.0);
-
             plt.Axes.Bottom.TickLabelStyle.IsVisible = false;
             plt.Axes.Bottom.MajorTickStyle.Length = 0;
-            plt.Axes.Bottom.MinorTickStyle.Length = 0;
-            
+            plt.Axes.Bottom.MinorTickStyle.Length = 0;        
             plt.Axes.Left.TickLabelStyle.IsVisible = false;
             plt.Axes.Left.MajorTickStyle.Length = 0;
             plt.Axes.Left.MinorTickStyle.Length = 0;
-
             plt.Axes.SetLimits(-1.0, 1.0, -1.0, 1.0);
             plt.Axes.AutoScale();
-
             plt.Layout.Frameless();
 
             ApplyTheme(plt);
-            PiePlot.Refresh();
+            plot.Refresh();
         }
 
         private void DrawCustomTrend(MonthlyBudgetSummary summary)
