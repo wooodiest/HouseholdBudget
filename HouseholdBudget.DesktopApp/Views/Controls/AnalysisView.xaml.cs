@@ -32,6 +32,8 @@ namespace HouseholdBudget.DesktopApp.Views.Controls
             _vm.IncomePiePlot = IncomePiePlot;
             _vm.ExpensePiePlot = ExpensePiePlot;
             _vm.CustomTrendPlot = CustomTrendPlot;
+            _vm.CustomIncomePiePlot = CustomIncomePiePlot;
+            _vm.CustomExpensePiePlot = CustomExpensePiePlot;
 
             _ = _vm.LoadMonthlyAsync();
             _ = _vm.LoadCustomRangeAsync();

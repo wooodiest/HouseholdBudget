@@ -27,6 +27,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public WpfPlot? IncomePiePlot { get; set; }
 
         public WpfPlot? CustomTrendPlot { get; set; }
+        public WpfPlot? CustomExpensePiePlot { get; set; }
+        public WpfPlot? CustomIncomePiePlot { get; set; }
 
         public ObservableCollection<int> Years { get; } = new(Enumerable.Range(2020, 10));
         private static readonly CultureInfo _englishCulture = new("en-US");
@@ -40,8 +42,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public int SelectedYear { get; set; } = DateTime.Now.Year;
 
-        public DateTime? CustomStartDate { get; set; } = DateTime.Now.AddDays(-30);
-        public DateTime? CustomEndDate { get; set; } = DateTime.Now;
+        public DateTime? CustomStartDate { get; set; } = DateTime.Now.AddMonths(-1);
+        public DateTime? CustomEndDate { get; set; } = DateTime.Now.AddMonths(1);
 
         public ICommand RefreshCommand { get; }
         public ICommand ApplyCustomDateRangeCommand { get; }
@@ -63,9 +65,9 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             int month = dt.Month;
             var summary = await _analysisService.GetMonthlySummaryAsync(SelectedYear, month);
 
-            DrawTrend(summary);
-            DrawPie(summary, isIncome: true);
-            DrawPie(summary, isIncome: false);
+            DrawTrend(TrendPlot!, summary, custom: false);
+            DrawPie(ExpensePiePlot!, summary, isIncome: false);
+            DrawPie(IncomePiePlot!, summary, isIncome: true);
         }
 
         public async Task LoadCustomRangeAsync()
@@ -73,32 +75,71 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             if (CustomStartDate == null || CustomEndDate == null)
                 return;
 
-            var trend = await _analysisService.GetDailyTrendAsync(CustomStartDate.Value, CustomEndDate.Value);
+            var start = CustomStartDate.Value.Date;
+            var end   = CustomEndDate.Value.Date;
 
+            var trend = await _analysisService.GetDailyTrendAsync(start, end);
             var currency = trend.FirstOrDefault()?.Currency;
 
-            var summary = new MonthlyBudgetSummary
+            var current = new DateTime(start.Year, start.Month, 1);
+            var grouped = new Dictionary<Guid, (decimal Income, decimal Expenses)>();
+
+            while (current <= end)
             {
+                var monthStart = current;
+                var monthEnd = new DateTime(current.Year, current.Month, DateTime.DaysInMonth(current.Year, current.Month));
+
+                var sliceStart = monthStart < start ? start : monthStart;
+                var sliceEnd = monthEnd > end ? end : monthEnd;
+
+                var monthlyCategories = await _analysisService.GetCategoryBreakdownAsync(sliceStart, sliceEnd);
+
+                foreach (var cat in monthlyCategories)
+                {
+                    if (!grouped.TryGetValue(cat.CategoryId, out var totals))
+                        totals = (0, 0);
+
+                    totals.Income   += cat.TotalIncome;
+                    totals.Expenses += cat.TotalExpenses;
+                    grouped[cat.CategoryId] = totals;
+                }
+
+                current = current.AddMonths(1);
+            }
+
+            var mergedCategories = grouped.Select(kvp =>
+                new CategoryBudgetBreakdown(
+                    kvp.Key,
+                    kvp.Value.Income,
+                    kvp.Value.Expenses,
+                    currency!
+                )).ToList();
+
+            var summary = new MonthlyBudgetSummary {
                 Currency = currency,
-                DailyTrend = trend.ToList()
+                DailyTrend = trend.ToList(),
+                Categories = mergedCategories
             };
 
-            DrawCustomTrend(summary);
+            DrawTrend(CustomTrendPlot!, summary, custom: true);
+            DrawPie(CustomExpensePiePlot!, summary, isIncome: false);
+            DrawPie(CustomIncomePiePlot!, summary, isIncome: true);
         }
 
-        private void DrawTrend(MonthlyBudgetSummary summary)
+
+        private void DrawTrend(WpfPlot plot, MonthlyBudgetSummary summary, bool custom)
         {
-            if (TrendPlot is null)
+            if (plot is null)
                 return;
 
-            var plt = TrendPlot.Plot;
+            var plt = plot.Plot;
             plt.Clear();
 
             var data = summary.DailyTrend;
             if (data.Count == 0)
             {
                 plt.Title("No data");
-                TrendPlot.Refresh();
+                plot.Refresh();
                 return;
             }
 
@@ -106,35 +147,45 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var income  = data.Select(p => (double)p.TotalIncome).ToArray();
             var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
 
+            string currencySymbol = summary.Currency?.Symbol ?? "unknow";
+
             var incomePlot = plt.Add.Scatter(dates, income);
-            incomePlot.Label = "Income";
+            incomePlot.Label = $"Income ({currencySymbol})";
 
             var expensePlot = plt.Add.Scatter(dates, expense);
-            expensePlot.Label = "Expenses";
+            expensePlot.Label = $"Expenses ({currencySymbol})";
 
-            plt.Title($"Monthly Trend ({SelectedMonth} {SelectedYear})");
+            plt.Title(custom ? "Custom Trend" : $"Monthly Trend ({SelectedMonth} {SelectedYear})");
             plt.Legend.IsVisible = true;
             plt.Legend.Alignment = Alignment.UpperRight;
             plt.Axes.DateTimeTicksBottom();
             plt.Axes.AutoScale();
 
-
             plt.Axes.Bottom.TickLabelStyle.FontSize = 16;
             plt.Axes.Left.TickLabelStyle.FontSize = 16;
 
             ApplyTheme(plt);
-            TrendPlot.Refresh();
+            plot.Refresh();
         }
 
-        private async void DrawPie(MonthlyBudgetSummary summary, bool isIncome)
+        private async void DrawPie(WpfPlot plot, MonthlyBudgetSummary summary, bool isIncome)
         {
-            var plot = isIncome ? IncomePiePlot : ExpensePiePlot;
-
             if (plot is null)
                 return;
 
             var plt = plot.Plot;
             plt.Clear();
+            ApplyTheme(plt);
+            plt.Axes.Margins(0.0, 0.0);
+            plt.Axes.Bottom.TickLabelStyle.IsVisible = false;
+            plt.Axes.Bottom.MajorTickStyle.Length = 0;
+            plt.Axes.Bottom.MinorTickStyle.Length = 0;
+            plt.Axes.Left.TickLabelStyle.IsVisible = false;
+            plt.Axes.Left.MajorTickStyle.Length = 0;
+            plt.Axes.Left.MinorTickStyle.Length = 0;
+            plt.Axes.SetLimits(-1.4, 1.4, -1.4, 1.4);
+            plt.Axes.AutoScale();
+            plt.Layout.Frameless();
 
             var typeName = isIncome ? "Income" : "Expenses";
             var color    = isIncome ? "#44BB44" : "#BB4444";
@@ -166,7 +217,6 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 pie.Slices[i].LabelFontSize = 16;
             }
 
-            plt.Title($"{typeName} by Category");
             plt.Legend.IsVisible = false;
 
             string currencySymbol = summary.Currency?.Symbol ?? "$";
@@ -175,52 +225,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             annotation.LabelBackgroundColor = ScottPlot.Color.FromHex("#DDDDDD");
             annotation.LabelFontSize = 16;
 
-            plt.Axes.Margins(0.0, 0.0);
-            plt.Axes.Bottom.TickLabelStyle.IsVisible = false;
-            plt.Axes.Bottom.MajorTickStyle.Length = 0;
-            plt.Axes.Bottom.MinorTickStyle.Length = 0;        
-            plt.Axes.Left.TickLabelStyle.IsVisible = false;
-            plt.Axes.Left.MajorTickStyle.Length = 0;
-            plt.Axes.Left.MinorTickStyle.Length = 0;
-            plt.Axes.SetLimits(-1.0, 1.0, -1.0, 1.0);
-            plt.Axes.AutoScale();
-            plt.Layout.Frameless();
-
             ApplyTheme(plt);
             plot.Refresh();
-        }
-
-        private void DrawCustomTrend(MonthlyBudgetSummary summary)
-        {
-            if (CustomTrendPlot is null)
-                return;
-
-            var plt = CustomTrendPlot.Plot;
-            plt.Clear();
-            ApplyTheme(plt);
-
-            var data = summary.DailyTrend;
-            if (data.Count == 0)
-            {
-                plt.Title("No data in selected range");
-                CustomTrendPlot.Refresh();
-                return;
-            }
-
-            var dates   = data.Select(p => p.Date.ToOADate()).ToArray();
-            var income  = data.Select(p => (double)p.TotalIncome).ToArray();
-            var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
-
-            plt.Add.Scatter(dates, income).Label = "Income";
-            plt.Add.Scatter(dates, expense).Label = "Expenses";
-
-            plt.Title("Custom Range Trend");
-            plt.Legend.IsVisible = true;
-            plt.Axes.DateTimeTicksBottom();
-            plt.Axes.AutoScale();
-
-            ApplyTheme(plt);
-            CustomTrendPlot.Refresh();
         }
 
         public void ApplyTheme(Plot plot)

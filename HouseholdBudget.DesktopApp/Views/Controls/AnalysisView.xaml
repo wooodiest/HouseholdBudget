@@ -23,7 +23,7 @@
                     <ComboBox Width="120" ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Style="{StaticResource ModernComboBox}"/>
                     <TextBlock Text="Year:" Foreground="White" Margin="0 5 0 0" Padding="5 0" FontSize="16"/>
                     <ComboBox Width="80" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Style="{StaticResource ModernComboBox}"/>
-                    <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="10 3 0 3" Style="{StaticResource ModernButton}" MinWidth="100" FontSize="16"/>
+                    <Button Content="Apply" Command="{Binding RefreshCommand}" Margin="10 3 0 3" Style="{StaticResource ModernButton}" MinWidth="100" FontSize="16" Padding="5 5 5 7"/>
             </StackPanel>
 
             <!-- Monthly Charts -->
@@ -39,15 +39,15 @@
                     <!-- Left Pie Chart (Expenses) -->
                     <StackPanel Grid.Column="0" Margin="0 0 10 0">
                         <TextBlock Text="Expenses by Category"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="White"
-                   Margin="5 0 5 5"/>
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    Margin="5 0 5 5"/>
                         <Border Background="#1E1E2F"
-                BorderBrush="#444466"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="5">
+                                BorderBrush="#444466"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="5">
                             <sp:WpfPlot x:Name="ExpensePiePlot" Height="290"/>
                         </Border>
                     </StackPanel>
@@ -55,21 +55,24 @@
                     <!-- Right Pie Chart (Income) -->
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="Income by Category"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="White"
-                   Margin="5 0 5 5"/>
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    Margin="5 0 5 5"/>
                         <Border Background="#1E1E2F"
-                BorderBrush="#444466"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="5">
+                                BorderBrush="#444466"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="5">
                             <sp:WpfPlot x:Name="IncomePiePlot" Height="290"/>
                         </Border>
                     </StackPanel>
                 </Grid>
 
-
+                <Border Height="1"
+                        Margin="0 5"
+                        Background="{StaticResource SoftWhiteBrush}"
+                        CornerRadius="1"/>
                 <!-- Custom Range -->
                 <TextBlock Text="Custom Date Range" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0 20 0 10"/>
             <StackPanel Orientation="Horizontal" Margin="0 0 10 10">
@@ -82,8 +85,48 @@
 
             <!-- Custom Chart -->
             <sp:WpfPlot x:Name="CustomTrendPlot" Height="300"/>
+                <!-- Custom Pie Charts -->
+                <Grid Margin="0 20 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-        </StackPanel>
+                    <!-- Expenses Pie Chart -->
+                    <StackPanel Grid.Column="0" Margin="0 0 10 0">
+                        <TextBlock Text="Expenses by Category"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="White"
+                                Margin="5 0 5 5"/>
+                        <Border Background="#1E1E2F"
+                                BorderBrush="#444466"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="5">
+                            <sp:WpfPlot x:Name="CustomExpensePiePlot" Height="290"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Income Pie Chart -->
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Income by Category"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="White"
+                                Margin="5 0 5 5"/>
+                        <Border Background="#1E1E2F"
+                                BorderBrush="#444466"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="5">
+                            <sp:WpfPlot x:Name="CustomIncomePiePlot" Height="290"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+
+            </StackPanel>
     </ScrollViewer>
     </Border>
 </UserControl>
