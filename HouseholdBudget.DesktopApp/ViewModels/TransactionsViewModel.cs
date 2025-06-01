@@ -58,6 +58,19 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public string? FilterMaxAmount { get; set; }
         public string FilterSelectedTransactionType { get; set; } = "All";
 
+        private string? _selectedCurrency;
+        public ObservableCollection<string> SupportedCurrencies { get; } = new();
+
+        public string? SelectedCurrency
+        {
+            get => _selectedCurrency;
+            set
+            {
+                _selectedCurrency = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand AddTransactionCommand { get; }
         public ICommand EditTransactionCommand { get; }
         public ICommand DeleteTransactionCommand { get; }
@@ -73,18 +86,18 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             IUserSessionService userSessionService,
             IExchangeRateProvider exchangeRateProvider)
         {
-            _transactionService = transactionService;
-            _categoryService = categoryService;
-            _userSessionService = userSessionService;
+            _transactionService   = transactionService;
+            _categoryService      = categoryService;
+            _userSessionService   = userSessionService;
             _exchangeRateProvider = exchangeRateProvider;
 
-            AddTransactionCommand = new BasicRelayCommand(AddTransaction);
-            EditTransactionCommand = new BasicRelayCommand(EditTransaction, () => SelectedTransaction != null);
+            AddTransactionCommand    = new BasicRelayCommand(AddTransaction);
+            EditTransactionCommand   = new BasicRelayCommand(EditTransaction, () => SelectedTransaction != null);
             DeleteTransactionCommand = new BasicRelayCommand(DeleteTransaction, () => SelectedTransaction != null);
-            ApplyFilterCommand = new BasicRelayCommand(async () => await LoadTransactionsAsync());
-            ClearFiltersCommand = new BasicRelayCommand(ClearFilters);
-            AddCategoryCommand = new BasicRelayCommand(async () => await AddCategoryAsync());
-            DeleteCategoryCommand = new DelegateCommand<Category?>(async (category) => await DeleteCategoryAsync(category), c => c != null);
+            ApplyFilterCommand       = new BasicRelayCommand(async () => await LoadTransactionsAsync());
+            ClearFiltersCommand      = new BasicRelayCommand(ClearFilters);
+            AddCategoryCommand       = new BasicRelayCommand(async () => await AddCategoryAsync());
+            DeleteCategoryCommand    = new DelegateCommand<Category?>(async (category) => await DeleteCategoryAsync(category), c => c != null);
 
             _ = InitAsync();
         }
@@ -96,15 +109,15 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             OnPropertyChanged(nameof(Categories));
 
             await LoadTransactionsAsync();
+            await LoadCurrenciesAsync();
         }
 
         private async Task LoadTransactionsAsync()
         {
-            var filter = new TransactionFilter
-            {
+            var filter = new TransactionFilter {
                 DescriptionKeyword = FilterDescription,
                 StartDate = FilterStartDate,
-                EndDate = FilterEndDate,
+                EndDate   = FilterEndDate,
                 CategoryIds = SelectedCategory != null ? new() { SelectedCategory.Id } : null,
                 MinAmount = !string.IsNullOrEmpty(FilterMinAmount) ? decimal.Parse(FilterMinAmount) : null,
                 MaxAmount = !string.IsNullOrEmpty(FilterMaxAmount) ? decimal.Parse(FilterMaxAmount) : null,
@@ -112,7 +125,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     "Expense" => TransactionType.Expense,
                     "Income" => TransactionType.Income,
                     _ => null 
-                }
+                },
+                Currency = SelectedCurrency != null ? await _exchangeRateProvider.GetCurrencyByCodeAsync(SelectedCurrency) : null
             };
 
             var transactions = await _transactionService.GetAsync(filter);
@@ -124,6 +138,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 var name = cat?.Name ?? "(none)";
                 Transactions.Add(new TransactionViewModel(tx, name));
             }
+
+            OnPropertyChanged(nameof(Transactions));
         }
 
         private async Task AddCategoryAsync()
@@ -149,6 +165,18 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 }
             }
         }
+
+        private async Task LoadCurrenciesAsync()
+        {
+            var currencies = await _exchangeRateProvider.GetSupportedCurrenciesAsync();
+
+            SupportedCurrencies.Clear();
+            foreach (var c in currencies)
+                SupportedCurrencies.Add(c.Code);
+
+            OnPropertyChanged(nameof(SupportedCurrencies));
+        }
+
 
         private async Task DeleteCategoryAsync(Category? category)
         {
@@ -178,15 +206,16 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 MessageBox.Show($"Failed to delete category:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void ClearFilters()
+        private async void ClearFilters()
         {
             FilterDescription = string.Empty;
-            SelectedCategory = null;
+            SelectedCategory  = null;
             FilterSelectedTransactionType = "All";
-            FilterMinAmount = string.Empty;
-            FilterMaxAmount = string.Empty;
-            FilterStartDate = null;
-            FilterEndDate = null;
+            FilterMinAmount  = string.Empty;
+            FilterMaxAmount  = string.Empty;
+            FilterStartDate  = null;
+            FilterEndDate    = null;
+            SelectedCurrency = null;
 
             OnPropertyChanged(nameof(FilterDescription));
             OnPropertyChanged(nameof(SelectedCategory));
@@ -195,11 +224,15 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             OnPropertyChanged(nameof(FilterMaxAmount));
             OnPropertyChanged(nameof(FilterStartDate));
             OnPropertyChanged(nameof(FilterEndDate));
+            OnPropertyChanged(nameof(SelectedCurrency));
+
+            await LoadTransactionsAsync();
         }
 
         private async void AddTransaction()
         {
-            var window = new AddTransactionWindow(_transactionService, _categoryService, _exchangeRateProvider, _userSessionService)
+            var window = new AddTransactionWindow(_transactionService, _categoryService,
+                _exchangeRateProvider, _userSessionService)
             {
                 Owner = Application.Current.MainWindow
             };
@@ -207,7 +240,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             if (window.ShowDialog() == true && window.Result != null)
             {
                 var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
-                Transactions.Add(new TransactionViewModel(window.Result, cat?.Name ?? "(none)"));
+                Transactions.Add(new TransactionViewModel(window.Result, cat.Name ?? "(none)"));
             }
         }
 

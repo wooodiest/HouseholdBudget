@@ -199,7 +199,7 @@ namespace HouseholdBudget.Core.Services.Local
                 transaction.UpdateType(newType.Value);
 
             if (newDescription != null)
-                transaction.UpdateDescription(newDescription ?? transaction.Description);
+                transaction.UpdateDescription(newDescription);
 
             await PersistUpdateAsync(transaction);
         }

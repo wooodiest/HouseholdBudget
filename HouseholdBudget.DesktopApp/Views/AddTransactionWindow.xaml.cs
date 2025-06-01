@@ -58,38 +58,20 @@ namespace HouseholdBudget.DesktopApp.Views
                 {
                     MessageBox.Show($"Amount must be a positive number: {parsedAmount}");
                     return;
-                }
+                }     
 
+                Result = await _transactionService.CreateAsync(
+                    _viewModel.SelectedCategory.Id,
+                    parsedAmount,
+                    currency!,
+                    _viewModel.SelectedType,
+                    _viewModel.Description,
+                    null,
+                    _viewModel.Date);
+               
                 if (_isEditMode)
-                {
-                    var freshTransaction = await _transactionService.GetByIdAsync(_existingTransaction.Id);
-                    if (freshTransaction == null)
-                    {
-                        MessageBox.Show("Transaction no longer exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    await _transactionService.UpdateAsync(
-                        freshTransaction.Id,
-                        _viewModel.SelectedCategory.Id,
-                        parsedAmount,
-                        currency!,
-                        _viewModel.Description,
-                        null,
-                        _viewModel.Date,
-                        _viewModel.SelectedType);
-                }
-                else
-                {
-                    Result = await _transactionService.CreateAsync(
-                        _viewModel.SelectedCategory.Id,
-                        parsedAmount,
-                        currency!,
-                        _viewModel.SelectedType,
-                        _viewModel.Description,
-                        null,
-                        _viewModel.Date);
-                }  
+                    await _transactionService.DeleteAsync(_existingTransaction!.Id);
+                
             } catch (Exception ex)
             {
                 MessageBox.Show($"Failed to add transaction:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

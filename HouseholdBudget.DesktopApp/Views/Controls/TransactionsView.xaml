@@ -39,7 +39,58 @@
                     <TextBlock Text="Max amount:" Foreground="LightGray" Margin="10 10 0 0"/>
                     <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMaxAmount, Mode=TwoWay}" />
 
-                    <TextBlock Text="Category:" Foreground="LightGray" Margin="10 10 0 0"/>
+                        <TextBlock Text="Currency" Foreground="White" Padding="5 0" FontSize="16"/>
+                        <ComboBox
+                                ItemsSource="{Binding SupportedCurrencies}"
+                                SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
+                                Style="{StaticResource ModernComboBox}">
+
+                            <ComboBox.Template>
+                                <ControlTemplate TargetType="ComboBox">
+                                    <Grid>
+                                        <ToggleButton Name="ToggleButton"
+                                                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                        ClickMode="Press"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        Foreground="{StaticResource SoftWhiteBrush}"
+                                                        FontSize="16"
+                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                            <Grid>
+                                                <ContentPresenter Margin="4,2,25,2"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Stretch"
+                                                                TextBlock.TextAlignment="Left"
+                                                                Content="{TemplateBinding SelectionBoxItem}"
+                                                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                                                <Path HorizontalAlignment="Right"
+                                                        Margin="0,0,6,0"
+                                                        VerticalAlignment="Center"
+                                                        Data="M 0 0 L 4 4 L 8 0 Z"
+                                                        Fill="{TemplateBinding Foreground}" />
+                                            </Grid>
+                                        </ToggleButton>
+                                        <Popup Name="Popup"
+                                                Placement="Bottom"
+                                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                                AllowsTransparency="True"
+                                                Focusable="False"
+                                                PopupAnimation="Slide"
+                                                StaysOpen="False">
+                                            <Grid Background="{TemplateBinding Background}"
+                                                    Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                                <ScrollViewer>
+                                                    <ItemsPresenter />
+                                                </ScrollViewer>
+                                            </Grid>
+                                        </Popup>
+
+                                    </Grid>
+                                </ControlTemplate>
+                            </ComboBox.Template>
+                        </ComboBox>
+
+                        <TextBlock Text="Category:" Foreground="LightGray" Margin="10 10 0 0"/>
                         <ComboBox Style="{StaticResource ModernComboBox }"
                               ItemsSource="{Binding Categories}"
                               DisplayMemberPath="Name"
@@ -71,7 +122,7 @@
 
                         <Button Content="Apply filters"
                                 Style="{StaticResource ModernButton}"
-                                Command="{Binding ApplyFiltersCommand}"
+                                Command="{Binding ApplyFilterCommand}"
                                 Grid.Column="0"
                                 Margin="4,0,2,0"
                                 Padding="8,12"

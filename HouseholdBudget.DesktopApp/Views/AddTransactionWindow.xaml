@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add Transaction"
         Width="400"
-        Height="520"
+        Height="550"
         WindowStyle="None"
         ResizeMode="NoResize"
         Background="{StaticResource DarkBackgroundBrush}"
@@ -30,6 +30,7 @@
             <TextBox Style="{StaticResource ModernTextBox}"
                      Text="{Binding AmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
+            <TextBlock Text="Currency" Foreground="White" Padding="5 0" FontSize="16"/>
             <ComboBox
                 ItemsSource="{Binding SupportedCurrencies}"
                 SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
