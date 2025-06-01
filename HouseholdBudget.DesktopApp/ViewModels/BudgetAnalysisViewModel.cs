@@ -27,10 +27,15 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public WpfPlot? CustomTrendPlot { get; set; }
 
         public ObservableCollection<int> Years { get; } = new(Enumerable.Range(2020, 10));
-        public ObservableCollection<string> Months { get; } =
-            new(DateTimeFormatInfo.CurrentInfo!.MonthNames.Where(m => !string.IsNullOrEmpty(m)).ToList());
+        private static readonly CultureInfo _englishCulture = new("en-US");
 
-        public string SelectedMonth { get; set; } = DateTime.Now.ToString("MMMM");
+        public ObservableCollection<string> Months { get; } =
+            new(_englishCulture.DateTimeFormat.MonthNames
+                .Where(m => !string.IsNullOrEmpty(m))
+                .ToList());
+
+        public string SelectedMonth { get; set; } = DateTime.Now.ToString("MMMM", _englishCulture);
+
         public int SelectedYear { get; set; } = DateTime.Now.Year;
 
         public DateTime? CustomStartDate { get; set; } = DateTime.Now.AddDays(-30);
@@ -50,7 +55,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public async Task LoadMonthlyAsync()
         {
-            if (!DateTime.TryParseExact(SelectedMonth, "MMMM", CultureInfo.CurrentCulture, DateTimeStyles.None, out var dt))
+            if (!DateTime.TryParseExact(SelectedMonth, "MMMM", _englishCulture, DateTimeStyles.None, out var dt))
                 return;
 
             int month = dt.Month;

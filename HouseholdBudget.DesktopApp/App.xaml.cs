@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,8 @@ namespace HouseholdBudget.DesktopApp
         protected override void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 
             base.OnStartup(e);
             ServiceProvider = AppBootstrapper.ConfigureServices();

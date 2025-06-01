@@ -87,10 +87,12 @@
 
 
             <TextBlock Text="Transaction Type" Foreground="White" Padding="5 0" FontSize="16"/>
-            <ComboBox x:Name="TypeBox" SelectedIndex="1" Style="{StaticResource ModernComboBox}">
-                <ComboBoxItem Content="Income" />
-                <ComboBoxItem Content="Expense" />
+            <ComboBox
+                ItemsSource="{Binding TransactionTypes}" 
+                SelectedItem="{Binding SelectedType, Mode=TwoWay}" 
+                Style="{StaticResource ModernComboBox}">
             </ComboBox>
+
 
             <TextBlock Text="Category" Foreground="White" Padding="5 0" FontSize="16"/>
             <ComboBox x:Name="CategoryBox"

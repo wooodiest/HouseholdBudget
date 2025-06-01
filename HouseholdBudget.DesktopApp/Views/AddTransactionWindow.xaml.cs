@@ -64,7 +64,7 @@ namespace HouseholdBudget.DesktopApp.Views
                     _viewModel.SelectedCategory.Id,
                     parsedAmount,
                     currency!,
-                    _viewModel.SelectedType,
+                    _viewModel.SelectedType == "Expense" ? TransactionType.Expense : TransactionType.Income,
                     _viewModel.Description,
                     null,
                     _viewModel.Date);

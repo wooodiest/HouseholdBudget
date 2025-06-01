@@ -34,7 +34,11 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private readonly Transaction? _existingTransaction;
 
-        public TransactionType SelectedType { get; set; } = TransactionType.Expense;
+        public ObservableCollection<string> TransactionTypes { get; } =
+            new(new[] { "Income", "Expense" });
+
+
+        public string SelectedType { get; set; } = "Expense";
         public Category? SelectedCategory { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
         public string Description { get; set; } = string.Empty;
@@ -74,7 +78,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
             if (_existingTransaction != null)
             {
-                SelectedType     = _existingTransaction.Type;
+                SelectedType     = _existingTransaction.Type == TransactionType.Expense ? "Expense" : "Income";
                 Date             = _existingTransaction.Date;
                 Description      = _existingTransaction.Description;
                 AmountText       = _existingTransaction.Amount.ToString("F2");
