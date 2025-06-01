@@ -8,6 +8,9 @@
     <Compile Update="Views\AddTransactionWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Controls\AnalysisView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Controls\LoginView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

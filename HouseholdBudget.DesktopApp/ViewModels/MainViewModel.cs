@@ -44,10 +44,17 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             LoggedInUserName = $"Logged in as: {user?.Name ?? "Unknown"}";
         }
 
-        private void ShowTransactions()
+        public void ShowTransactions()
         {
             var vm = _serviceProvider.GetRequiredService<TransactionsViewModel>();
             var view = new TransactionsView { DataContext = vm };
+            _viewRouter.ShowView(view);
+        }
+
+        public void ShowAnalysis()
+        {
+            var vm = _serviceProvider.GetRequiredService<BudgetAnalysisViewModel>();
+            var view = new AnalysisView { DataContext = vm };
             _viewRouter.ShowView(view);
         }
 

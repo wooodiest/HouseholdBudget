@@ -12,13 +12,15 @@ namespace HouseholdBudget.DesktopApp
     public partial class MainWindow : Window
     {
         private readonly IWindowManager _windowManager;
+        private readonly IViewRouter _viewRouter;
         private readonly MainViewModel _viewModel;
 
-        public MainWindow(IWindowManager windowManager, MainViewModel viewModel)
+        public MainWindow(IWindowManager windowManager, IViewRouter iViewRouter, MainViewModel viewModel)
         {
             InitializeComponent();
             _windowManager = windowManager;
-            _viewModel = viewModel;
+            _viewRouter    = iViewRouter;
+            _viewModel     = viewModel;
             DataContext = _viewModel;
         }
 
@@ -37,6 +39,12 @@ namespace HouseholdBudget.DesktopApp
 
         private void TransactionsButton_Click(object sender, RoutedEventArgs e)
         {
+            _viewModel.ShowTransactions();
+        }
+
+        private void AnalysisButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ShowAnalysis();
         }
 
         private void AddBudget_Click(object sender, RoutedEventArgs e)
