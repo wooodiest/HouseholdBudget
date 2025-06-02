@@ -8,6 +8,11 @@ namespace HouseholdBudget.Core.Models
     public class CategoryBudgetPlan : AuditableEntity
     {
         /// <summary>
+        /// The unique identifier of the budget plan to which this category budget allocation belongs.
+        /// </summary>
+        public Guid BudgetPlanId { get; set; }
+
+        /// <summary>
         /// The unique identifier of the category to which this budget allocation applies.
         /// </summary>
         [Required]
@@ -58,8 +63,9 @@ namespace HouseholdBudget.Core.Models
         /// <param name="expensePlanned">The planned expense allocation for this category.</param>
         /// <param name="currency">The currency in which the budget is set.</param>
         /// <exception cref="ValidationException">Thrown if input values are invalid.</exception>
-        public CategoryBudgetPlan(Guid categoryId, decimal incomePlanned, decimal expensePlanned, Currency currency)
+        public CategoryBudgetPlan(Guid planId, Guid categoryId, decimal incomePlanned, decimal expensePlanned, Currency currency)
         {
+            BudgetPlanId = planId;
             if (categoryId == Guid.Empty)
                 throw new ValidationException("CategoryId is required.");
             if (incomePlanned < 0)

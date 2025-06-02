@@ -5,6 +5,9 @@
     <Compile Update="Views\AddBudgetWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\AddCategoryPlanWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\AddCategoryWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,9 +1,11 @@
 ﻿using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
+using HouseholdBudget.DesktopApp.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
