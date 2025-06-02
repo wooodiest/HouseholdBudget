@@ -120,13 +120,16 @@
                                   Margin="10, 0"
                                   x:Name="BudgetsListView"
                                   Background="Transparent"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                   BorderThickness="0"
                                   Foreground="{StaticResource SoftWhiteBrush}"
                                   ItemsSource="{Binding Budgets}"
                                   SelectedItem="{Binding SelectedBudget}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" Padding="8 5"/>
+                                    <TextBlock Text="{Binding Name}" 
+                                               Padding="8 5" FontSize="14"
+                                                TextTrimming="CharacterEllipsis"/>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

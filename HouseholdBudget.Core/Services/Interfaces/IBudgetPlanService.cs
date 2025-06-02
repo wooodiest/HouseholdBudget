@@ -13,6 +13,12 @@ namespace HouseholdBudget.Core.Services.Interfaces
     public interface IBudgetPlanService
     {
         /// <summary>
+        /// Initializes the service by loading all budget plans for the currently authenticated user.
+        /// </summary>
+        /// <returns></returns>
+        Task InitAsync();
+
+        /// <summary>
         /// Retrieves all budget plans defined by the currently authenticated user.
         /// </summary>
         /// <returns>A collection of budget plans belonging to the user.</returns>

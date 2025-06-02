@@ -12,14 +12,9 @@
             <ScrollViewer.Resources>
                 <Style TargetType="ScrollBar" BasedOn="{StaticResource CustomScrollBar}" />
             </ScrollViewer.Resources>
-            <StackPanel Margin="20">
-                <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold" />
-                <TextBlock Text="{Binding Description}" Margin="0 10 0 0"/>
-                <TextBlock Text="{Binding StartDate}" />
-                <TextBlock Text="{Binding EndDate}" />
-                <TextBlock Text="{Binding TotalAmount}" />
-    </StackPanel>
-
+            <StackPanel Margin="20" Orientation="Vertical">
+                <TextBlock Text="{Binding Name}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0 0 0 10" />
+            </StackPanel>
         </ScrollViewer>
     </Border>
 </UserControl>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
@@ -51,6 +52,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
             ShowTransactionsCommand = new BasicRelayCommand(ShowTransactions);
             ShowTransactions();
+
+            _ = LoadBudgetsAsync();
         }
 
         private string _loggedInUserName = "Unknown";
@@ -68,6 +71,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public void ShowTransactions()
         {
+            SelectedBudget = null;
             var vm = _serviceProvider.GetRequiredService<TransactionsViewModel>();
             var view = new TransactionsView { DataContext = vm };
             _viewRouter.ShowView(view);
@@ -75,6 +79,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public void ShowAnalysis()
         {
+            SelectedBudget = null;
             var view = new AnalysisView(_serviceProvider);
             _viewRouter.ShowView(view);
         }
@@ -87,14 +92,36 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             _viewRouter.ShowView(view);
         }
 
-        public async void LoadBudgets()
+        public async Task LoadBudgetsAsync()
         {
+            await _budgetService.InitAsync();
             var plans = await _budgetService.GetAllPlansAsync();
             Budgets.Clear();
             foreach (var plan in plans)
                 Budgets.Add(plan);
         }
 
+        public async Task DeleteBudget()
+        {
+            if (SelectedBudget == null) 
+                return;
+
+            int deletedIndex = Budgets.IndexOf(SelectedBudget);
+
+            await _budgetService.DeletePlanAsync(SelectedBudget.Id);
+            Budgets.Remove(SelectedBudget);
+
+            if (Budgets.Count > 0)
+            {
+                int newIndex = Math.Max(0, deletedIndex - 1);
+                SelectedBudget = Budgets[newIndex];
+            }
+            else
+            {
+                ShowTransactions();
+                SelectedBudget = null;
+            }
+        }
 
         public void Logout()
         {

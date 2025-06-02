@@ -19,7 +19,8 @@ namespace HouseholdBudget.Core.Services.Local
     /// </summary>
     public class LocalBudgetPlanService : IBudgetPlanService, ITransactionEventHandler
     {
-        private readonly List<BudgetPlan> _plans = new();
+        private List<BudgetPlan> _plans = new();
+
         private readonly IUserSessionService _userSession;
         private readonly Lazy<IBudgetExecutionService> _budgetExecutionService;
         private readonly IBudgetRepository _repository;
@@ -38,6 +39,15 @@ namespace HouseholdBudget.Core.Services.Local
             _userSession = userSession;
             _budgetExecutionService = budgetExecutionService;
             _repository = budgetRepository;
+        }
+
+        /// <inheritdoc/>
+        public async Task InitAsync()
+        {
+            EnsureAuthenticated();
+
+            _plans.Clear();
+            _plans = (await _repository.GetBudgetPlansByUserAsync(_userSession.GetUser()!.Id)).ToList();
         }
 
         /// <inheritdoc/>
@@ -201,5 +211,6 @@ namespace HouseholdBudget.Core.Services.Local
                 await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
             }
         }
+
     }
 }
