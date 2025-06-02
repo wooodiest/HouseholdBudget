@@ -14,6 +14,33 @@
             </ScrollViewer.Resources>
             <StackPanel Margin="20" Orientation="Vertical">
                 <TextBlock Text="{Binding Name}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0 0 0 10" />
+                <TextBlock Text="{Binding Description}" FontSize="18" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 10" />
+
+                <TextBlock Text="Category Plans" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="0 20 0 10"/>
+
+                <ItemsControl ItemsSource="{Binding CategoryPlans}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#1E1E2F" Margin="0 0 0 10" Padding="10" CornerRadius="6">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding CategoryName}" FontSize="16" FontWeight="Bold" Foreground="White"/>
+
+                                    <!-- Income -->
+                                    <TextBlock Text="Income" Foreground="#88FF88" Margin="0 10 0 0"/>
+                                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding IncomeProgress}" Height="16" 
+                                        Foreground="{Binding IncomeProgress, Converter={StaticResource ProgressColorConverter}}" />
+                                    <TextBlock Text="{Binding IncomeExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
+
+                                    <!-- Expense -->
+                                    <TextBlock Text="Expenses" Foreground="#FF8888" Margin="0 10 0 0"/>
+                                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding ExpenseProgress}" Height="16"
+                                        Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverter}}" />
+                                    <TextBlock Text="{Binding ExpenseExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </ScrollViewer>
     </Border>

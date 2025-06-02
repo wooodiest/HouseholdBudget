@@ -66,7 +66,8 @@ namespace HouseholdBudget.Core.Services.Shared
                         transaction.Currency,
                         categoryPlan.Currency
                     );
-                    categoryPlan.AddExecution(convertedAmount);
+                    categoryPlan.AddExecution(transaction.Type == TransactionType.Income ? convertedAmount : 0.0m,
+                        transaction.Type == TransactionType.Expense ? convertedAmount : 0.0m);
                 }
             }
         }
@@ -117,7 +118,8 @@ namespace HouseholdBudget.Core.Services.Shared
                             transaction.Currency,
                             categoryPlan.Currency
                         );
-                        categoryPlan.AddExecution(convertedAmount);
+                        categoryPlan.AddExecution(transaction.Type == TransactionType.Income ? convertedAmount : 0.0m,
+                            transaction.Type == TransactionType.Expense ? convertedAmount : 0.0m);
                     }
                 }
             }

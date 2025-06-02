@@ -3,6 +3,7 @@ using System;
 using HouseholdBudget.Core.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HouseholdBudget.Core.Migrations
 {
     [DbContext(typeof(BudgetDbContext))]
-    partial class BudgetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250602142126_UpdatedCategoryPlan")]
+    partial class UpdatedCategoryPlan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -96,16 +99,16 @@ namespace HouseholdBudget.Core.Migrations
                     b.Property<Guid>("CurrencyId")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("ExpenseExecuted")
+                    b.Property<decimal>("ExpenseAmount")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("ExpensePlanned")
+                    b.Property<decimal>("ExpenseExecutedAmount")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("IncomeExecuted")
+                    b.Property<decimal>("IncomeAmount")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("IncomePlanned")
+                    b.Property<decimal>("IncomeExecutedAmount")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")

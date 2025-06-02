@@ -14,16 +14,28 @@ namespace HouseholdBudget.Core.Models
         public Guid CategoryId { get; init; }
 
         /// <summary>
-        /// The amount of money allocated for this category.
-        /// This value must be non-negative and expressed in the associated currency.
+        /// Initial planned income allocations for this category.
         /// </summary>
         [Range(0, double.MaxValue)]
-        public decimal Amount { get; init; } = 0.0m;
+        public decimal IncomePlanned { get; init; } = 0.0m;
 
         /// <summary>
-        /// The amount of money that has been executed (spent) against this budget.
+        /// Income that has been executed against this budget plan.
+        /// </summary>
         [Range(0, double.MaxValue)]
-        public decimal ExecutedAmount { get; private set; } = 0.0m;
+        public decimal IncomeExecuted { get; private set; } = 0.0m;
+
+        /// <summary>
+        /// Initial planned expense allocations for this category.
+        /// </summary>
+        [Range(0, double.MaxValue)]
+        public decimal ExpensePlanned { get; init; } = 0.0m;
+
+        /// <summary>
+        /// Expenses that have been executed against this budget plan.
+        /// </summary>
+        [Range(0, double.MaxValue)]
+        public decimal ExpenseExecuted { get; private set; } = 0.0m;
 
         /// <summary>
         /// The currency in which the budget amount is defined.
@@ -42,28 +54,33 @@ namespace HouseholdBudget.Core.Models
         /// with the specified category, amount, and currency.
         /// </summary>
         /// <param name="categoryId">The ID of the budgeted category.</param>
-        /// <param name="amount">The planned monetary allocation for this category.</param>
+        /// <param name="incomePlanned">The planned income allocation for this category.</param>
+        /// <param name="expensePlanned">The planned expense allocation for this category.</param>
         /// <param name="currency">The currency in which the budget is set.</param>
         /// <exception cref="ValidationException">Thrown if input values are invalid.</exception>
-        public CategoryBudgetPlan(Guid categoryId, decimal amount, Currency currency)
+        public CategoryBudgetPlan(Guid categoryId, decimal incomePlanned, decimal expensePlanned, Currency currency)
         {
             if (categoryId == Guid.Empty)
                 throw new ValidationException("CategoryId is required.");
-            if (amount < 0)
+            if (incomePlanned < 0)
+                throw new ValidationException("Amount must be non-negative.");
+            if (expensePlanned < 0)
                 throw new ValidationException("Amount must be non-negative.");
             if (currency == null)
                 throw new ValidationException("Currency must be provided.");
 
-            CategoryId = categoryId;
-            Amount     = amount;
-            Currency   = currency;
+            CategoryId     = categoryId;
+            IncomePlanned  = incomePlanned;
+            ExpensePlanned = expensePlanned;
+            Currency       = currency;
         }
 
         /// <summary>
         /// Updates the budgeted amount for this category.
-        public void AddExecution(decimal amount)
+        public void AddExecution(decimal income, decimal expense)
         {
-            ExecutedAmount += amount;
+            IncomeExecuted  += income;
+            ExpenseExecuted += expense;
         }
 
         /// <summary>
@@ -71,7 +88,8 @@ namespace HouseholdBudget.Core.Models
         /// allowing for a fresh start in tracking expenses.
         public void ClearExecution()
         {
-            ExecutedAmount = 0;
+            IncomeExecuted  = 0;
+            ExpenseExecuted = 0;
         }
 
         /// <summary>
@@ -81,7 +99,7 @@ namespace HouseholdBudget.Core.Models
         {
             var created = $"Created: {CreatedAt:u}";
             var updated = UpdatedAt.HasValue ? $" | Updated: {UpdatedAt:u}" : "";
-            var amountFormatted = $"{Amount:F2}/{ExecutedAmount:F2} {Currency?.Code ?? "???"}";
+            var amountFormatted = $"Income: {IncomePlanned:F2}/{IncomeExecuted:F2}, Expenses {ExpensePlanned:F2}/{ExpenseExecuted:F2} {Currency?.Code ?? "???"}";
 
             return $"{amountFormatted} | Id: {Id} | {created}{updated}";
         }

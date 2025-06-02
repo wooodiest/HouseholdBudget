@@ -1,10 +1,13 @@
 ﻿<Application x:Class="HouseholdBudget.DesktopApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:HouseholdBudget.DesktopApp.Helpers"
              xmlns:local="clr-namespace:HouseholdBudget.DesktopApp">
     <Application.Resources>
         <ResourceDictionary>
 
+            <helpers:ProgressColorConverter x:Key="ProgressColorConverter"/>
+            
             <!-- ===== Kolory ===== -->
             <Color x:Key="SoftWhiteColor">#FFDDDDDD</Color>
             <Color x:Key="PrimaryColor">#FF5A5AFF</Color>
@@ -394,7 +397,8 @@
                 </Setter>
             </Style>
 
-
         </ResourceDictionary>
+        
+        
     </Application.Resources>
 </Application>
