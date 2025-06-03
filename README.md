@@ -162,4 +162,18 @@ Email:    demo@example.com
 Password: DemoPassword123#
 ```
 
+---
+
 This account includes prefilled sample data (categories, transactions, and budget summaries) to help you quickly understand the app's features.
+
+## 🧱 Challenges Faced During Development
+Building HouseholdBudget provided many learning opportunities and came with its share of challenges:
+
+* ⚙️ Entity Framework Core & Data Modeling
+Working with EF Core and configuring the data layer was initially difficult, especially with regard to concurrency issues and model relationships. Some structural changes were needed to simplify interactions — for example, replacing a Currency object with a simple currency code string inside transaction records.
+
+* 🧩 WPF Application Complexity
+Although powerful, building a polished Windows desktop application using WPF presented its own challenges. Certain aspects felt unintuitive or cumbersome compared to web-based development, requiring additional time for debugging and layout fine-tuning.
+
+* 🧠 Codebase Maturity Variance
+The Core project was carefully designed and refined with well-defined services and interfaces. While the desktop UI is functional and visually clean, some parts could benefit from further architectural improvements to enhance long-term maintainability and scalability.
