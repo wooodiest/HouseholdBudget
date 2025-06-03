@@ -6,7 +6,8 @@
     <Application.Resources>
         <ResourceDictionary>
 
-            <helpers:ProgressColorConverter x:Key="ProgressColorConverter"/>
+            <helpers:ProgressColorConverterIncome x:Key="ProgressColorConverterIncome"/>
+            <helpers:ProgressColorConverterExpense x:Key="ProgressColorConverterExpense"/>
             
             <!-- ===== Kolory ===== -->
             <Color x:Key="SoftWhiteColor">#FFDDDDDD</Color>
