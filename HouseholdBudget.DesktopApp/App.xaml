@@ -8,6 +8,8 @@
 
             <helpers:ProgressColorConverterIncome x:Key="ProgressColorConverterIncome"/>
             <helpers:ProgressColorConverterExpense x:Key="ProgressColorConverterExpense"/>
+            <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            <helpers:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             
             <!-- ===== Kolory ===== -->
             <Color x:Key="SoftWhiteColor">#FFDDDDDD</Color>

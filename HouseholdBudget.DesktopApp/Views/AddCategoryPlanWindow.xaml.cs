@@ -29,7 +29,7 @@ namespace HouseholdBudget.DesktopApp.Views
         private readonly AddCategoryPlanViewModel _viewModel;
 
         private readonly bool _isEditMode;
-        private readonly CategoryBudgetPlan? _existingBudgetPlan;
+        private CategoryBudgetPlan? _existingBudgetPlan;
         private BudgetPlan _budgetPlan;
 
         private readonly ICategoryService _categoryService;
@@ -70,12 +70,6 @@ namespace HouseholdBudget.DesktopApp.Views
                     return;
                 }
 
-                if (_budgetPlan.CategoryPlans.Any(p => p.CategoryId == _viewModel.SelectedCategory.Id))
-                {
-                    MessageBox.Show("A plan for this category already exists.");
-                    return;
-                }
-
                 var incomeText = _viewModel.IncomeText?.Trim();
                 if (!decimal.TryParse(incomeText, out var parsedIncome) || parsedIncome < 0)
                 {
@@ -90,15 +84,33 @@ namespace HouseholdBudget.DesktopApp.Views
                     return;
                 }
 
-                var catBudgetPlan = new CategoryBudgetPlan(
-                    _budgetPlan.Id,
-                    _viewModel.SelectedCategory.Id,
-                    parsedIncome,
-                    parsedExpense,
-                    _viewModel.SelectedCurrency);
+                var newPlan = new CategoryBudgetPlan(
+                        _budgetPlan.Id,
+                        _viewModel.SelectedCategory.Id,
+                        parsedIncome,
+                        parsedExpense,
+                        _viewModel.SelectedCurrency);
 
-                Result = catBudgetPlan;
-                await _budgetPlanService.AddCategoryPlanAsync(_budgetPlan.Id, catBudgetPlan);
+                if (_isEditMode && _existingBudgetPlan != null)
+                {
+                    _existingBudgetPlan.SetCurrency(_viewModel.SelectedCurrency);
+                    _existingBudgetPlan.SetIncomePlanned(parsedIncome);
+                    _existingBudgetPlan.SetExpensePlanned(parsedExpense);
+
+                    await _budgetPlanService.UpdateCategoryPlanAsync(_budgetPlan.Id, _existingBudgetPlan);
+                    Result = _existingBudgetPlan;
+                }
+                else
+                {
+                    if (_budgetPlan.CategoryPlans.Any(p => p.CategoryId == _viewModel.SelectedCategory.Id))
+                    {
+                        MessageBox.Show("A plan for this category already exists.");
+                        return;
+                    }
+
+                    await _budgetPlanService.AddCategoryPlanAsync(_budgetPlan.Id, newPlan);
+                    Result = newPlan;
+                }
 
                 DialogResult = true;
             }

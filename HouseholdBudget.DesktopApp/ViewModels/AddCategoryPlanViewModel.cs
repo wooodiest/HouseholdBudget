@@ -25,7 +25,18 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private readonly IExchangeRateProvider _exchangeRateProvider;
 
-        private readonly bool _isEditMode;
+        private bool _isEditMode;
+
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                _isEditMode = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string HeaderText => _isEditMode ? "Modify Category Plan" : "Add Category Plan";
         public string ButtonText => _isEditMode ? "Modify" : "Add";
 
@@ -62,7 +73,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             _session              = userSessionService;
             _exchangeRateProvider = exchangeRateProvider;
             _existingCategoryPlan = existingCategoryPlan;
-            _isEditMode           = existingCategoryPlan != null;
+            IsEditMode = existingCategoryPlan != null;
 
             LoadCategoriesCommand = new BasicRelayCommand(async () => await LoadCategoriesAsync());
 
@@ -83,10 +94,14 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 .Select(cp => cp.CategoryId);
 
             var categories = await _categoryService.GetUserCategoriesAsync();
+
+            var editingCategoryId = _existingCategoryPlan?.CategoryId;
+
             categories = categories
-                .Where(c => !existingCategoryIds.Contains(c.Id))
+                .Where(c => !existingCategoryIds.Contains(c.Id) || c.Id == editingCategoryId)
                 .OrderBy(c => c.Name)
                 .ToList();
+
             Categories = new ObservableCollection<Category>(categories);
 
             if (_existingCategoryPlan != null)
@@ -97,6 +112,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
             OnPropertyChanged(nameof(Categories));
         }
+
 
         private async Task LoadCurrenciesAsync()
         {

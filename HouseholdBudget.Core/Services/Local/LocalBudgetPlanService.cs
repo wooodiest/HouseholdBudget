@@ -144,6 +144,19 @@ namespace HouseholdBudget.Core.Services.Local
         }
 
         /// <inheritdoc />
+        public async Task UpdateCategoryPlanAsync(Guid planId, CategoryBudgetPlan categoryPlan)
+        {
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null)
+                throw new InvalidOperationException("Budget plan not found.");
+
+            plan.UpdateCategoryPlan(categoryPlan);
+            await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
+            await _repository.UpdateBudgetPlanAsync(plan);
+            await _repository.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
         public async Task AddCategoryPlanAsync(Guid planId, CategoryBudgetPlan categoryPlan)
         {
             var plan = await _repository.GetBudgetPlanByIdAsync(planId);
@@ -207,5 +220,7 @@ namespace HouseholdBudget.Core.Services.Local
                 await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
             }
         }
+
+        
     }
 }

@@ -2,6 +2,7 @@
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Commands;
+using HouseholdBudget.DesktopApp.Helpers;
 using HouseholdBudget.DesktopApp.Views;
 using System;
 using System.Collections.Generic;
@@ -72,8 +73,9 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
             EditBudgetCommand           = new BasicRelayCommand(EditBudget);
             AddBudgetCategoryCommand    = new BasicRelayCommand(AddCategoryPlan);
-            EditBudgetCategoryCommand   = new BasicRelayCommand(EditCategoryPlan, () => SelectedCategoryPlan != null);
-            DeleteBudgetCategoryCommand = new BasicRelayCommand(DeleteCategoryPlan, () => SelectedCategoryPlan != null);
+            EditBudgetCategoryCommand   = new DelegateCommand<CategoryPlanViewModel>(EditCategoryPlan);
+            DeleteBudgetCategoryCommand = new DelegateCommand<CategoryPlanViewModel>(DeleteCategoryPlan);
+
         }
 
         public async Task Load(BudgetPlan plan)
@@ -112,17 +114,15 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
-        private async void EditCategoryPlan()
+        private async void EditCategoryPlan(CategoryPlanViewModel? plan)
         {
-            if (SelectedCategoryPlan == null)
-                return;
+            if (plan == null) return;
 
             var window = new AddCategoryPlanWindow(_userSessionService, _categoryService,
-                _exchangeRateProvider, _budgetPlanService, _budgetPlan, SelectedCategoryPlan.Model)
+                _exchangeRateProvider, _budgetPlanService, _budgetPlan, plan.Model)
             {
                 Owner = Application.Current.MainWindow
             };
-
 
             if (window.ShowDialog() == true && window.Result != null)
             {
@@ -130,14 +130,13 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
-
-        private void DeleteCategoryPlan()
+        private async void DeleteCategoryPlan(CategoryPlanViewModel? plan)
         {
-            if (SelectedCategoryPlan == null)
-                return;
+            if (plan == null) return;
 
-            // TODO;
+            // TODO: implementacja usuwania
         }
+
 
         private async void EditBudget()
         {

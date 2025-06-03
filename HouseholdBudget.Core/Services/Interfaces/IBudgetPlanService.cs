@@ -86,6 +86,13 @@ namespace HouseholdBudget.Core.Services.Interfaces
         Task UpdateCategoryPlansAsync(Guid planId, IEnumerable<CategoryBudgetPlan> newCategoryPlans);
 
         /// <summary>
+        /// Replaces an existing per-category allocation in a plan.
+        /// </summary>
+        /// <param name="planId">The ID of the plan containing the category allocation to update.</param>
+        /// <param name="categoryPlan"/> The updated budget allocation for a specific category.</param>
+        Task UpdateCategoryPlanAsync(Guid planId, CategoryBudgetPlan categoryPlan);
+
+        /// <summary>
         /// Adds a new per-category allocation to the existing plan.
         /// </summary>
         /// <param name="planId">The ID of the plan to which the category plan will be added.</param>

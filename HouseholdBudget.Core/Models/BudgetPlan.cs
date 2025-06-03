@@ -194,6 +194,28 @@ namespace HouseholdBudget.Core.Models
         }
 
         /// <summary>
+        /// Updates an existing category budget plan or adds it if it does not exist.
+        /// </summary>
+        /// <param name="updatedPlan">Updated category budget plan.</param>
+        public void UpdateCategoryPlan(CategoryBudgetPlan updatedPlan)
+        {
+            if (updatedPlan == null)
+                throw new ValidationException("Updated category plan cannot be null.");
+
+            var existingPlan = CategoryPlans.FirstOrDefault(p => p.CategoryId == updatedPlan.CategoryId);
+            if (existingPlan != null)
+            {
+                existingPlan = updatedPlan;
+            }
+            else
+            {
+                CategoryPlans.Add(updatedPlan);
+            }
+
+            MarkAsUpdated();
+        }
+
+        /// <summary>
         /// Adds a single category budget plan to the collection.
         /// </summary>
         /// <param name="plan">Category plan to add.</param>

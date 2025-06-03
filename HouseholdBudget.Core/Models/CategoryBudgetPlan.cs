@@ -22,7 +22,7 @@ namespace HouseholdBudget.Core.Models
         /// Initial planned income allocations for this category.
         /// </summary>
         [Range(0, double.MaxValue)]
-        public decimal IncomePlanned { get; init; } = 0.0m;
+        public decimal IncomePlanned { get; private set; } = 0.0m;
 
         /// <summary>
         /// Income that has been executed against this budget plan.
@@ -34,7 +34,7 @@ namespace HouseholdBudget.Core.Models
         /// Initial planned expense allocations for this category.
         /// </summary>
         [Range(0, double.MaxValue)]
-        public decimal ExpensePlanned { get; init; } = 0.0m;
+        public decimal ExpensePlanned { get; private set; } = 0.0m;
 
         /// <summary>
         /// Expenses that have been executed against this budget plan.
@@ -94,6 +94,40 @@ namespace HouseholdBudget.Core.Models
         {
             IncomeExecuted  = 0;
             ExpenseExecuted = 0;
+        }
+
+        /// <summary>
+        /// Sets the currency code for this budget plan.
+        /// <summary>
+        /// <param name="currencyCode" >The currency code to set, e.g., "USD", "EUR".</param>
+        public void SetCurrency(string currencyCode)
+        {
+            if (string.IsNullOrWhiteSpace(currencyCode))
+                throw new ValidationException("Currency must be provided.");
+            CurrencyCode = currencyCode;
+        }
+
+        /// <summary>
+        /// Sets the planned income and expense amounts for this budget plan.
+        /// <summary>
+        /// <param name="incomePlanned">The planned income allocation for this category.</param>
+        public void SetIncomePlanned(decimal incomePlanned)
+        {
+            if (incomePlanned < 0)
+                throw new ValidationException("Income planned must be non-negative.");
+
+            IncomePlanned = incomePlanned;
+        }
+
+        /// <summary>
+        /// Sets the planned expense and expense amounts for this budget plan.
+        /// <summary>
+        /// <param name="incomePlanned">The planned expense allocation for this category.</param>
+        public void SetExpensePlanned(decimal expensePlanned)
+        {
+            if (expensePlanned < 0)
+                throw new ValidationException("Expense planned must be non-negative.");
+            ExpensePlanned = expensePlanned;
         }
 
         /// <summary>

@@ -83,12 +83,21 @@
             </ComboBox>
 
             <TextBlock Text="Category" Foreground="White" Padding="5 0" FontSize="16"/>
-            <ComboBox x:Name="CategoryBox"
+            <!-- ComboBox widoczny tylko przy dodawaniu -->
+            <ComboBox Style="{StaticResource ModernComboBox}"
                         ItemsSource="{Binding Categories}"
-                        DisplayMemberPath="Name"
                         SelectedItem="{Binding SelectedCategory}"
-                        Style="{StaticResource ModernComboBox}">
-            </ComboBox>
+                        DisplayMemberPath="Name"
+                        Margin="0,10,0,10"
+                        Visibility="{Binding IsEditMode, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
+
+            <!-- TextBlock widoczny tylko przy edycji -->
+            <TextBlock Text="{Binding SelectedCategory.Name}"
+                            FontSize="16"
+                            Foreground="{StaticResource SoftWhiteBrush}"
+                            Margin="10,10,10,10"
+                            Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
 
             <Grid Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
