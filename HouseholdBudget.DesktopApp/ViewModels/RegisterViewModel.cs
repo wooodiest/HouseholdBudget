@@ -53,7 +53,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     }
 
                     var password = _getPassword();
-                    var user = await _authenticator.RegisterAsync(Name, Email, password, SelectedCurrency.Code);
+                    var user = await _authenticator.RegisterAsync(Name, Email, password, SelectedCurrency);
 
                     var success = await _session.LoginAsync(Email, password);
                     if (success)
@@ -86,10 +86,10 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             set { _email = value; OnPropertyChanged(); }
         }
 
-        private Currency? _selectedCurrency;
-        public ObservableCollection<Currency> SupportedCurrencies { get; } = new();
+        private string? _selectedCurrency;
+        public ObservableCollection<string> SupportedCurrencies { get; } = new();
 
-        public Currency? SelectedCurrency
+        public string? SelectedCurrency
         {
             get => _selectedCurrency;
             set
@@ -104,7 +104,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var currencies = await _exchangeRateProvider.GetSupportedCurrenciesAsync();
             SupportedCurrencies.Clear();
             foreach (var c in currencies)
-                SupportedCurrencies.Add(c);
+                SupportedCurrencies.Add(c.Code);
 
             SelectedCurrency = SupportedCurrencies.FirstOrDefault();
         }

@@ -39,56 +39,50 @@
                        Margin="0 10 0 0" />
 
             <ComboBox
-                ItemsSource="{Binding SupportedCurrencies}"
-                SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
-                Style="{StaticResource ModernComboBox}">
-
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Code}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
+    ItemsSource="{Binding SupportedCurrencies}"
+    SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
+    Style="{StaticResource ModernComboBox}">
 
                 <ComboBox.Template>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
                             <ToggleButton Name="ToggleButton"
-                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                              ClickMode="Press"
-                              Background="{TemplateBinding Background}"
-                              BorderBrush="{TemplateBinding BorderBrush}"
-                              Foreground="{StaticResource SoftWhiteBrush}"
-                              FontSize="16"
-                              BorderThickness="{TemplateBinding BorderThickness}">
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Foreground="{StaticResource SoftWhiteBrush}"
+                                FontSize="16"
+                                BorderThickness="{TemplateBinding BorderThickness}">
                                 <Grid>
                                     <ContentPresenter Margin="4,2,25,2"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Stretch"
-                                          TextBlock.TextAlignment="Left"
-                                          Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            TextBlock.TextAlignment="Left"
+                                            Content="{TemplateBinding SelectionBoxItem}"
+                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
                                     <Path HorizontalAlignment="Right"
-                                          Margin="0,0,6,0"
-                                          VerticalAlignment="Center"
-                                          Data="M 0 0 L 4 4 L 8 0 Z"
-                                          Fill="{TemplateBinding Foreground}" />
+                                Margin="0,0,6,0"
+                                VerticalAlignment="Center"
+                                Data="M 0 0 L 4 4 L 8 0 Z"
+                                Fill="{TemplateBinding Foreground}" />
                                 </Grid>
                             </ToggleButton>
                             <Popup Name="Popup"
-                                   Placement="Bottom"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True"
-                                   Focusable="False"
-                                   PopupAnimation="Slide"
-                                   StaysOpen="False">
+                        Placement="Bottom"
+                        IsOpen="{TemplateBinding IsDropDownOpen}"
+                        AllowsTransparency="True"
+                        Focusable="False"
+                        PopupAnimation="Slide"
+                        StaysOpen="False">
                                 <Grid Background="{TemplateBinding Background}"
-                                      Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+              Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ScrollViewer>
                                         <ItemsPresenter />
                                     </ScrollViewer>
                                 </Grid>
                             </Popup>
- 
+
                         </Grid>
                     </ControlTemplate>
                 </ComboBox.Template>
@@ -103,6 +97,7 @@
                     HorizontalAlignment="Stretch"
                     Padding="20 10"
                     FontSize="16"
+                    Command="{Binding RegisterCommand}"
                     Margin="5 20 5 10"
                     Style="{StaticResource ModernButton}"
                     Click="Register_Click"/>

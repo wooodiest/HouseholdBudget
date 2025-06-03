@@ -22,8 +22,6 @@ namespace HouseholdBudget.DesktopApp
             var session = ServiceProvider.GetRequiredService<IUserSessionService>();
             var windowManager = ServiceProvider.GetRequiredService<IWindowManager>();
 
-            session.LoginAsync("michalkuchnickiisc@gmail.com", "Brooklyn99#");
-
             if (!session.IsAuthenticated)
                 windowManager.ShowLoginWindow();
             else
