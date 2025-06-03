@@ -171,6 +171,18 @@ namespace HouseholdBudget.Core.Services.Local
         }
 
         /// <inheritdoc />
+        public async Task DeleteCategoryPlanAsync(Guid planId, Guid categoryId)
+        {
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null)
+                throw new InvalidOperationException("Budget plan not found.");
+
+            plan.RemoveCategoryPlan(categoryId);
+            await _repository.UpdateBudgetPlanAsync(plan);
+            await _repository.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
         public async Task RemoveCategoryPlanAsync(Guid planId, Guid categoryId)
         {
             var plan = await _repository.GetBudgetPlanByIdAsync(planId);
@@ -221,6 +233,6 @@ namespace HouseholdBudget.Core.Services.Local
             }
         }
 
-        
+
     }
 }

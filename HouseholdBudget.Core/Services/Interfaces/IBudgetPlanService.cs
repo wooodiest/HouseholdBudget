@@ -93,6 +93,13 @@ namespace HouseholdBudget.Core.Services.Interfaces
         Task UpdateCategoryPlanAsync(Guid planId, CategoryBudgetPlan categoryPlan);
 
         /// <summary>
+        /// Deletes a specific category allocation from a budget plan.
+        /// </summary>
+        /// <param name="planId">The ID of the plan to adjust.</param>
+        /// <param name="categoryId"> The ID of the category allocation to remove.</param>
+        Task DeleteCategoryPlanAsync(Guid planId, Guid categoryId);
+
+        /// <summary>
         /// Adds a new per-category allocation to the existing plan.
         /// </summary>
         /// <param name="planId">The ID of the plan to which the category plan will be added.</param>

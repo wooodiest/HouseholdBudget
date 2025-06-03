@@ -130,12 +130,32 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
-        private async void DeleteCategoryPlan(CategoryPlanViewModel? plan)
+        private async void DeleteCategoryPlan(object? param)
         {
-            if (plan == null) return;
+            if (param is not CategoryPlanViewModel plan)
+                return;
 
-            // TODO: implementacja usuwania
+            var result = MessageBox.Show(
+                $"Are you sure you want to delete the category plan for '{plan.CategoryName}'?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                await _budgetPlanService.DeleteCategoryPlanAsync(_budgetPlan.Id, plan.Model.CategoryId);
+                await Load(await _budgetPlanService.GetByIdAsync(_budgetPlan.Id) ?? _budgetPlan);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to delete category plan:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
+
 
 
         private async void EditBudget()
