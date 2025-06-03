@@ -97,7 +97,6 @@
                     HorizontalAlignment="Stretch"
                     Padding="20 10"
                     FontSize="16"
-                    Command="{Binding RegisterCommand}"
                     Margin="5 20 5 10"
                     Style="{StaticResource ModernButton}"
                     Click="Register_Click"/>
