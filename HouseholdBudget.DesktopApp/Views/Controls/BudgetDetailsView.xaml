@@ -13,10 +13,28 @@
                 <Style TargetType="ScrollBar" BasedOn="{StaticResource CustomScrollBar}" />
             </ScrollViewer.Resources>
             <StackPanel Margin="20" Orientation="Vertical">
-                <TextBlock Text="{Binding Name}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0 0 0 10" />
-                <TextBlock Text="{Binding Description}" FontSize="18" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 10" />
+                <TextBlock Text="{Binding Name}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="5 0 0 0" />
+                <TextBlock Text="{Binding Description}" 
+                            FontSize="18" 
+                            Foreground="{StaticResource SoftWhiteBrush}" 
+                            Margin="5 0 0 10">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Description}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Description}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
-                <TextBlock Text="Category Plans" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="0 20 0 10"/>
+
+                <TextBlock Text="Category Plans" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="5 0 0 10"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0 0 0 16">
                     <Button Content="Add"
@@ -97,9 +115,9 @@
                                     </Grid>
 
                                     <ProgressBar Minimum="0" Maximum="1" 
-                                                Value="{Binding ExpenseProgress, Mode=OneWay}" 
-                                                Height="16" 
-                                                Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverterExpense}, Mode=OneWay}"
+                                                 Value="{Binding ExpenseProgress, Mode=OneWay}" 
+                                                 Height="16" 
+                                                 Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverterExpense}, Mode=OneWay}"
                                                  Background="{StaticResource DarkBrush}"
                                                  BorderThickness="0"
                                                  BorderBrush="{StaticResource PrimaryBrush}"/>
