@@ -26,6 +26,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private readonly IBudgetPlanService _budgetPlanService;
 
+        private readonly MainViewModel _mainViewModel;
+
         private BudgetPlan _budgetPlan;
 
         public string Name { get; set; } = "";
@@ -52,18 +54,23 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             }
         }
 
+        public ICommand EditBudgetCommand { get; }
+
+
         public ICommand AddBudgetCategoryCommand { get; }
         public ICommand EditBudgetCategoryCommand { get; }
         public ICommand DeleteBudgetCategoryCommand { get; }
 
         public BudgetDetailsViewModel(ICategoryService categoryService, IUserSessionService userSessionService,
-            IExchangeRateProvider exchangeRateProvider, IBudgetPlanService budgetPlanService)
+            IExchangeRateProvider exchangeRateProvider, IBudgetPlanService budgetPlanService, MainViewModel mainViewModel)
         {
+            _mainViewModel = mainViewModel;
             _categoryService = categoryService;
             _userSessionService = userSessionService;
             _exchangeRateProvider = exchangeRateProvider;
             _budgetPlanService = budgetPlanService;
 
+            EditBudgetCommand           = new BasicRelayCommand(EditBudget);
             AddBudgetCategoryCommand    = new BasicRelayCommand(AddCategoryPlan);
             EditBudgetCategoryCommand   = new BasicRelayCommand(EditCategoryPlan, () => SelectedCategoryPlan != null);
             DeleteBudgetCategoryCommand = new BasicRelayCommand(DeleteCategoryPlan, () => SelectedCategoryPlan != null);
@@ -132,6 +139,19 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             // TODO;
         }
 
+        private async void EditBudget()
+        {
+            var window = new AddBudgetWindow(_budgetPlanService, _userSessionService, _budgetPlan)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            if (window.ShowDialog() == true && window.Result != null)
+            {
+                _budgetPlan = window.Result;
+                await Load(_budgetPlan);
+                await _mainViewModel.LoadBudgetsAsync();
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

@@ -13,7 +13,21 @@
                 <Style TargetType="ScrollBar" BasedOn="{StaticResource CustomScrollBar}" />
             </ScrollViewer.Resources>
             <StackPanel Margin="20" Orientation="Vertical">
-                <TextBlock Text="{Binding Name}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="5 0 0 0" />
+                <StackPanel Orientation="Horizontal" Margin="5 0 0 10">
+                    <TextBlock Text="{Binding Name}" 
+                                FontSize="28" 
+                                FontWeight="Bold" 
+                                Foreground="{StaticResource PrimaryBrush}" 
+                                VerticalAlignment="Center" />
+
+                    <Button Content="✏" 
+                        Command="{Binding EditBudgetCommand}"
+                        Style="{StaticResource ModernButton}" 
+                        Margin="10,0,0,0"
+                        Padding="8,8"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+
                 <TextBlock Text="{Binding Description}" 
                             FontSize="18" 
                             Foreground="{StaticResource SoftWhiteBrush}" 
@@ -32,6 +46,25 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+
+                <StackPanel Orientation="Horizontal" Margin="5 0 0 10">
+                    <TextBlock Text="Valid from " 
+                            FontSize="16" 
+                            Foreground="{StaticResource SoftWhiteBrush}" 
+                            VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StartDate, StringFormat={}{0:yyyy-MM-dd}}" 
+                                FontSize="16" 
+                                Foreground="{StaticResource PrimaryBrush}" 
+                                VerticalAlignment="Center"/>
+                    <TextBlock Text="to" 
+                                FontSize="16" 
+                                Foreground="{StaticResource SoftWhiteBrush}" 
+                                VerticalAlignment="Center" Margin="5,0"/>
+                    <TextBlock Text="{Binding EndDate, StringFormat={}{0:yyyy-MM-dd}}" 
+                                FontSize="16" 
+                                Foreground="{StaticResource PrimaryBrush}" 
+                                VerticalAlignment="Center"/>
+                </StackPanel>
 
 
                 <TextBlock Text="Category Plans" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="5 0 0 10"/>

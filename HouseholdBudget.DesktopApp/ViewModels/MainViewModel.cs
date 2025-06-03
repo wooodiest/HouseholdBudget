@@ -84,10 +84,10 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             _viewRouter.ShowView(view);
         }
 
-        public void ShowBudget(BudgetPlan plan)
+        public async void ShowBudget(BudgetPlan plan)
         {
             var vm = _serviceProvider.GetRequiredService<BudgetDetailsViewModel>();
-            vm.Load(plan);
+            await vm.Load(plan);
             var view = new BudgetDetailsView { DataContext = vm };
             _viewRouter.ShowView(view);
         }

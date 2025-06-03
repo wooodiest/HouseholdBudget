@@ -51,6 +51,7 @@ namespace HouseholdBudget.DesktopApp.Views
             InitializeComponent();
 
             _viewModel = new AddCategoryPlanViewModel(
+                _budgetPlan,
                 _categoryService,
                 _session,
                 exchangeRateProvider,

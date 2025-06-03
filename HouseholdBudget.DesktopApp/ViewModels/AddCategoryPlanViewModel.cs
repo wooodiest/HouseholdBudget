@@ -34,6 +34,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private readonly CategoryBudgetPlan? _existingCategoryPlan;
 
+        private readonly BudgetPlan _budgetPlan;
+
         public string IncomeText { get; set; } = "0,00";
         public string ExpenseText { get; set; } = "0,00";
 
@@ -52,9 +54,10 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         public ICommand LoadCategoriesCommand { get; }
 
-        public AddCategoryPlanViewModel(ICategoryService categoryService, IUserSessionService userSessionService,
+        public AddCategoryPlanViewModel(BudgetPlan budgetPlan, ICategoryService categoryService, IUserSessionService userSessionService,
             IExchangeRateProvider exchangeRateProvider, CategoryBudgetPlan? existingCategoryPlan = null)
         {
+            _budgetPlan           = budgetPlan;
             _categoryService      = categoryService;
             _session              = userSessionService;
             _exchangeRateProvider = exchangeRateProvider;
@@ -76,7 +79,14 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
         private async Task LoadCategoriesAsync()
         {
+            var existingCategoryIds = _budgetPlan.CategoryPlans
+                .Select(cp => cp.CategoryId);
+
             var categories = await _categoryService.GetUserCategoriesAsync();
+            categories = categories
+                .Where(c => !existingCategoryIds.Contains(c.Id))
+                .OrderBy(c => c.Name)
+                .ToList();
             Categories = new ObservableCollection<Category>(categories);
 
             if (_existingCategoryPlan != null)

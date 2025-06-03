@@ -57,8 +57,11 @@ namespace HouseholdBudget.DesktopApp.Views
             {
                 if (_isEditMode)
                 {
-                    // TODO: Update existing budget
                     Result = _existing;
+                    await _budgetService.UpdateDescriptionAsync(_existing!.Id, _viewModel.Description);
+                    await _budgetService.UpdateNameAsync(_existing.Id, _viewModel.Name);
+                    await _budgetService.UpdateDatesAsync(_existing.Id, _viewModel.StartDate.Value, _viewModel.EndDate.Value);
+                    DialogResult = true;
                 }
                 else
                 {
