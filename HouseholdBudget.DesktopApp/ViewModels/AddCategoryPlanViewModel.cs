@@ -70,7 +70,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             {
                 IncomeText       = _existingCategoryPlan.IncomePlanned.ToString("F2");
                 ExpenseText      = _existingCategoryPlan.ExpensePlanned.ToString("F2");
-                SelectedCurrency = _existingCategoryPlan.Currency.Code;
+                SelectedCurrency = _existingCategoryPlan.CurrencyCode;
             }
         }
 

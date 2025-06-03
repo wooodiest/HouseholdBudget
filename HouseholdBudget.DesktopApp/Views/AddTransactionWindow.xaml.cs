@@ -51,8 +51,6 @@ namespace HouseholdBudget.DesktopApp.Views
 
             try
             {
-                var currency = await _exchangeRateProvider.GetCurrencyByCodeAsync(_viewModel.SelectedCurrency);
-
                 var amountText = _viewModel.AmountText?.Trim();
                 if (!decimal.TryParse(amountText, out var parsedAmount) || parsedAmount <= 0)
                 {
@@ -63,10 +61,9 @@ namespace HouseholdBudget.DesktopApp.Views
                 Result = await _transactionService.CreateAsync(
                     _viewModel.SelectedCategory.Id,
                     parsedAmount,
-                    currency!,
+                    _viewModel.SelectedCurrency!,
                     _viewModel.SelectedType == "Expense" ? TransactionType.Expense : TransactionType.Income,
                     _viewModel.Description,
-                    null,
                     _viewModel.Date);
                
                 if (_isEditMode)

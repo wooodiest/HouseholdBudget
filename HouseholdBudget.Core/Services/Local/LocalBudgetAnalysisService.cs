@@ -15,7 +15,6 @@ namespace HouseholdBudget.Core.Services.Local
         private readonly ITransactionService   _transactionService;
         private readonly IUserSessionService   _userSession;
         private readonly IExchangeRateService  _exchangeRateService;
-        private readonly IExchangeRateProvider _exchangeRateProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalBudgetAnalysisService"/> class.
@@ -33,7 +32,6 @@ namespace HouseholdBudget.Core.Services.Local
             _transactionService   = transactionService;
             _userSession          = userSession;
             _exchangeRateService  = exchangeRateService;
-            _exchangeRateProvider = exchangeRateProvider;
         }
 
         /// <inheritdoc />
@@ -43,21 +41,19 @@ namespace HouseholdBudget.Core.Services.Local
 
             var filter       = new TransactionFilter { StartDate = start, EndDate = end };
             var transactions = await _transactionService.GetAsync(filter);
-            var baseCurrency = await _exchangeRateProvider.GetCurrencyByCodeAsync(user.DefaultCurrencyCode)
-                ?? throw new InvalidOperationException("Default currency not found for user.");
 
             decimal income = 0, expenses = 0;
 
             foreach (var transaction in transactions)
             {
-                var converted = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.Currency, baseCurrency);
+                var converted = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.CurrencyCode, user.DefaultCurrencyCode);
                 if (transaction.Type == TransactionType.Income)
                     income += converted;
                 else if (transaction.Type == TransactionType.Expense)
                     expenses += converted;
             }
 
-            return new BudgetTotals(income, expenses, baseCurrency);
+            return new BudgetTotals(income, expenses, user.DefaultCurrencyCode);
         }
 
         /// <inheritdoc />
@@ -67,17 +63,15 @@ namespace HouseholdBudget.Core.Services.Local
 
             var filter       = new TransactionFilter { StartDate = start, EndDate = end };
             var transactions = await _transactionService.GetAsync(filter);
-            var baseCurrency = await _exchangeRateProvider.GetCurrencyByCodeAsync(user.DefaultCurrencyCode)
-                ?? throw new InvalidOperationException("Default currency not found for user.");
 
             var grouped = new Dictionary<Guid, CategoryBudgetBreakdown>();
             foreach (var transaction in transactions)
             {
-                var converted  = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.Currency, baseCurrency);
+                var converted  = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.CurrencyCode, user.DefaultCurrencyCode);
                 var categoryId = transaction.CategoryId;
 
                 if (!grouped.ContainsKey(categoryId))
-                    grouped[categoryId] = new CategoryBudgetBreakdown(categoryId, 0, 0, baseCurrency);
+                    grouped[categoryId] = new CategoryBudgetBreakdown(categoryId, 0, 0, user.DefaultCurrencyCode);
 
                 var current = grouped[categoryId];
 
@@ -101,8 +95,6 @@ namespace HouseholdBudget.Core.Services.Local
 
             var filter = new TransactionFilter { StartDate = start, EndDate = end };
             var transactions = await _transactionService.GetAsync(filter);
-            var baseCurrency = await _exchangeRateProvider.GetCurrencyByCodeAsync(user.DefaultCurrencyCode)
-                ?? throw new InvalidOperationException("Default currency not found for user.");
 
             var transactionsByDate = transactions
                 .GroupBy(t => t.Date.Date)
@@ -117,7 +109,7 @@ namespace HouseholdBudget.Core.Services.Local
                 {
                     foreach (var transaction in dailyTransactions)
                     {
-                        var converted = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.Currency, baseCurrency);
+                        var converted = await _exchangeRateService.ConvertAsync(transaction.Amount, transaction.CurrencyCode, user.DefaultCurrencyCode);
                         if (transaction.Type == TransactionType.Income)
                             income += converted;
                         else
@@ -125,7 +117,7 @@ namespace HouseholdBudget.Core.Services.Local
                     }
                 }
 
-                trend.Add(new DailyBudgetPoint(date, income, expenses, baseCurrency));
+                trend.Add(new DailyBudgetPoint(date, income, expenses, user.DefaultCurrencyCode));
             }
 
             return trend;
@@ -149,7 +141,7 @@ namespace HouseholdBudget.Core.Services.Local
                 Month         = month,
                 TotalIncome   = totals.TotalIncome,
                 TotalExpenses = totals.TotalExpenses,
-                Currency      = totals.Currency,
+                CurrencyCode  = totals.CurrencyCode,
                 Categories    = categories,
                 DailyTrend    = trend
             };

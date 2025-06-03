@@ -126,7 +126,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     "Income" => TransactionType.Income,
                     _ => null 
                 },
-                Currency = SelectedCurrency != null ? await _exchangeRateProvider.GetCurrencyByCodeAsync(SelectedCurrency) : null
+                CurrencyCode = SelectedCurrency
             };
 
             var transactions = await _transactionService.GetAsync(filter);

@@ -196,7 +196,7 @@
                     <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="2*" />
                     <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
                     <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="*" />
-                    <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Code}" Width="*" />
+                    <DataGridTextColumn Header="Currency" Binding="{Binding CurrencyCode}" Width="*" />
                     <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>

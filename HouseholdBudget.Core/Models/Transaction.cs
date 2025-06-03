@@ -53,11 +53,6 @@ namespace HouseholdBudget.Core.Models
         public string Description { get; private set; } = string.Empty;
 
         /// <summary>
-        /// A list of optional tags associated with the transaction.
-        /// </summary>
-        public List<string> Tags { get; private set; } = [];
-
-        /// <summary>
         /// The amount of money involved in the transaction. Must be a positive value.
         /// </summary>
         [Required]
@@ -65,10 +60,9 @@ namespace HouseholdBudget.Core.Models
         public decimal Amount { get; private set; } = 0.0m;
 
         /// <summary>
-        /// The currency in which the transaction was made.
+        /// Currency code (e.g., "USD", "EUR") used for the transaction.
         /// </summary>
-        [Required]
-        public Currency Currency { get; private set; } = null!;
+        public string CurrencyCode { get; private set; } = string.Empty;
 
         /// <summary>
         /// Defines whether the transaction is an income or expense.
@@ -86,10 +80,9 @@ namespace HouseholdBudget.Core.Models
         /// <param name="userId">The ID of the user associated with this transaction.</param>
         /// <param name="categoryId">The category ID under which this transaction falls.</param>
         /// <param name="amount">The monetary amount of the transaction.</param>
-        /// <param name="currency">The currency used for the transaction.</param>
+        /// <param name="currencyCode">The currency used for the transaction.</param>
         /// <param name="type">Indicates if the transaction is income or expense.</param>
         /// <param name="description">Optional text describing the transaction.</param>
-        /// <param name="tags">Optional list of tags for classification.</param>
         /// <param name="date">The date and time the transaction occurred (UTC). Defaults to now if null.</param>
         /// <returns>A new <see cref="Transaction"/> instance.</returns>
         /// <exception cref="ValidationException">Thrown when validation fails.</exception>
@@ -97,23 +90,21 @@ namespace HouseholdBudget.Core.Models
             Guid                 userId,
             Guid                 categoryId,
             decimal              amount,
-            Currency             currency,
+            string               currencyCode,
             TransactionType      type        = TransactionType.Expense,
             string?              description = null,
-            IEnumerable<string>? tags        = null,
             DateTime?            date        = null)
         {
-            EnsureIsValid(userId, categoryId, amount, currency, description, tags);
+            EnsureIsValid(userId, categoryId, amount, currencyCode, description);
 
             return new Transaction {
-                UserId      = userId,
-                CategoryId  = categoryId,
-                Amount      = amount,
-                Currency    = currency,
-                Type        = type,
-                Description = description ?? string.Empty,
-                Tags        = tags?.ToList() ?? new List<string>(),
-                Date        = date ?? DateTime.UtcNow
+                UserId       = userId,
+                CategoryId   = categoryId,
+                Amount       = amount,
+                CurrencyCode = currencyCode,
+                Type         = type,
+                Description  = description ?? string.Empty,
+                Date         = date ?? DateTime.UtcNow
             };
         }
 
@@ -129,21 +120,6 @@ namespace HouseholdBudget.Core.Models
                 throw new ValidationException(string.Join("; ", errors));
 
             Description = newDescription;
-            MarkAsUpdated();
-        }
-
-        /// <summary>
-        /// Updates the transaction tags after validating their structure and uniqueness.
-        /// </summary>
-        /// <param name="newTags">The list of new tags to assign.</param>
-        /// <exception cref="ValidationException">Thrown if any tag is invalid or duplicated.</exception>
-        public void UpdateTags(IEnumerable<string>? newTags)
-        {
-            var errors = ValidateTags(newTags).ToList();
-            if (errors.Count > 0)
-                throw new ValidationException(string.Join("; ", errors));
-
-            Tags = newTags?.ToList() ?? new List<string>();
             MarkAsUpdated();
         }
 
@@ -167,13 +143,13 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         /// <param name="newCurrency">The new currency to assign.</param>
         /// <exception cref="ValidationException">Thrown if the new currency is null.</exception>
-        public void ChangeCurrency(Currency newCurrency)
+        public void ChangeCurrency(string newCurrency)
         {
             var errors = ValidateCurrency(newCurrency).ToList();
             if (errors.Count > 0)
                 throw new ValidationException(string.Join("; ", errors));
 
-            Currency = newCurrency;
+            CurrencyCode = newCurrency;
             MarkAsUpdated();
         }
 
@@ -254,10 +230,9 @@ namespace HouseholdBudget.Core.Models
         /// </summary>
         /// <param name="currency">The currency instance to validate.</param>
         /// <returns>Validation error message if null; otherwise, empty.</returns>
-        private static IEnumerable<string> ValidateCurrency(Currency? currency)
+        private static IEnumerable<string> ValidateCurrency(string currencyCode)
         {
-            if (currency == null)
-                yield return "Currency is required.";
+            return Currency.ValidateCode(currencyCode);
         }
 
         /// <summary>
@@ -270,25 +245,6 @@ namespace HouseholdBudget.Core.Models
             if (!string.IsNullOrWhiteSpace(description) && description.Length > MaxDescriptionLength)
                 yield return $"Description cannot exceed {MaxDescriptionLength} characters.";
         }
-
-        /// <summary>
-        /// Validates a collection of transaction tags.
-        /// </summary>
-        /// <param name="tags">The list of tags to validate.</param>
-        /// <returns>Validation error messages, if any.</returns>
-        private static IEnumerable<string> ValidateTags(IEnumerable<string>? tags)
-        {
-            if (tags == null) yield break;
-
-            var tagList = tags.ToList();
-
-            if (tagList.Any(string.IsNullOrWhiteSpace))
-                yield return "Tags cannot contain empty or whitespace values.";
-
-            if (tagList.Distinct(StringComparer.OrdinalIgnoreCase).Count() != tagList.Count)
-                yield return "Tags must be unique (case-insensitive).";
-        }
-
 
         /// <summary>
         /// Validates the provided transaction fields and returns a list of validation errors.
@@ -304,16 +260,14 @@ namespace HouseholdBudget.Core.Models
             Guid                 userId, 
             Guid                 categoryId,
             decimal              amount,
-            Currency?            currency,
-            string?              description = null,
-            IEnumerable<string>? tags        = null )
+            string               curcurrencyCoderency,
+            string?              description = null)
         {
             return  ValidateUserId(userId)
                 .Concat(ValidateCategoryId(categoryId))
                 .Concat(ValidateAmount(amount))
-                .Concat(ValidateCurrency(currency))
+                .Concat(ValidateCurrency(curcurrencyCoderency))
                 .Concat(ValidateDescription(description))
-                .Concat(ValidateTags(tags))
                 .ToList();
         }
 
@@ -323,18 +277,17 @@ namespace HouseholdBudget.Core.Models
         /// <param name="userId">The user ID to validate.</param>
         /// <param name="categoryId">The category ID to validate.</param>
         /// <param name="amount">The transaction amount to validate.</param>
-        /// <param name="currency">The currency to validate.</param>
+        /// <param name="currencyCode">The currency to validate.</param>
         /// <param name="description">Optional description to validate.</param>
         /// <param name="tags">Optional tags to validate.</param>
         private static void EnsureIsValid(
             Guid                 userId,
             Guid                 categoryId,
             decimal              amount,
-            Currency?            currency,
-            string?              description,
-            IEnumerable<string>? tags)
+            string               currencyCode,
+            string?              description)
         {
-            var errors = Validate(userId, categoryId, amount, currency, description, tags);
+            var errors = Validate(userId, categoryId, amount, currencyCode, description);
             if (errors.Count > 0)
                 throw new ValidationException(string.Join("; ", errors));
         }
@@ -344,7 +297,7 @@ namespace HouseholdBudget.Core.Models
             var created = $"Created: {CreatedAt:u}";
             var updated = UpdatedAt.HasValue ? $" | Updated: {UpdatedAt:u}" : "";
 
-            var amountFormatted = $"{Amount:F2} {Currency?.Code ?? "???"}";
+            var amountFormatted = $"{Amount:F2} {CurrencyCode ?? "???"}";
             var descriptionPart = string.IsNullOrWhiteSpace(Description) ? "" : $" | \"{Description}\"";
 
             return $"{Type}: {amountFormatted} on {Date:u}{descriptionPart} | Id: {Id} | {created}{updated}";

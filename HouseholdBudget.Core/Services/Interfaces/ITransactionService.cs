@@ -27,19 +27,17 @@ namespace HouseholdBudget.Core.Services.Interfaces
         /// </summary>
         /// <param name="categoryId">The ID of the category this transaction belongs to.</param>
         /// <param name="amount">The monetary value of the transaction.</param>
-        /// <param name="currency">The currency in which the transaction is made.</param>
+        /// <param name="currencyCode">The currency in which the transaction is made.</param>
         /// <param name="type">The type of transaction (income or expense).</param>
         /// <param name="description">Optional text description of the transaction.</param>
-        /// <param name="tags">Optional tags associated with the transaction.</param>
         /// <param name="date">Optional date of the transaction. Defaults to the current UTC time.</param>
         /// <returns>The newly created transaction.</returns>
         Task<Transaction> CreateAsync(
             Guid categoryId,
             decimal amount,
-            Currency currency,
+            string currencyCode,
             TransactionType type,
             string? description = null,
-            IEnumerable<string>? tags = null,
             DateTime? date = null);
 
         /// <summary>
@@ -81,14 +79,7 @@ namespace HouseholdBudget.Core.Services.Interfaces
         /// </summary>
         /// <param name="id">The ID of the transaction to update.</param>
         /// <param name="newCurrency">The new currency object.</param>
-        Task UpdateCurrencyAsync(Guid id, Currency newCurrency);
-
-        /// <summary>
-        /// Updates the tags of an existing transaction.
-        /// </summary>
-        /// <param name="id">The ID of the transaction to update.</param>
-        /// <param name="newTags">The new list of tags, or null to clear them.</param>
-        Task UpdateTagsAsync(Guid id, IEnumerable<string>? newTags);
+        Task UpdateCurrencyAsync(Guid id, string newCurrencyCode);
 
         /// <summary>
         /// Updates the transaction type (income or expense).
@@ -103,18 +94,16 @@ namespace HouseholdBudget.Core.Services.Interfaces
         /// <param name="id"> The ID of the transaction to update.</param>
         /// <param name="newAmount"> The new amount value, or null to leave unchanged.</param>
         /// <param name="newCategoryId"> The ID of the new category, or null to leave unchanged.</param>
-        /// <param name="newCurrency"> The new currency object, or null to leave unchanged.</param>
+        /// <param name="newCurrencyCode"> The new currency object, or null to leave unchanged.</param>
         /// <param name="newDate"> The new UTC date, or null to leave unchanged.</param>
         /// <param name="newDescription"> The new description text, or null to leave unchanged.</param>
-        /// <param name="newTags"   > The new list of tags, or null to leave unchanged.</param>
         /// <param name="newType"> The new transaction type, or null to leave unchanged.</param>
         Task UpdateAsync(
             Guid id,
             Guid? newCategoryId = null,
             decimal? newAmount = null,
-            Currency? newCurrency = null,
+            string? newCurrencyCode = null,
             string? newDescription = null,
-            IEnumerable<string>? newTags = null,
             DateTime? newDate = null,
             TransactionType? newType = null);
     }

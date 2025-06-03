@@ -79,7 +79,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var end   = CustomEndDate.Value.Date;
 
             var trend = await _analysisService.GetDailyTrendAsync(start, end);
-            var currency = trend.FirstOrDefault()?.Currency;
+            var currency = trend.FirstOrDefault()?.CurrencyCode;
 
             var current = new DateTime(start.Year, start.Month, 1);
             var grouped = new Dictionary<Guid, (decimal Income, decimal Expenses)>();
@@ -116,7 +116,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 )).ToList();
 
             var summary = new MonthlyBudgetSummary {
-                Currency = currency,
+                CurrencyCode = currency,
                 DailyTrend = trend.ToList(),
                 Categories = mergedCategories
             };
@@ -147,7 +147,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             var income  = data.Select(p => (double)p.TotalIncome).ToArray();
             var expense = data.Select(p => (double)p.TotalExpenses).ToArray();
 
-            string currencySymbol = summary.Currency?.Symbol ?? "unknow";
+            string currencySymbol = summary.CurrencyCode ?? "unknow";
 
             var incomePlot = plt.Add.Scatter(dates, income);
             incomePlot.Label = $"Income ({currencySymbol})";
@@ -219,7 +219,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
             plt.Legend.IsVisible = false;
 
-            string currencySymbol = summary.Currency?.Symbol ?? "$";
+            string currencySymbol = summary.CurrencyCode ?? "Unknown";
             double total = data.Sum(c => (double)(isIncome ? c.TotalIncome : c.TotalExpenses));
             var annotation = plt.Add.Annotation($"Total: {total:N2} {currencySymbol}");
             annotation.LabelBackgroundColor = ScottPlot.Color.FromHex("#DDDDDD");

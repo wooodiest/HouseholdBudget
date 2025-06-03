@@ -9,7 +9,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public DateTime Date => Model.Date;
         public string Description => Model.Description;
         public decimal Amount => Model.Amount;
-        public Currency Currency => Model.Currency;
+        public string CurrencyCode => Model.CurrencyCode;
         public TransactionType Type => Model.Type;
         public string CategoryName { get; }
 

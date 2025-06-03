@@ -5,8 +5,8 @@
     /// </summary>
     /// <param name="TotalIncome">Sum of all income transactions.</param>
     /// <param name="TotalExpenses">Sum of all expense transactions.</param>
-    /// <param name="Currency">Currency in which the totals are expressed.</param>
-    public record BudgetTotals(decimal TotalIncome, decimal TotalExpenses, Currency Currency);
+    /// <param name="CurrencyCode">Currency in which the totals are expressed.</param>
+    public record BudgetTotals(decimal TotalIncome, decimal TotalExpenses, string CurrencyCode);
 
     /// <summary>
     /// Represents the breakdown of budget data grouped by a specific category.
@@ -14,8 +14,8 @@
     /// <param name="CategoryId">The unique identifier of the category.</param>
     /// <param name="TotalIncome">Total income for this category within the filtered period.</param>
     /// <param name="TotalExpenses">Total expenses for this category within the filtered period.</param>
-    /// <param name="Currency">The currency of the aggregated amount.</param>
-    public record CategoryBudgetBreakdown(Guid CategoryId, decimal TotalIncome, decimal TotalExpenses, Currency Currency);
+    /// <param name="CurrencyCode">The currency of the aggregated amount.</param>
+    public record CategoryBudgetBreakdown(Guid CategoryId, decimal TotalIncome, decimal TotalExpenses, string CurrencyCode);
 
     /// <summary>
     /// Represents the daily total income and expenses used to plot budget trends.
@@ -23,8 +23,8 @@
     /// <param name="Date">Date of the record (in UTC).</param>
     /// <param name="TotalIncome">Total income for the day.</param>
     /// <param name="TotalExpenses">Total expenses for the day.</param>
-    /// <param name="Currency">Currency used for all amounts.</param>
-    public record DailyBudgetPoint(DateTime Date, decimal TotalIncome, decimal TotalExpenses, Currency Currency);
+    /// <param name="CurrencyCode">Currency used for all amounts.</param>
+    public record DailyBudgetPoint(DateTime Date, decimal TotalIncome, decimal TotalExpenses, string CurrencyCode);
 
     /// <summary>
     /// Represents a summary of financial activity for a specific calendar month.
@@ -55,7 +55,7 @@
         /// <summary>
         /// Currency in which the financial summary is expressed.
         /// </summary>
-        public required Currency Currency { get; init; }
+        public required string CurrencyCode { get; init; }
 
         /// <summary>
         /// Breakdown of totals by category (e.g., Groceries, Rent).

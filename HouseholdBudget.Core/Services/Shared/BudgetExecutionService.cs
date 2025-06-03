@@ -22,6 +22,7 @@ namespace HouseholdBudget.Core.Services.Shared
     {
         private readonly IBudgetPlanService _planService;
         private readonly IExchangeRateService _exchangeRateService;
+        private readonly IExchangeRateProvider _exchangeRateProvider;
         private readonly ITransactionService _transactionService;
         private readonly IUserSessionService _userSession;
 
@@ -36,18 +37,20 @@ namespace HouseholdBudget.Core.Services.Shared
             IBudgetPlanService planService,
             IExchangeRateService exchangeRateService,
             ITransactionService transactionService,
-            IUserSessionService userSession)
+            IUserSessionService userSession,
+            IExchangeRateProvider exchangeRateProvider)
         {
             _planService         = planService;
             _exchangeRateService = exchangeRateService;
             _transactionService  = transactionService;
             _userSession         = userSession;
+            _exchangeRateProvider = exchangeRateProvider;
         }
 
         /// <inheritdoc/>
         public async Task ApplyTransactionAsync(Transaction transaction)
         {
-            if (transaction.Amount <= 0 || transaction.Currency == null)
+            if (transaction.Amount <= 0 || transaction.CurrencyCode == null)
                 throw new ValidationException("Invalid transaction data");
 
             var plans = await _planService.GetAllPlansAsync();
@@ -63,8 +66,8 @@ namespace HouseholdBudget.Core.Services.Shared
                 {
                     var convertedAmount = await _exchangeRateService.ConvertAsync(
                         transaction.Amount,
-                        transaction.Currency,
-                        categoryPlan.Currency
+                        transaction.CurrencyCode,
+                        categoryPlan.CurrencyCode
                     );
                     categoryPlan.AddExecution(transaction.Type == TransactionType.Income ? convertedAmount : 0.0m,
                         transaction.Type == TransactionType.Expense ? convertedAmount : 0.0m);
@@ -115,8 +118,8 @@ namespace HouseholdBudget.Core.Services.Shared
                     {
                         var convertedAmount = await _exchangeRateService.ConvertAsync(
                             transaction.Amount,
-                            transaction.Currency,
-                            categoryPlan.Currency
+                            transaction.CurrencyCode,
+                            categoryPlan.CurrencyCode
                         );
                         categoryPlan.AddExecution(transaction.Type == TransactionType.Income ? convertedAmount : 0.0m,
                             transaction.Type == TransactionType.Expense ? convertedAmount : 0.0m);

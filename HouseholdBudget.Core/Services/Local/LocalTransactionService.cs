@@ -23,7 +23,7 @@ namespace HouseholdBudget.Core.Services.Local
         /// In-memory cache of the user's transactions, sorted by date for performance in filtering.
         /// The cache is invalidated and rebuilt after significant changes such as create, delete, or updates.
         /// </summary>
-        private List<Transaction>? _cachedTransactions;
+        private List<Transaction> _transactions = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalTransactionService"/> class.
@@ -46,36 +46,35 @@ namespace HouseholdBudget.Core.Services.Local
         public async Task<Transaction> CreateAsync(
             Guid categoryId,
             decimal amount,
-            Currency currency,
+            string currencyCode,
             TransactionType type,
             string? description = null,
-            IEnumerable<string>? tags = null,
             DateTime? date = null)
         {
             var user = EnsureAuthenticated();
-            var transaction = Transaction.Create(user.Id, categoryId, amount, currency, type, description, tags, date);
+            var transaction = Transaction.Create(user.Id, categoryId, amount, currencyCode, type, description, date);
+
+            _transactions.Add(transaction);
 
             await _repository.AddTransactionAsync(transaction);
             await _repository.SaveChangesAsync();
-
-            _cachedTransactions ??= new();
-            _cachedTransactions.Add(transaction);
-            SortCache();
-
             await _eventPublisher.PublishAsync(new TransactionCreated(transaction));
+
             return transaction;
         }
 
         /// <inheritdoc />
         public async Task DeleteAsync(Guid id)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
 
             await _eventPublisher.PublishAsync(new TransactionDeleted(transaction));
             await _repository.RemoveTransactionAsync(transaction);
             await _repository.SaveChangesAsync();
 
-            _cachedTransactions?.RemoveAll(t => t.Id == id);
+            _transactions.RemoveAll(t => t.Id == id);
         }
 
         /// <inheritdoc />
@@ -110,8 +109,8 @@ namespace HouseholdBudget.Core.Services.Local
             if (filter.MaxAmount != null)
                 filtered = filtered.Where(t => t.Amount <= filter.MaxAmount.Value);
 
-            if (filter.Currency != null)
-                filtered = filtered.Where(t => t.Currency.Code == filter.Currency.Code);
+            if (filter.CurrencyCode != null)
+                filtered = filtered.Where(t => t.CurrencyCode == filter.CurrencyCode);
 
             return filtered;
         }
@@ -126,84 +125,105 @@ namespace HouseholdBudget.Core.Services.Local
         /// <inheritdoc />
         public async Task UpdateAmountAsync(Guid id, decimal newAmount)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
+
             transaction.UpdateAmount(newAmount);
-            await PersistUpdateAsync(transaction);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
         public async Task UpdateCategoryAsync(Guid id, Guid newCategoryId)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
+
             transaction.ChangeCategory(newCategoryId);
-            await PersistUpdateAsync(transaction);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
-        public async Task UpdateCurrencyAsync(Guid id, Currency newCurrency)
+        public async Task UpdateCurrencyAsync(Guid id, string newCurrencyCode)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
-            transaction.ChangeCurrency(newCurrency);
-            await PersistUpdateAsync(transaction);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
+
+            transaction.ChangeCurrency(newCurrencyCode);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
         public async Task UpdateDateAsync(Guid id, DateTime newDate)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
+
             transaction.UpdateDate(newDate);
-            SortCache();
-            await PersistUpdateAsync(transaction);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
         public async Task UpdateDescriptionAsync(Guid id, string newDescription)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
-            transaction.UpdateDescription(newDescription);
-            await PersistUpdateAsync(transaction);
-        }
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
 
-        /// <inheritdoc />
-        public async Task UpdateTagsAsync(Guid id, IEnumerable<string>? newTags)
-        {
-            var transaction = await GetRequiredTransactionAsync(id);
-            transaction.UpdateTags(newTags);
-            await PersistUpdateAsync(transaction);
+            transaction.UpdateDescription(newDescription);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
         public async Task UpdateTypeAsync(Guid id, TransactionType newType)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
+
             transaction.UpdateType(newType);
-            await PersistUpdateAsync(transaction);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(Guid id, Guid? newCategoryId = null, decimal? newAmount = null, Currency? newCurrency = null, string? newDescription = null, IEnumerable<string>? newTags = null, DateTime? newDate = null, TransactionType? newType = null)
+        public async Task UpdateAsync(Guid id, Guid? newCategoryId = null, decimal? newAmount = null, string? newCurrencyCode = null, string? newDescription = null, DateTime? newDate = null, TransactionType? newType = null)
         {
-            var transaction = await GetRequiredTransactionAsync(id);
+            var transaction = await _repository.GetTransactionByIdAsync(id);
+            if (transaction == null)
+                throw new InvalidOperationException("Transaction not found.");
 
             if (newCategoryId != null)
                 transaction.ChangeCategory(newCategoryId.Value);
             if (newAmount != null)
                 transaction.UpdateAmount(newAmount.Value);
-            if (newCurrency != null)
-                transaction.ChangeCurrency(newCurrency);
+            if (newCurrencyCode != null)
+                transaction.ChangeCurrency(newCurrencyCode);
             if (newDate != null)
                 transaction.UpdateDate(newDate.Value);
-            if (newTags != null)
-                transaction.UpdateTags(newTags);
             if (newType != null)
                 transaction.UpdateType(newType.Value);
-
             if (newDescription != null)
                 transaction.UpdateDescription(newDescription);
 
-            await PersistUpdateAsync(transaction);
+            await _repository.UpdateTransactionAsync(transaction);
+            await _repository.SaveChangesAsync();
+            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
         }
-
 
         /// <summary>
         /// Retrieves transactions from cache or loads them from the repository if cache is null.
@@ -212,37 +232,8 @@ namespace HouseholdBudget.Core.Services.Local
         /// <returns>A list of transactions associated with the current user.</returns>
         private async Task<IEnumerable<Transaction>> GetUserTransactionsAsync()
         {
-            if (_cachedTransactions == null)
-            {
-                var user = EnsureAuthenticated();
-                var loaded = await _repository.GetTransactionsByUserAsync(user.Id);
-                _cachedTransactions = loaded.OrderBy(t => t.Date).ToList();
-            }
-
-            return _cachedTransactions;
-        }
-
-        /// <summary>
-        /// Persists updates to a transaction, saves changes in the repository, and raises a domain event.
-        /// </summary>
-        /// <param name="transaction">The updated transaction to persist.</param>
-        private async Task PersistUpdateAsync(Transaction transaction)
-        {
-            await _repository.UpdateTransactionAsync(transaction);
-            await _repository.SaveChangesAsync();
-            await _eventPublisher.PublishAsync(new TransactionUpdated(transaction));
-        }
-
-        /// <summary>
-        /// Retrieves a transaction by ID or throws if not found.
-        /// </summary>
-        /// <param name="id">The transaction ID.</param>
-        /// <returns>The matching transaction.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the transaction is not found.</exception>
-        private async Task<Transaction> GetRequiredTransactionAsync(Guid id)
-        {
-            var transaction = await GetByIdAsync(id);
-            return transaction ?? throw new InvalidOperationException("Transaction not found.");
+            var user = EnsureAuthenticated();
+            return await _repository.GetTransactionsByUserAsync(user.Id);
         }
 
         /// <summary>
@@ -253,14 +244,5 @@ namespace HouseholdBudget.Core.Services.Local
         private User EnsureAuthenticated() =>
             _userSession.GetUser() ?? throw new InvalidOperationException("User is not authenticated.");
 
-        /// <summary>
-        /// Sorts the in-memory cache of transactions in ascending order by transaction date.
-        /// </summary>
-        private void SortCache()
-        {
-            _cachedTransactions?.Sort((a, b) => a.Date.CompareTo(b.Date));
-        }
-
-        
     }
 }

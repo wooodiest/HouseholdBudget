@@ -43,11 +43,9 @@ namespace HouseholdBudget.Core.Models
         public decimal ExpenseExecuted { get; private set; } = 0.0m;
 
         /// <summary>
-        /// The currency in which the budget amount is defined.
-        /// This is typically aligned with the user's default planning currency.
+        /// Currency code in which the budget is set, e.g., "USD", "EUR".
         /// </summary>
-        [Required]
-        public Currency Currency { get; init; } = null!;
+        public string CurrencyCode { get; private set; } = string.Empty;
 
         /// <summary>
         /// Private constructor required for ORM and factory usage.
@@ -63,22 +61,22 @@ namespace HouseholdBudget.Core.Models
         /// <param name="expensePlanned">The planned expense allocation for this category.</param>
         /// <param name="currency">The currency in which the budget is set.</param>
         /// <exception cref="ValidationException">Thrown if input values are invalid.</exception>
-        public CategoryBudgetPlan(Guid planId, Guid categoryId, decimal incomePlanned, decimal expensePlanned, Currency currency)
+        public CategoryBudgetPlan(Guid planID,  Guid categoryId, decimal incomePlanned, decimal expensePlanned, string currencyCode)
         {
-            BudgetPlanId = planId;
+            BudgetPlanId = planID;
             if (categoryId == Guid.Empty)
                 throw new ValidationException("CategoryId is required.");
             if (incomePlanned < 0)
                 throw new ValidationException("Amount must be non-negative.");
             if (expensePlanned < 0)
                 throw new ValidationException("Amount must be non-negative.");
-            if (currency == null)
+            if (currencyCode == null)
                 throw new ValidationException("Currency must be provided.");
 
             CategoryId     = categoryId;
             IncomePlanned  = incomePlanned;
             ExpensePlanned = expensePlanned;
-            Currency       = currency;
+            CurrencyCode   = currencyCode;
         }
 
         /// <summary>
@@ -105,7 +103,7 @@ namespace HouseholdBudget.Core.Models
         {
             var created = $"Created: {CreatedAt:u}";
             var updated = UpdatedAt.HasValue ? $" | Updated: {UpdatedAt:u}" : "";
-            var amountFormatted = $"Income: {IncomePlanned:F2}/{IncomeExecuted:F2}, Expenses {ExpensePlanned:F2}/{ExpenseExecuted:F2} {Currency?.Code ?? "???"}";
+            var amountFormatted = $"Income: {IncomePlanned:F2}/{IncomeExecuted:F2}, Expenses {ExpensePlanned:F2}/{ExpenseExecuted:F2} {CurrencyCode ?? "???"}";
 
             return $"{amountFormatted} | Id: {Id} | {created}{updated}";
         }

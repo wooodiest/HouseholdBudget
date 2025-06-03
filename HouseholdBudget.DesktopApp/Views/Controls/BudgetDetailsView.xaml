@@ -53,14 +53,20 @@
 
                                     <!-- Income -->
                                     <TextBlock Text="Income" Foreground="#88FF88" Margin="0 10 0 0"/>
-                                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding IncomeProgress}" Height="16" 
-                                        Foreground="{Binding IncomeProgress, Converter={StaticResource ProgressColorConverter}}" />
+                                    <ProgressBar Minimum="0" Maximum="1" 
+                                                Value="{Binding IncomeProgress, Mode=OneWay}" 
+                                                Height="16" 
+                                                Foreground="{Binding IncomeProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}" />
+
                                     <TextBlock Text="{Binding IncomeExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
 
                                     <!-- Expense -->
                                     <TextBlock Text="Expenses" Foreground="#FF8888" Margin="0 10 0 0"/>
-                                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding ExpenseProgress}" Height="16"
-                                        Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverter}}" />
+                                    <ProgressBar Minimum="0" Maximum="1" 
+                                                Value="{Binding ExpenseProgress, Mode=OneWay}" 
+                                                Height="16" 
+                                                Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}" />
+
                                     <TextBlock Text="{Binding ExpenseExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
                                 </StackPanel>
                             </Border>

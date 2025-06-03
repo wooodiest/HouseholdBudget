@@ -8,7 +8,6 @@ using HouseholdBudget.Core.UserData;
 using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Events.Transactions;
 using HouseholdBudget.Core.Services.Interfaces;
-using System.Numerics;
 
 namespace HouseholdBudget.Core.Services.Local
 {
@@ -25,12 +24,6 @@ namespace HouseholdBudget.Core.Services.Local
         private readonly Lazy<IBudgetExecutionService> _budgetExecutionService;
         private readonly IBudgetRepository _repository;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalBudgetPlanService"/> class.
-        /// </summary>
-        /// <param name="userSession">Provides access to the currently authenticated user context.</param>
-        /// <param name="budgetExecutionService">Lazily resolved execution service used for refreshing plan state.</param>
-        /// <param name="budgetRepository">Persistence repository for storing plan data.</param>
         public LocalBudgetPlanService(
             IUserSessionService userSession,
             Lazy<IBudgetExecutionService> budgetExecutionService,
@@ -41,24 +34,23 @@ namespace HouseholdBudget.Core.Services.Local
             _repository = budgetRepository;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task InitAsync()
         {
             EnsureAuthenticated();
-
             _plans.Clear();
             _plans = (await _repository.GetBudgetPlansByUserAsync(_userSession.GetUser()!.Id)).ToList();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<IEnumerable<BudgetPlan>> GetAllPlansAsync() =>
             Task.FromResult(_plans.AsEnumerable());
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<BudgetPlan?> GetByIdAsync(Guid id) =>
             Task.FromResult(_plans.FirstOrDefault(p => p.Id == id));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<BudgetPlan> CreatePlanAsync(
             Guid userId,
             string name,
@@ -86,86 +78,99 @@ namespace HouseholdBudget.Core.Services.Local
             return plan;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task DeletePlanAsync(Guid planId)
         {
-            var plan = await RequirePlanAsync(planId);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null) 
+                throw new InvalidOperationException("Budget plan not found.");
 
             await _repository.RemoveBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
 
             _plans.RemoveAll(p => p.Id == planId);
+
+            /// TODO: delete associated category plans if needed
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task UpdateNameAsync(Guid planId, string newName)
         {
-            var plan = await RequirePlanAsync(planId);
-            plan.UpdateName(newName);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null)
+                throw new InvalidOperationException("Budget plan not found.");
 
+            plan.UpdateName(newName);
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task UpdateDescriptionAsync(Guid planId, string newDescription)
         {
-            var plan = await RequirePlanAsync(planId);
-            plan.UpdateDescription(newDescription);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null)
+                throw new InvalidOperationException("Budget plan not found.");
 
+            plan.UpdateDescription(newDescription);
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task UpdateDatesAsync(Guid planId, DateTime newStartDate, DateTime newEndDate)
         {
-            var plan = await RequirePlanAsync(planId);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null) 
+                throw new InvalidOperationException("Budget plan not found.");
+
             plan.UpdateDates(newStartDate, newEndDate);
             await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
-
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task UpdateCategoryPlansAsync(Guid planId, IEnumerable<CategoryBudgetPlan> newCategoryPlans)
         {
-            var plan = await RequirePlanAsync(planId);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null) 
+                throw new InvalidOperationException("Budget plan not found.");
+
             plan.UpdateCategoryPlans(newCategoryPlans);
             await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
-
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task AddCategoryPlanAsync(Guid planId, CategoryBudgetPlan categoryPlan)
         {
-            var plan = await RequirePlanAsync(planId);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null) 
+                throw new InvalidOperationException("Budget plan not found.");
+
             plan.AddCategoryPlan(categoryPlan);
             await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
-
-            await _repository.UpdateBudgetPlanAsync(plan);
+            await _repository.UpdateBudgetPlanAsync(plan); // ensure plan is tracked
+            await _repository.AddCategoryPlanAsync(categoryPlan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task RemoveCategoryPlanAsync(Guid planId, Guid categoryId)
         {
-            var plan = await RequirePlanAsync(planId);
+            var plan = await _repository.GetBudgetPlanByIdAsync(planId);
+            if (plan == null) 
+                throw new InvalidOperationException("Budget plan not found.");
+
             plan.RemoveCategoryPlan(categoryId);
             await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
-
             await _repository.UpdateBudgetPlanAsync(plan);
             await _repository.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Handles transaction events to update budget plans accordingly.
-        /// Currently a placeholder for future implementation.
-        /// </summary>
-        /// <param name="domainEvent">The transaction domain event to handle.</param>
+        /// <inheritdoc />
         public async Task HandleAsync(ITransactionEvent domainEvent)
         {
             switch (domainEvent)
@@ -182,15 +187,6 @@ namespace HouseholdBudget.Core.Services.Local
                 default:
                     break;
             }
-        }
-
-        private Task<BudgetPlan> RequirePlanAsync(Guid planId)
-        {
-            var plan = _plans.FirstOrDefault(p => p.Id == planId);
-            if (plan == null)
-                throw new InvalidOperationException("Budget plan not found.");
-
-            return Task.FromResult(plan);
         }
 
         private void EnsureAuthenticated()
@@ -211,6 +207,5 @@ namespace HouseholdBudget.Core.Services.Local
                 await _budgetExecutionService.Value.RefreshExecutionForPlanAsync(plan.Id);
             }
         }
-
     }
 }

@@ -38,7 +38,6 @@ namespace HouseholdBudget.Core.Data
         /// <inheritdoc/>
         public async Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId) =>
             await _context.Transactions
-                .Include(t => t.Currency)
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
 
@@ -116,5 +115,25 @@ namespace HouseholdBudget.Core.Data
         /// <inheritdoc/>
         public async Task SaveChangesAsync() =>
             await _context.SaveChangesAsync();
+
+        /// <inheritdoc/>
+        public async Task<BudgetPlan?> GetBudgetPlanByIdAsync(Guid planId)
+        {
+            return await _context.BudgetPlans
+                        .Include(p => p.CategoryPlans)
+                        .FirstOrDefaultAsync(p => p.Id == planId);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddCategoryPlanAsync(CategoryBudgetPlan categoryPlan)
+        {
+            await _context.CategoryBudgetPlans.AddAsync(categoryPlan);
+        }
+
+        /// <inheritdoc/>
+        public async Task<Transaction?> GetTransactionByIdAsync(Guid id)
+        {
+            return await _context.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+        }
     }
 }

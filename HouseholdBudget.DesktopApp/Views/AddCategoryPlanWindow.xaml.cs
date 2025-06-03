@@ -5,6 +5,7 @@ using HouseholdBudget.DesktopApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -60,59 +61,52 @@ namespace HouseholdBudget.DesktopApp.Views
 
         private async void Action_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedCategory == null)
-            {
-                MessageBox.Show("Fill in required fields");
-                return;
-            }
             try
             {
-                var currency = await _exchangeRateProvider.GetCurrencyByCodeAsync(_viewModel.SelectedCurrency);
-                if (currency == null)
+                if (_viewModel.SelectedCategory == null)
                 {
-                    MessageBox.Show("Selected currency is not supported.");
+                    MessageBox.Show("Category must be selected.");
+                    return;
+                }
+
+                if (_budgetPlan.CategoryPlans.Any(p => p.CategoryId == _viewModel.SelectedCategory.Id))
+                {
+                    MessageBox.Show("A plan for this category already exists.");
                     return;
                 }
 
                 var incomeText = _viewModel.IncomeText?.Trim();
                 if (!decimal.TryParse(incomeText, out var parsedIncome) || parsedIncome <= 0)
                 {
-                    MessageBox.Show($"Amount must be a positive number: {parsedIncome}");
+                    MessageBox.Show("Income must be a positive number.");
                     return;
                 }
 
-                var expenseText = _viewModel.IncomeText?.Trim();
+                var expenseText = _viewModel.ExpenseText?.Trim();
                 if (!decimal.TryParse(expenseText, out var parsedExpense) || parsedExpense <= 0)
                 {
-                    MessageBox.Show($"Amount must be a positive number: {parsedExpense}");
+                    MessageBox.Show("Expense must be a positive number.");
                     return;
                 }
 
-                if (_isEditMode)
-                {
-                    
-                }
-                else
-                {
+                var catBudgetPlan = new CategoryBudgetPlan(
+                    _budgetPlan.Id,
+                    _viewModel.SelectedCategory.Id,
+                    parsedIncome,
+                    parsedExpense,
+                    _viewModel.SelectedCurrency);
 
+                Result = catBudgetPlan;
+                await _budgetPlanService.AddCategoryPlanAsync(_budgetPlan.Id, catBudgetPlan);
 
-                    var catBudgetPlan = new CategoryBudgetPlan(
-                        _budgetPlan.Id, _viewModel.SelectedCategory.Id,
-                        parsedIncome,
-                        parsedExpense,
-                        currency);
-                    Result = catBudgetPlan;
-                    await _budgetPlanService.AddCategoryPlanAsync(_budgetPlan.Id, catBudgetPlan);
-                }
+                DialogResult = true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to add budget category plan:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                MessageBox.Show($"Failed to add budget category plan:\n{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            DialogResult = true;
         }
+
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

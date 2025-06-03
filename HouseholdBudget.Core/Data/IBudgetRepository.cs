@@ -31,6 +31,13 @@ namespace HouseholdBudget.Core.Data
         Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId);
 
         /// <summary>
+        /// Asynchronously retrieves a transaction by its unique identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<Transaction?> GetTransactionByIdAsync(Guid id);
+
+        /// <summary>
         /// Asynchronously retrieves all categories created by the specified user.
         /// </summary>
         /// <param name="userId">The unique identifier of the user.</param>
@@ -43,6 +50,13 @@ namespace HouseholdBudget.Core.Data
         /// <param name="userId">The unique identifier of the user.</param>
         /// <returns>A collection of user-defined categories.</returns>
         Task<IEnumerable<BudgetPlan>> GetBudgetPlansByUserAsync(Guid userId);
+
+        /// <summary>
+        /// Asynchronously retrieves a budget plan by its unique identifier.
+        /// </summary>
+        /// <param name="planId"></param>
+        /// <returns></returns>
+        Task<BudgetPlan?> GetBudgetPlanByIdAsync(Guid planId);
 
         /// <summary>
         /// Adds a new transaction to the persistence context.
@@ -99,6 +113,11 @@ namespace HouseholdBudget.Core.Data
         /// </summary>
         /// <param name="plan">The budget plan to update.</param>
         Task UpdateBudgetPlanAsync(BudgetPlan plan);
+
+        /// <summary>
+        /// Adds a new category budget plan to the persistence context.
+        /// <param name="categoryPlan"/> must be associated with a budget plan.
+        Task AddCategoryPlanAsync(CategoryBudgetPlan categoryPlan);
 
         /// <summary>
         /// Marks a budget plan for deletion from the persistence context.

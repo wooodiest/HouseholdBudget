@@ -82,7 +82,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 Date             = _existingTransaction.Date;
                 Description      = _existingTransaction.Description;
                 AmountText       = _existingTransaction.Amount.ToString("F2");
-                SelectedCurrency = _existingTransaction.Currency.Code;
+                SelectedCurrency = _existingTransaction.CurrencyCode;
             }
         }
 

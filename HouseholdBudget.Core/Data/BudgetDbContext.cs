@@ -36,11 +36,6 @@ namespace HouseholdBudget.Core.Data
         public DbSet<CategoryBudgetPlan> CategoryBudgetPlans => Set<CategoryBudgetPlan>();
 
         /// <summary>
-        /// Gets or sets the collection of supported currencies.
-        /// </summary>
-        public DbSet<Currency> Currencies => Set<Currency>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="BudgetDbContext"/> class
         /// using the specified options.
         /// </summary>

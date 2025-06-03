@@ -44,7 +44,7 @@
         /// <summary>
         /// Specific currency to match transactions against.
         /// </summary>
-        public Currency? Currency { get; set; }
+        public string? CurrencyCode { get; set; }
 
         /// <summary>
         /// Optional filter by transaction type (e.g., Expense, Income).

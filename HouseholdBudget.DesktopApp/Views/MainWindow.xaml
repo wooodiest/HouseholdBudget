@@ -151,7 +151,6 @@
                                 <Button Content="Delete"
                                         Style="{StaticResource ModernButton}"
                                         Background="{StaticResource ErrorBrush}"
-                                        Command="{Binding ClearFiltersCommand}"
                                         Grid.Column="1"
                                         Margin="2,0,4,0"
                                         Click="RemoveBudget_Click"

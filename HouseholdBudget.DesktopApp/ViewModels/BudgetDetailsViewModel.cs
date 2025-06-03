@@ -100,7 +100,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             if (window.ShowDialog() == true && window.Result != null)
             {
                 var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
-                CategoryPlans.Add(new CategoryPlanViewModel(window.Result, cat?.Name ?? "(none)"));
+                await Load(await _budgetPlanService.GetByIdAsync(_budgetPlan.Id) ?? _budgetPlan);
+
             }
         }
 
@@ -158,7 +159,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             IncomeExecuted  = model.IncomeExecuted;
             ExpensePlanned  = model.ExpensePlanned;
             ExpenseExecuted = model.ExpenseExecuted;
-            CurrencySymbol  = model.Currency?.Symbol ?? "$";
+            CurrencySymbol  = model.CurrencyCode;
         }
     }
 }
