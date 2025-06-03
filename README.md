@@ -26,6 +26,29 @@
 
 ---
 
+## 🖼️ Screenshots
+
+### 💰 Transaction List View
+
+![Transaction View](demo-images/transactions.png)
+View and manage all income and expense transactions with filtering options.
+
+---
+
+### 📊 Budget Analysis
+
+![Budget Analysis](demo-images/analysis.png)
+Visualize monthly spending trends with clear charts powered by ScottPlot.
+
+---
+
+### 🗕️ Budget Overview
+
+![Budget Overview](demo-images/budget.png)
+Track your planned vs. actual spending across multiple categories and time ranges.
+
+---
+
 ## 🏗️ Project Structure
 
 The app follows a clean, layered architecture with separation of concerns:
@@ -127,3 +150,16 @@ The system currently supports user registration and multiple accounts, but some 
    dotnet build
    dotnet run --project HouseholdBudget.DesktopApp
    ```
+   
+---
+
+### 🔑 Demo User
+
+To explore the app without creating an account, you can log in using the built-in demo user:
+
+```txt
+Email:    demo@example.com  
+Password: DemoPassword123#
+```
+
+This account includes prefilled sample data (categories, transactions, and budget summaries) to help you quickly understand the app's features.
