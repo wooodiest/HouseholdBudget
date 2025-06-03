@@ -34,7 +34,7 @@ namespace HouseholdBudget.Core.UserData
             if (allErrors.Count > 0)
                 throw new ValidationException(string.Join("; ", allErrors));
 
-            var user = await _repository.GetUserByEmailAsync(email);
+            var user = await _repository.GetUserByEmailAsync(email.Trim().ToLowerInvariant());
             if (user == null)
                 return null;
 
