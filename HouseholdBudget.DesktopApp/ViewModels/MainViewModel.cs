@@ -53,10 +53,10 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             UpdateUserDisplay();
 
             ShowTransactionsCommand = new BasicRelayCommand(ShowTransactions);
-            ShowTransactions();
-
-            _ = LoadBudgetsAsync();
             _ = _categoryService.InitAsync();
+            _ = LoadBudgetsAsync();
+
+            ShowTransactions();
         }
 
         private string _loggedInUserName = "Unknown";

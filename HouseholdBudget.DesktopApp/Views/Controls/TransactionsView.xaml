@@ -7,84 +7,77 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
 
-        <Border Background="{StaticResource DarkBrush}" Margin="10 0 0 0" CornerRadius="8">
+    <Border Background="{StaticResource DarkBrush}" Margin="10 0 0 0" CornerRadius="8">
         <Grid>
-        
-        <Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TransactionsColumn" Width="*" />
                 <ColumnDefinition x:Name="FilterPanelColumn" Width="0" />
             </Grid.ColumnDefinitions>
 
-        <!-- Filter Panel -->
+            <!-- Filter Panel -->
             <Grid Grid.Column="1" x:Name="FilterPanelWrapper">
                 <Border x:Name="FilterPanel"
-                          Background="{StaticResource DarkBackgroundBrush}"
-                          CornerRadius="8"
-                          Padding="16"
-                          Margin="5"
-                          RenderTransformOrigin="1,0">
+                        Background="{StaticResource DarkBackgroundBrush}"
+                        CornerRadius="8"
+                        Padding="16"
+                        Margin="5"
+                        RenderTransformOrigin="1,0">
                     <Border.RenderTransform>
                         <TranslateTransform x:Name="FilterPanelTransform" X="300"/>
                     </Border.RenderTransform>
-                    
+
                     <StackPanel>
-                    <TextBlock Text="Filters" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 16" HorizontalAlignment="Center"/>
-
-                    <TextBlock Text="Description contains:" Foreground="LightGray" Margin="10 0"/>
-                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterDescription, Mode=TwoWay}" />
-
-                    <TextBlock Text="Min amount:" Foreground="LightGray" Margin="10 10 0 0"/>
-                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMinAmount, Mode=TwoWay }" />
-
-                    <TextBlock Text="Max amount:" Foreground="LightGray" Margin="10 10 0 0"/>
-                    <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMaxAmount, Mode=TwoWay}" />
+                        <TextBlock Text="Filters" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 16" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Description contains:" Foreground="LightGray" Margin="10 0"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterDescription, Mode=TwoWay}" />
+                        <TextBlock Text="Min amount:" Foreground="LightGray" Margin="10 10 0 0"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMinAmount, Mode=TwoWay }" />
+                        <TextBlock Text="Max amount:" Foreground="LightGray" Margin="10 10 0 0"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding FilterMaxAmount, Mode=TwoWay}" />
 
                         <TextBlock Text="Currency" Foreground="White" Padding="5 0" FontSize="16"/>
-                        <ComboBox
-                                ItemsSource="{Binding SupportedCurrencies}"
-                                SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
-                                Style="{StaticResource ModernComboBox}">
-
+                        <ComboBox ItemsSource="{Binding SupportedCurrencies}"
+                                  SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
+                                  Style="{StaticResource ModernComboBox}">
                             <ComboBox.Template>
                                 <ControlTemplate TargetType="ComboBox">
                                     <Grid>
                                         <ToggleButton Name="ToggleButton"
-                                                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                                        ClickMode="Press"
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        Foreground="{StaticResource SoftWhiteBrush}"
-                                                        FontSize="16"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      ClickMode="Press"
+                                                      Background="{TemplateBinding Background}"
+                                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                                      Foreground="{StaticResource SoftWhiteBrush}"
+                                                      FontSize="16"
+                                                      BorderThickness="{TemplateBinding BorderThickness}">
                                             <Grid>
                                                 <ContentPresenter Margin="4,2,25,2"
-                                                                VerticalAlignment="Center"
-                                                                HorizontalAlignment="Stretch"
-                                                                TextBlock.TextAlignment="Left"
-                                                                Content="{TemplateBinding SelectionBoxItem}"
-                                                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                                                                  VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Stretch"
+                                                                  TextBlock.TextAlignment="Left"
+                                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
                                                 <Path HorizontalAlignment="Right"
-                                                        Margin="0,0,6,0"
-                                                        VerticalAlignment="Center"
-                                                        Data="M 0 0 L 4 4 L 8 0 Z"
-                                                        Fill="{TemplateBinding Foreground}" />
+                                                      Margin="0,0,6,0"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                                      Fill="{TemplateBinding Foreground}" />
                                             </Grid>
                                         </ToggleButton>
                                         <Popup Name="Popup"
-                                                Placement="Bottom"
-                                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                                AllowsTransparency="True"
-                                                Focusable="False"
-                                                PopupAnimation="Slide"
-                                                StaysOpen="False">
+                                               Placement="Bottom"
+                                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                                               AllowsTransparency="True"
+                                               Focusable="False"
+                                               PopupAnimation="Slide"
+                                               StaysOpen="False">
                                             <Grid Background="{TemplateBinding Background}"
-                                                    Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                                  Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                                 <ScrollViewer>
                                                     <ItemsPresenter />
                                                 </ScrollViewer>
                                             </Grid>
                                         </Popup>
-
                                     </Grid>
                                 </ControlTemplate>
                             </ComboBox.Template>
@@ -92,115 +85,99 @@
 
                         <TextBlock Text="Category:" Foreground="LightGray" Margin="10 10 0 0"/>
                         <ComboBox Style="{StaticResource ModernComboBox }"
-                              ItemsSource="{Binding Categories}"
-                              DisplayMemberPath="Name"
-                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
+                                  ItemsSource="{Binding Categories}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
                             <ComboBox.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Delete category"
-                                        Command="{Binding DeleteCategoryCommand}"
-                                        CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                              Command="{Binding DeleteCategoryCommand}"
+                                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                 </ContextMenu>
                             </ComboBox.ContextMenu>
                         </ComboBox>
 
                         <TextBlock Text="Transaction type:" Foreground="LightGray" Margin="10 10 0 0"/>
-                    <ComboBox Style="{StaticResource ModernComboBox }" ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding FilterSelectedTransactionType, Mode=TwoWay}">
-                    </ComboBox>
+                        <ComboBox Style="{StaticResource ModernComboBox }"
+                                  ItemsSource="{Binding TransactionTypes}"
+                                  SelectedItem="{Binding FilterSelectedTransactionType, Mode=TwoWay}" />
 
-                    <TextBlock Text="From date:" Foreground="LightGray" Margin="10 10 0 0"/>
-                    <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" />
+                        <TextBlock Text="From date:" Foreground="LightGray" Margin="10 10 0 0"/>
+                        <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" />
 
-                    <TextBlock Text="To date:" Foreground="LightGray" Margin="10 10 0 0"/>
-                    <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" />
+                        <TextBlock Text="To date:" Foreground="LightGray" Margin="10 10 0 0"/>
+                        <DatePicker Style="{StaticResource ModernDatePicker}" SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" />
 
-                    <Grid Margin="0,10,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <Button Content="Apply filters"
-                                Style="{StaticResource ModernButton}"
-                                Command="{Binding ApplyFilterCommand}"
-                                Grid.Column="0"
-                                Margin="4,0,2,0"
-                                Padding="8,12"
-                                HorizontalAlignment="Stretch"/>
-
-                        <Button Content="Clear filters"
-                                Style="{StaticResource ModernButton}"
-                                Background="{StaticResource ErrorBrush}"
-                                Command="{Binding ClearFiltersCommand}"
-                                Grid.Column="1"
-                                Margin="2,0,4,0"
-                                Padding="8,12"
-                                HorizontalAlignment="Stretch"/>
-                    </Grid>
-
-
-                </StackPanel>
-            </Border>
-         </Grid>
+                            <Button Content="Apply filters"
+                                    Style="{StaticResource ModernButton}"
+                                    Command="{Binding ApplyFilterCommand}"
+                                    Grid.Column="0"
+                                    Margin="4,0,2,0"
+                                    Padding="8,12"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Content="Clear filters"
+                                    Style="{StaticResource ModernButton}"
+                                    Background="{StaticResource ErrorBrush}"
+                                    Command="{Binding ClearFiltersCommand}"
+                                    Grid.Column="1"
+                                    Margin="2,0,4,0"
+                                    Padding="8,12"
+                                    HorizontalAlignment="Stretch"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
             <!-- Transactions Table -->
-        <StackPanel Grid.Column="0" Margin="20">
-            <TextBlock Text="Transactions"
-                       FontSize="22"
-                       FontWeight="Bold"
-                       Foreground="{StaticResource PrimaryBrush}"
-                       Margin="0 0 0 16"/>
+            <Grid Grid.Column="0" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Margin="0 0 0 16">
-                    <Button Content="Add"
-                            Style="{StaticResource ModernButton}"
-                            Command="{Binding AddTransactionCommand}"
-                            Grid.Column="0"
-                            Margin="4,0,2,0"
-                            MinWidth="75"
-                            Padding="8,12"/>
-                    <Button Content="Edit"
-                            Style="{StaticResource ModernButton}"
-                            Command="{Binding EditTransactionCommand}"
-                            Grid.Column="0"
-                            Margin="4,0,2,0"
-                            MinWidth="75"
-                            Padding="8,12"/>
-                    <Button Content="☰ Filters"
-                            Style="{StaticResource ModernButton}"
-                            Grid.Column="0"
-                            Margin="4,0,2,0"
-                            MinWidth="75"
-                            Padding="8,12"
-                            Click="ToggleFilterPanel_Click"/>
-                    <Button Content="Delete"
-                            Style="{StaticResource ModernButton}"
-                            Command="{Binding DeleteTransactionCommand}"
-                            Background="{StaticResource ErrorBrush}"
-                            Grid.Column="0"
-                            Margin="4,0,2,0"
-                            MinWidth="75"
-                            Padding="8,12"/>
-                    
+                <TextBlock Text="Transactions"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryBrush}"
+                           Margin="0 0 0 16"
+                           Grid.Row="0" />
+
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 16" Grid.Row="1">
+                    <Button Content="Add" Style="{StaticResource ModernButton}" Command="{Binding AddTransactionCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
+                    <Button Content="Edit" Style="{StaticResource ModernButton}" Command="{Binding EditTransactionCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
+                    <Button Content="☰ Filters" Style="{StaticResource ModernButton}" Margin="4,0,2,0" MinWidth="75" Padding="8,12" Click="ToggleFilterPanel_Click"/>
+                    <Button Content="Delete" Style="{StaticResource ModernButton}" Command="{Binding DeleteTransactionCommand}" Background="{StaticResource ErrorBrush}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
                 </StackPanel>
 
-            <DataGrid ItemsSource="{Binding Transactions}"
-                      AutoGenerateColumns="False"
-                      Style="{StaticResource TransactionDataGridStyle}"
-                      HeadersVisibility="Column"
-                      CanUserAddRows="False"
-                      SelectionMode="Single"
-                      SelectedItem="{Binding SelectedTransaction}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="*" />
-                    <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="2*" />
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
-                    <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="*" />
-                    <DataGridTextColumn Header="Currency" Binding="{Binding CurrencyCode}" Width="*" />
-                    <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
-    </Grid>
-  </Border>
+                <DataGrid Grid.Row="2"
+                          ItemsSource="{Binding Transactions}"
+                          AutoGenerateColumns="False"
+                          Style="{StaticResource TransactionDataGridStyle}"
+                          HeadersVisibility="Column"
+                          CanUserAddRows="False"
+                          SelectionMode="Single"
+                          SelectedItem="{Binding SelectedTransaction}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource CustomScrollBar}" />
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="*" />
+                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="2*" />
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
+                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="*" />
+                        <DataGridTextColumn Header="Currency" Binding="{Binding CurrencyCode}" Width="*" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Grid>
+    </Border>
 </UserControl>

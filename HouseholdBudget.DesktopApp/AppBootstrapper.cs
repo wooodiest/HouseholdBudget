@@ -1,5 +1,6 @@
 ﻿using HouseholdBudget.Core.Data;
 using HouseholdBudget.Core.Events.Transactions;
+using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.Services.Local;
 using HouseholdBudget.Core.Services.Shared;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace HouseholdBudget.DesktopApp
 {
@@ -109,9 +111,144 @@ namespace HouseholdBudget.DesktopApp
             {
                 var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
                 db.Database.Migrate();
+                SeedTestData(serviceProvider);
             }
 
             return serviceProvider;
         }
+
+        private static void SeedTestData(IServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
+
+            var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+            var authenticator  = scope.ServiceProvider.GetRequiredService<IUserAuthenticator>();
+            var userContext    = scope.ServiceProvider.GetRequiredService<IUserContext>();
+
+            var categoryService    = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+            var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
+            var budgetPlanService  = scope.ServiceProvider.GetRequiredService<IBudgetPlanService>();
+
+            if (!db.Users.Any())
+            {
+                var user = User.Create(
+                    name: "Demo user",
+                    email: "demo@example.com",
+                    passwordHash: passwordHasher.HashPassword(null!, "DemoPassword123#"),
+                    defaultCurrencyCode: "PLN"
+                );
+
+                db.Users.Add(user);
+                db.SaveChanges();
+                userContext.SetUser(user);
+
+                // Add categories
+                var categories = new[]
+                {
+                    "Food",
+                    "Rent",
+                    "Utilities",
+                    "Transportation",
+                    "Healthcare",
+                    "Entertainment",
+                    "Education",
+                    "Groceries",
+                    "Clothing",
+                    "Savings",
+                    "Dining Out",
+                    "Subscriptions",
+                    "Insurance",
+                    "Pets",
+                    "Gifts",
+                    "Travel",
+                    "Household Supplies",
+                    "Internet",
+                    "Phone",
+                    "Childcare"
+                };
+
+                var createdCategories = new Dictionary<string, Category>();
+                foreach (var cat in categories)
+                {
+                    var created = categoryService.CreateCategoryAsync(cat).GetAwaiter().GetResult();
+                    createdCategories[cat] = created;
+                }
+
+                // Add some transactions
+                var random = new Random();
+                var now = DateTime.Today;
+                var currency = "PLN";
+                var sampleDescriptions = new[]
+                {
+                    "Weekly groceries", "Dinner with friends", "Bus ticket", "Doctor appointment", "Netflix subscription",
+                    "Electricity bill", "Monthly rent", "School books", "Fuel", "Clothes shopping", "Gift for mom",
+                    "Insurance fee", "New shoes", "Pharmacy", "Movie night", "Pet food", "Train ride", "Internet bill"
+                };
+
+                for (int i = 0; i < 160; i++)
+                {
+                    var isExpense = random.NextDouble() < 0.9;
+
+                    var category    = isExpense
+                                ? createdCategories.Where(c => c.Key != "Savings").Select(c => c.Value).ElementAt(random.Next(createdCategories.Count - 1))
+                                : createdCategories["Savings"];
+
+                    decimal amount;
+                    if (category.Name is "Rent" or "Savings" or "Insurance")
+                        amount = Math.Round((decimal)(random.NextDouble() * 2000 + 500), 2);
+                    else
+                        amount = Math.Round((decimal)(random.NextDouble() * 500 + 10), 2);
+
+                    var description = sampleDescriptions[random.Next(sampleDescriptions.Length)];
+                    var date        = now.AddDays(-random.Next(-100, 100)).AddHours(random.Next(0, 24)).AddMinutes(random.Next(0, 60));
+                    var type        = isExpense ? TransactionType.Expense : TransactionType.Income;
+
+                    transactionService.CreateAsync(
+                        categoryId: category.Id,
+                        amount: amount,
+                        currencyCode: currency,
+                        type: type,
+                        description: description,
+                        date: date
+                    ).GetAwaiter().GetResult();
+                }
+
+                var budgets = new[]
+                {
+                    new { Name = "March Essentials",     Desc = "Basic expenses for March",         Start = now.AddDays(-60), End = now.AddDays(-30) },
+                    new { Name = "Spring Fun",           Desc = "Leisure and outings",              Start = now.AddDays(-45), End = now.AddDays(-15) },
+                    new { Name = "April Full Budget",    Desc = "Complete monthly budget",          Start = now.AddDays(-30), End = now.AddDays(0) },
+                    new { Name = "May Minimal Plan",     Desc = "Frugal spending approach",         Start = now.AddDays(-15), End = now.AddDays(15) },
+                    new { Name = "Vacation Savings",     Desc = "Budgeting for the upcoming trip",  Start = now.AddDays(0),   End = now.AddDays(30) },
+                };
+
+                var categoryList = createdCategories.Values.ToList();
+                foreach (var b in budgets)
+                {
+                    var plan = BudgetPlan.Create(user.Id, b.Name, b.Start, b.End, b.Desc);
+
+                    var numberOfCategories = random.Next(3, 8); // od 3 do 7 kategorii
+                    var shuffledCategories = categoryList.OrderBy(_ => random.Next()).Take(numberOfCategories);
+
+                    foreach (var category in shuffledCategories)
+                    {
+                        var allocation = new CategoryBudgetPlan(
+                            Guid.NewGuid(),
+                            category.Id,
+                            incomePlanned: Math.Round((decimal)(random.NextDouble() * 1200 + 100), 2),
+                            expensePlanned: Math.Round((decimal)(random.NextDouble() * 1200 + 100), 2),
+                            currencyCode: "PLN"
+                        );
+
+                        plan.AddCategoryPlan(allocation);
+                    }
+
+                    budgetPlanService.CreatePlanAsync(user.Id, plan.Name, plan.StartDate, plan.EndDate, plan.Description, plan.CategoryPlans);
+                }
+
+            }
+        }
+
     }
 }
