@@ -148,6 +148,14 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public decimal ExpenseExecuted { get; set; }
         public string CurrencySymbol { get; set; }
 
+        public string IncomePlannedFormatted => $"Income Planned: {IncomePlanned:N2} {CurrencySymbol}";
+
+        public string IncomeExecutedFormatted => $"Income Executed: {IncomeExecuted:N2} {CurrencySymbol}";
+
+        public string ExpensePlannedFormatted => $"Expense Planned: {ExpensePlanned:N2} {CurrencySymbol}";
+
+        public string ExpenseExecutedFormatted => $"Expense Executed: {ExpenseExecuted:N2} {CurrencySymbol}";
+
         public double IncomeProgress => IncomePlanned > 0 ? (double)(IncomeExecuted / IncomePlanned) : 0;
         public double ExpenseProgress => ExpensePlanned > 0 ? (double)(ExpenseExecuted / ExpensePlanned) : 0;
 

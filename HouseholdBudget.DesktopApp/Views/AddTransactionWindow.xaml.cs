@@ -65,7 +65,7 @@ namespace HouseholdBudget.DesktopApp.Views
                     _viewModel.SelectedType == "Expense" ? TransactionType.Expense : TransactionType.Income,
                     _viewModel.Description,
                     _viewModel.Date);
-               
+
                 if (_isEditMode)
                     await _transactionService.DeleteAsync(_existingTransaction!.Id);
                 

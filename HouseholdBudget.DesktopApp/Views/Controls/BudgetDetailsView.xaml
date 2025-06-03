@@ -16,7 +16,7 @@
                 <TextBlock Text="{Binding Name}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0 0 0 10" />
                 <TextBlock Text="{Binding Description}" FontSize="18" Foreground="{StaticResource SoftWhiteBrush}" Margin="0 0 0 10" />
 
-                <TextBlock Text="Category Plans" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="0 20 0 10"/>
+                <TextBlock Text="Category Plans" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" Margin="0 20 0 10"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0 0 0 16">
                     <Button Content="Add"
@@ -47,27 +47,63 @@
                 <ItemsControl ItemsSource="{Binding CategoryPlans}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#1E1E2F" Margin="0 0 0 10" Padding="10" CornerRadius="6">
+                            <Border Background="{StaticResource DarkBackgroundBrush}" Margin="0 0 0 10" Padding="10" CornerRadius="6">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding CategoryName}" FontSize="16" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="{Binding CategoryName}" FontSize="18" FontWeight="Bold" Foreground="White"/>
 
-                                    <!-- Income -->
-                                    <TextBlock Text="Income" Foreground="#88FF88" Margin="0 10 0 0"/>
+                                    <Grid Margin="0 10 0 5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                    Text="{Binding IncomePlannedFormatted}" 
+                                                    Foreground="#88FF88"
+                                                    FontSize="15"
+                                                    HorizontalAlignment="Left" />
+
+                                        <TextBlock Grid.Column="1"
+                                                    Text="{Binding IncomeExecutedFormatted}" 
+                                                    Foreground="#FF8888"
+                                                    FontSize="15"
+                                                    HorizontalAlignment="Right" />
+                                    </Grid>
                                     <ProgressBar Minimum="0" Maximum="1" 
                                                 Value="{Binding IncomeProgress, Mode=OneWay}" 
                                                 Height="16" 
-                                                Foreground="{Binding IncomeProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}" />
+                                                 BorderThickness="0"
+                                                Foreground="{Binding IncomeProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}"
+                                                 Background="{StaticResource DarkBrush}" BorderBrush="{StaticResource PrimaryBrush}" />
 
-                                    <TextBlock Text="{Binding IncomeExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
 
                                     <!-- Expense -->
-                                    <TextBlock Text="Expenses" Foreground="#FF8888" Margin="0 10 0 0"/>
+                                    <Grid Margin="0 10 0 5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                    Text="{Binding ExpensePlannedFormatted}" 
+                                                    Foreground="#88FF88"
+                                                    FontSize="15"
+                                                    HorizontalAlignment="Left" />
+
+                                        <TextBlock Grid.Column="1"
+                                                    Text="{Binding ExpenseExecutedFormatted}" 
+                                                    Foreground="#FF8888"
+                                                    FontSize="15"
+                                                    HorizontalAlignment="Right" />
+                                    </Grid>
+
                                     <ProgressBar Minimum="0" Maximum="1" 
                                                 Value="{Binding ExpenseProgress, Mode=OneWay}" 
                                                 Height="16" 
-                                                Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}" />
-
-                                    <TextBlock Text="{Binding ExpenseExecuted, StringFormat='{}{0:C}'}" Foreground="White"/>
+                                                Foreground="{Binding ExpenseProgress, Converter={StaticResource ProgressColorConverter}, Mode=OneWay}"
+                                                 Background="{StaticResource DarkBrush}"
+                                                 BorderThickness="0"
+                                                 BorderBrush="{StaticResource PrimaryBrush}"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

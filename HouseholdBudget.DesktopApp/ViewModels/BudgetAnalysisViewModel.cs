@@ -126,7 +126,6 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             DrawPie(CustomIncomePiePlot!, summary, isIncome: true);
         }
 
-
         private void DrawTrend(WpfPlot plot, MonthlyBudgetSummary summary, bool custom)
         {
             if (plot is null)

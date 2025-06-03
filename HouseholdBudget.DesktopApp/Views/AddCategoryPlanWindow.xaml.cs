@@ -76,14 +76,14 @@ namespace HouseholdBudget.DesktopApp.Views
                 }
 
                 var incomeText = _viewModel.IncomeText?.Trim();
-                if (!decimal.TryParse(incomeText, out var parsedIncome) || parsedIncome <= 0)
+                if (!decimal.TryParse(incomeText, out var parsedIncome) || parsedIncome < 0)
                 {
                     MessageBox.Show("Income must be a positive number.");
                     return;
                 }
 
                 var expenseText = _viewModel.ExpenseText?.Trim();
-                if (!decimal.TryParse(expenseText, out var parsedExpense) || parsedExpense <= 0)
+                if (!decimal.TryParse(expenseText, out var parsedExpense) || parsedExpense < 0)
                 {
                     MessageBox.Show("Expense must be a positive number.");
                     return;
