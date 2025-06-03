@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System;
+using System.Windows;
 
 namespace HouseholdBudget.DesktopApp
 {

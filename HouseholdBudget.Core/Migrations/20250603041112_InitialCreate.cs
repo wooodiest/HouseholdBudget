@@ -12,13 +12,30 @@ namespace HouseholdBudget.Core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "BudgetPlans",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BudgetPlans", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Type = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
@@ -28,19 +45,23 @@ namespace HouseholdBudget.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Currencies",
+                name: "Transactions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Code = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
-                    Symbol = table.Column<string>(type: "TEXT", maxLength: 5, nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
+                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    CurrencyCode = table.Column<string>(type: "TEXT", nullable: false),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Currencies", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,36 +81,35 @@ namespace HouseholdBudget.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Transactions",
+                name: "CategoryBudgetPlans",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    BudgetPlanId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
-                    Tags = table.Column<string>(type: "TEXT", nullable: false),
-                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CurrencyId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    IncomePlanned = table.Column<decimal>(type: "TEXT", nullable: false),
+                    IncomeExecuted = table.Column<decimal>(type: "TEXT", nullable: false),
+                    ExpensePlanned = table.Column<decimal>(type: "TEXT", nullable: false),
+                    ExpenseExecuted = table.Column<decimal>(type: "TEXT", nullable: false),
+                    CurrencyCode = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.PrimaryKey("PK_CategoryBudgetPlans", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Currencies_CurrencyId",
-                        column: x => x.CurrencyId,
-                        principalTable: "Currencies",
+                        name: "FK_CategoryBudgetPlans_BudgetPlans_BudgetPlanId",
+                        column: x => x.BudgetPlanId,
+                        principalTable: "BudgetPlans",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_CurrencyId",
-                table: "Transactions",
-                column: "CurrencyId");
+                name: "IX_CategoryBudgetPlans_BudgetPlanId",
+                table: "CategoryBudgetPlans",
+                column: "BudgetPlanId");
         }
 
         /// <inheritdoc />
@@ -99,13 +119,16 @@ namespace HouseholdBudget.Core.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
+                name: "CategoryBudgetPlans");
+
+            migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Currencies");
+                name: "BudgetPlans");
         }
     }
 }

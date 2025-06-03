@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HouseholdBudget.Core.Migrations
 {
     [DbContext(typeof(BudgetDbContext))]
-    [Migration("20250524233012_InitialCreate")]
+    [Migration("20250603041112_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -19,6 +19,42 @@ namespace HouseholdBudget.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
+
+            modelBuilder.Entity("HouseholdBudget.Core.Models.BudgetPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BudgetPlans");
+                });
 
             modelBuilder.Entity("HouseholdBudget.Core.Models.Category", b =>
                 {
@@ -34,9 +70,6 @@ namespace HouseholdBudget.Core.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -48,28 +81,35 @@ namespace HouseholdBudget.Core.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("HouseholdBudget.Core.Models.Currency", b =>
+            modelBuilder.Entity("HouseholdBudget.Core.Models.CategoryBudgetPlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(3)
+                    b.Property<Guid>("BudgetPlanId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("CurrencyCode")
                         .IsRequired()
-                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasMaxLength(5)
+                    b.Property<decimal>("ExpenseExecuted")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("ExpensePlanned")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("IncomeExecuted")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("IncomePlanned")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -77,7 +117,9 @@ namespace HouseholdBudget.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Currencies");
+                    b.HasIndex("BudgetPlanId");
+
+                    b.ToTable("CategoryBudgetPlans");
                 });
 
             modelBuilder.Entity("HouseholdBudget.Core.Models.Transaction", b =>
@@ -95,7 +137,8 @@ namespace HouseholdBudget.Core.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CurrencyId")
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Date")
@@ -104,10 +147,6 @@ namespace HouseholdBudget.Core.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("Tags")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -120,8 +159,6 @@ namespace HouseholdBudget.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrencyId");
 
                     b.ToTable("Transactions");
                 });
@@ -156,15 +193,18 @@ namespace HouseholdBudget.Core.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("HouseholdBudget.Core.Models.Transaction", b =>
+            modelBuilder.Entity("HouseholdBudget.Core.Models.CategoryBudgetPlan", b =>
                 {
-                    b.HasOne("HouseholdBudget.Core.Models.Currency", "Currency")
-                        .WithMany()
-                        .HasForeignKey("CurrencyId")
+                    b.HasOne("HouseholdBudget.Core.Models.BudgetPlan", null)
+                        .WithMany("CategoryPlans")
+                        .HasForeignKey("BudgetPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.Navigation("Currency");
+            modelBuilder.Entity("HouseholdBudget.Core.Models.BudgetPlan", b =>
+                {
+                    b.Navigation("CategoryPlans");
                 });
 #pragma warning restore 612, 618
         }
