@@ -9,6 +9,10 @@ namespace HouseholdBudget.Core.Services.Interfaces
     public interface ICategoryService
     {
         /// <summary>
+        /// Initializes the service, preparing it for use.
+        Task InitAsync();
+
+        /// <summary>
         /// Retrieves all categories associated with the currently authenticated user.
         /// </summary>
         /// <returns>A list of user-defined categories.</returns>

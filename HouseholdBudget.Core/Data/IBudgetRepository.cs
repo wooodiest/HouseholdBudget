@@ -45,6 +45,11 @@ namespace HouseholdBudget.Core.Data
         Task<IEnumerable<Category>> GetCategoriesByUserAsync(Guid userId);
 
         /// <summary>
+        /// Asynchronously retrieves a category by its unique identifier.
+        /// <param> name="id">The unique identifier of the category.</param>
+        Task<Category?> GetCategoryByIdAsync(Guid id);
+
+        /// <summary>
         /// Asynchronously retrieves all budget plans created by the specified user.
         /// </summary>
         /// <param name="userId">The unique identifier of the user.</param>

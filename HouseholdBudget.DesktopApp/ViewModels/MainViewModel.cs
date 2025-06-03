@@ -19,6 +19,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly IUserSessionService _session;
         private readonly IViewRouter _viewRouter;
         private readonly IBudgetPlanService _budgetService;
+        private readonly ICategoryService _categoryService;
 
         public ObservableCollection<BudgetPlan> Budgets { get; } = new();
         private BudgetPlan? _selectedBudget;
@@ -42,18 +43,20 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public IViewRouter ViewRouter => _viewRouter;
 
         public MainViewModel(IServiceProvider serviceProvider, IUserSessionService session, 
-            IViewRouter viewRouter, IBudgetPlanService budgetPlanService)
+            IViewRouter viewRouter, IBudgetPlanService budgetPlanService, ICategoryService categoryService)
         {
             _serviceProvider = serviceProvider;
             _session = session;
             _viewRouter = viewRouter;
             _budgetService = budgetPlanService;
+            _categoryService = categoryService;
             UpdateUserDisplay();
 
             ShowTransactionsCommand = new BasicRelayCommand(ShowTransactions);
             ShowTransactions();
 
             _ = LoadBudgetsAsync();
+            _ = _categoryService.InitAsync();
         }
 
         private string _loggedInUserName = "Unknown";

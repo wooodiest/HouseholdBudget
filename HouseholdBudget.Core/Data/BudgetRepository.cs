@@ -135,5 +135,11 @@ namespace HouseholdBudget.Core.Data
         {
             return await _context.Transactions.FirstOrDefaultAsync(t => t.Id == id);
         }
+
+        public Task<Category?> GetCategoryByIdAsync(Guid id)
+        {
+            return _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
     }
 }

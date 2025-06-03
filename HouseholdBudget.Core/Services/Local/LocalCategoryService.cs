@@ -18,7 +18,7 @@ namespace HouseholdBudget.Core.Services.Local
         /// Cached list of user categories to minimize redundant data access during a session.
         /// This cache is invalidated after changes like creation, update, or deletion.
         /// </summary>
-        private List<Category>? _cachedCategories;
+        private List<Category> _categories = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalCategoryService"/> class.
@@ -29,6 +29,14 @@ namespace HouseholdBudget.Core.Services.Local
         {
             _repository = repository;
             _userSession = userSessionContext;
+        }
+
+        /// <inheritdoc />
+        public async Task InitAsync()
+        {
+            EnsureAuthenticated();
+            _categories.Clear();
+            _categories = [.. await _repository.GetCategoriesByUserAsync(_userSession.GetUser()!.Id)];
         }
 
         /// <inheritdoc />
@@ -44,23 +52,24 @@ namespace HouseholdBudget.Core.Services.Local
             var user     = EnsureAuthenticated();
             var category = Category.Create(user.Id, name);
 
+            _categories.Add(category);
+
             await _repository.AddCategoryAsync(category);
             await _repository.SaveChangesAsync();
 
-            _cachedCategories = null; // Invalidate cache
             return category;
         }
 
         /// <inheritdoc />
         public async Task DeleteCategoryAsync(Guid categoryId)
         {
-            var category = await GetCategoryByIdAsync(categoryId);
+            var category = await _repository.GetCategoryByIdAsync(categoryId);
             if (category == null)
                 throw new InvalidOperationException("Category not found.");
 
+            _categories.Remove(category);
             await _repository.RemoveCategoryAsync(category);
             await _repository.SaveChangesAsync();
-            _cachedCategories = null; // Invalidate cache
         }
 
         /// <inheritdoc />
@@ -77,33 +86,23 @@ namespace HouseholdBudget.Core.Services.Local
                 throw new ArgumentException("Category name cannot be null or whitespace.", nameof(name));
 
             var categories = await GetUserCategoriesAsync();
-
             return categories
                 .FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Category>> GetUserCategoriesAsync()
-        {
-            if (_cachedCategories is null)
-            {
-                var user = EnsureAuthenticated();
-                _cachedCategories = [.. await _repository.GetCategoriesByUserAsync(user.Id)];
-            }
-
-            return _cachedCategories;
-        }
+        public Task<IEnumerable<Category>> GetUserCategoriesAsync() => Task.FromResult(_categories.AsEnumerable());
 
         /// <inheritdoc />
         public async Task RenameCategoryAsync(Guid categoryId, string newName)
         {
-            var category = await GetCategoryByIdAsync(categoryId);
+            var category = await _repository.GetCategoryByIdAsync(categoryId);
             if (category == null)
                 throw new InvalidOperationException("Category not found.");
 
             category.Rename(newName);
+            await _repository.UpdateCategoryAsync(category);
             await _repository.SaveChangesAsync();
-            _cachedCategories = null; // Invalidate cache
         }
 
         /// <summary>

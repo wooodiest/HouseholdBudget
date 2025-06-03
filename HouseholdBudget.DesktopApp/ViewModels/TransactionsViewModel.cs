@@ -240,7 +240,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             if (window.ShowDialog() == true && window.Result != null)
             {
                 var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
-                Transactions.Add(new TransactionViewModel(window.Result, cat.Name ?? "(none)"));
+                Transactions.Add(new TransactionViewModel(window.Result, cat?.Name ?? "(none)"));
             }
         }
 
