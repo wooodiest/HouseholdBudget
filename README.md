@@ -131,7 +131,7 @@ The system currently supports user registration and multiple accounts, but some 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/HouseholdBudget.git
+   git clone https://github.com/wooodiest/HouseholdBudget
    cd HouseholdBudget
    ```
 
