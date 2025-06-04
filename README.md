@@ -2,6 +2,11 @@
 
 **HouseholdBudget** is a .NET-based application designed to help users manage their personal or household finances with clarity and control. It allows you to track income and expenses, categorize transactions, monitor financial trends, and generate monthly summaries.
 
+
+**Authors:**  
+- Maria Mrozek – 322956  
+- Michał Kuchnicki – 317129  
+
 ---
 
 ## 🚀 Features
@@ -31,21 +36,21 @@
 ### 💰 Transaction List View
 
 ![Transaction View](demo-images/transactions.png)
-View and manage all income and expense transactions with filtering options.
+The main transaction list serves as the financial activity hub of the application. It provides a clear, chronological view of all income and expense entries recorded by the user. Each transaction is associated with a category, date, amount and more making it easy to review past spending or income. Integrated filtering options allow users to narrow down transactions by date range, category, transaction type (income/expense) and more enabling more efficient navigation and financial oversight.
 
 ---
 
 ### 📊 Budget Analysis
 
 ![Budget Analysis](demo-images/analysis.png)
-Visualize monthly spending trends with clear charts powered by ScottPlot.
+This screen provides a visual breakdown of your financial trends using interactive charts powered by ScottPlot. It helps users monitor how their spending evolves over time and identify key patterns in monthly expenses. Each chart is dynamically generated based on user-entered data, allowing for tailored financial insight and helping inform better budgeting decisions. It's an essential tool for anyone looking to better understand and control their personal finances.
 
 ---
 
 ### 🗕️ Budget Overview
 
 ![Budget Overview](demo-images/budget.png)
-Track your planned vs. actual spending across multiple categories and time ranges.
+The budget overview screen gives a high-level comparison between planned and actual spending. Users can define monthly spending limits per category and then monitor how their real-world expenses align with those limits. This section is particularly useful for goal-oriented users who want to proactively manage budgets across different life areas such as groceries, rent, or entertainment. The overview is presented in a tabular format with visual indicators for budget overruns.
 
 ---
 
