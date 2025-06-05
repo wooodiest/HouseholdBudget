@@ -123,38 +123,57 @@ The system currently supports user registration and multiple accounts, but some 
 
 ### Prerequisites
 
-* [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download)
-* Visual Studio 2022+ or any .NET-compatible IDE
+- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- Visual Studio 2022 or newer (with ".NET Desktop Development" workload installed)  
+  _Alternatively, you can use any .NET-compatible IDE such as Rider or VS Code._
 
-### Steps
+---
 
-1. **Clone the repository**
+### 🚀 Quick Start (Visual Studio)
+
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/wooodiest/HouseholdBudget
    cd HouseholdBudget
    ```
 
-2. **Apply database migrations**
-   If you're using the local database provider (SQLite), navigate into the `.Core` folder:
+2. Open the solution file `HouseholdBudget.sln` in Visual Studio.
+
+3. In **Solution Explorer**, right-click on the project `HouseholdBudget.DesktopApp` and select  
+   **"Set as Startup Project"**.
+
+4. Press `F5` to build and run the application.
+
+> 💡 Visual Studio may automatically apply database migrations on first run. If not, see the manual steps below.
+
+---
+
+### 🧪 Alternative: Run from the Command Line
+
+If you're not using Visual Studio, you can run the project manually using the CLI:
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/wooodiest/HouseholdBudget
+   cd HouseholdBudget
+   ```
+
+2. Apply database migrations (SQLite):
 
    ```bash
    cd HouseholdBudget.Core
-   ```
-
-   Then run the following command to create the database:
-
-   ```bash
    dotnet ef database update --startup-project ../HouseholdBudget.DesktopApp
+   cd ..
    ```
 
-3. **Build and run the app**
+3. Build and run the application:
 
    ```bash
-   cd ..
-   dotnet build
    dotnet run --project HouseholdBudget.DesktopApp
    ```
+
    
 ---
 
