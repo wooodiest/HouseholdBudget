@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.UserData;
@@ -76,6 +77,65 @@ namespace HouseholdBudget.DesktopApp
             if (e.ButtonState == MouseButtonState.Pressed)
                 DragMove();
         }
+
+        private void Resize_Left(object sender, DragDeltaEventArgs e)
+        {
+            double newWidth = Width - e.HorizontalChange;
+            if (newWidth >= MinWidth)
+            {
+                Left += e.HorizontalChange;
+                Width = newWidth;
+            }
+        }
+
+        private void Resize_Right(object sender, DragDeltaEventArgs e)
+        {
+            double newWidth = Width + e.HorizontalChange;
+            if (newWidth >= MinWidth)
+                Width = newWidth;
+        }
+
+        private void Resize_Top(object sender, DragDeltaEventArgs e)
+        {
+            double newHeight = Height - e.VerticalChange;
+            if (newHeight >= MinHeight)
+            {
+                Top += e.VerticalChange;
+                Height = newHeight;
+            }
+        }
+
+        private void Resize_Bottom(object sender, DragDeltaEventArgs e)
+        {
+            double newHeight = Height + e.VerticalChange;
+            if (newHeight >= MinHeight)
+                Height = newHeight;
+        }
+
+        private void Resize_TopLeft(object sender, DragDeltaEventArgs e)
+        {
+            Resize_Top(sender, e);
+            Resize_Left(sender, e);
+        }
+
+        private void Resize_TopRight(object sender, DragDeltaEventArgs e)
+        {
+            Resize_Top(sender, e);
+            Resize_Right(sender, e);
+        }
+
+        private void Resize_BottomLeft(object sender, DragDeltaEventArgs e)
+        {
+            Resize_Bottom(sender, e);
+            Resize_Left(sender, e);
+        }
+
+        private void Resize_BottomRight(object sender, DragDeltaEventArgs e)
+        {
+            Resize_Bottom(sender, e);
+            Resize_Right(sender, e);
+        }
+
     }
 
 }
