@@ -5,3 +5,5 @@ bin-int/
 x64/
 obj/
 *.db
+
+appsettings.json

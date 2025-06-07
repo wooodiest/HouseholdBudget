@@ -50,6 +50,20 @@ namespace HouseholdBudget.Core.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var properties = entityType.ClrType
+                    .GetProperties()
+                    .Where(p => p.PropertyType == typeof(Guid));
+
+                foreach (var property in properties)
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(property.Name)
+                        .HasColumnType("uniqueidentifier");
+                }
+            }
         }
     }
 }

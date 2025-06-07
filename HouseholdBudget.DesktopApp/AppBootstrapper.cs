@@ -10,6 +10,7 @@ using HouseholdBudget.DesktopApp.ViewModels;
 using HouseholdBudget.DesktopApp.Views;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System;
@@ -43,10 +44,16 @@ namespace HouseholdBudget.DesktopApp
             // ---------- Core Services ----------
             services.AddTransient(typeof(Lazy<>), typeof(LazyResolver<>));
 
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
             // ---------- Database Configuration ----------
             // Configure the EF Core database context with SQLite persistence.
             services.AddDbContext<BudgetDbContext>(options =>
-                options.UseSqlite("Data Source=household.db"));
+                options.UseSqlServer(configuration.GetConnectionString("AzureSql")));
+
             services.AddScoped<IBudgetRepository, BudgetRepository>();
 
             // ---------- User Authentication & Identity ----------

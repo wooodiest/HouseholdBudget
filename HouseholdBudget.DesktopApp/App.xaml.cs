@@ -17,7 +17,6 @@ namespace HouseholdBudget.DesktopApp
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 
             base.OnStartup(e);
-            SQLitePCL.Batteries_V2.Init();
 
             ServiceProvider = AppBootstrapper.ConfigureServices();
 
