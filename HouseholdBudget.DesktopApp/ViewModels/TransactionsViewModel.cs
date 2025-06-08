@@ -130,16 +130,17 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             };
 
             var transactions = await _transactionService.GetAsync(filter);
-
-            Transactions.Clear();
+            var transactionViewModels = new List<TransactionViewModel>();
             foreach (var tx in transactions)
             {
                 var cat = await _categoryService.GetCategoryByIdAsync(tx.CategoryId);
                 var name = cat?.Name ?? "(none)";
-                Transactions.Add(new TransactionViewModel(tx, name));
+                transactionViewModels.Add(new TransactionViewModel(tx, name));
             }
 
+            Transactions = new ObservableCollection<TransactionViewModel>(transactionViewModels);
             OnPropertyChanged(nameof(Transactions));
+
         }
 
         private async Task AddCategoryAsync()
