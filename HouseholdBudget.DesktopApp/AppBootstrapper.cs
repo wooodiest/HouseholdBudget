@@ -79,6 +79,7 @@ namespace HouseholdBudget.DesktopApp
             services.AddScoped<IBudgetPlanService, LocalBudgetPlanService>();
             services.AddScoped<IBudgetExecutionService, LocalBudgetExecutionService>();
             services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
+            services.AddSingleton<IAzureDocumentAnalysisService, AzureDocumentAnalysisService>();
 
             // ---------- Domain Event Dispatcher ----------
             // Register the dispatcher and dynamic event handlers for transaction events.

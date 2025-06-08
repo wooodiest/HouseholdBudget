@@ -62,16 +62,16 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         public ICommand DeleteCategoryCommand { get; }
 
         public AddTransactionViewModel(ICategoryService categoryService, IExchangeRateProvider exchangeRateProvider,
-            IUserSessionService userSessionService, Transaction? existingTransaction = null)
+            IUserSessionService userSessionService, bool editMode = false, Transaction? existingTransaction = null)
         {
-            _categoryService = categoryService;
+            _categoryService      = categoryService;
             _exchangeRateProvider = exchangeRateProvider;
-            _session = userSessionService;
-            _existingTransaction = existingTransaction;
-            _isEditMode = existingTransaction != null;
+            _session              = userSessionService;
+            _existingTransaction  = existingTransaction;
+            _isEditMode           = editMode;
 
             LoadCategoriesCommand = new BasicRelayCommand(async () => await LoadCategoriesAsync());
-            AddCategoryCommand = new BasicRelayCommand(async () => await AddCategoryAsync());
+            AddCategoryCommand    = new BasicRelayCommand(async () => await AddCategoryAsync());
             DeleteCategoryCommand = new DelegateCommand<Category?>(async (c) => await DeleteCategoryAsync(c), c => c != null);
 
             _ = LoadCurrenciesAsync();

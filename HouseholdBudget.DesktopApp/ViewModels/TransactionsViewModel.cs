@@ -23,6 +23,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly IUserSessionService _userSessionService;
         private readonly IExchangeRateProvider _exchangeRateProvider;
         private readonly IAzureBlobStorageService _azureBlobStorageService;
+        private readonly IAzureDocumentAnalysisService _azureDocumentAnalysisService;
 
         public ObservableCollection<TransactionViewModel> Transactions { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
@@ -75,7 +76,6 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         }
 
         public ICommand AddTransactionCommand { get; }
-
         public ICommand AddRecipeCommand { get; }
         public ICommand EditTransactionCommand { get; }
         public ICommand DeleteTransactionCommand { get; }
@@ -86,17 +86,19 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
 
         public TransactionsViewModel(
-            ITransactionService transactionService,
-            ICategoryService categoryService,
-            IUserSessionService userSessionService,
-            IExchangeRateProvider exchangeRateProvider,
-            IAzureBlobStorageService azureBlobStorageService)
+            ITransactionService           transactionService,
+            ICategoryService              categoryService,
+            IUserSessionService           userSessionService,
+            IExchangeRateProvider         exchangeRateProvider,
+            IAzureBlobStorageService      azureBlobStorageService,
+            IAzureDocumentAnalysisService azureDocumentAnalysisService)
         {
-            _transactionService      = transactionService;
-            _categoryService         = categoryService;
-            _userSessionService      = userSessionService;
-            _exchangeRateProvider    = exchangeRateProvider;
-            _azureBlobStorageService = azureBlobStorageService;
+            _transactionService           = transactionService;
+            _categoryService              = categoryService;
+            _userSessionService           = userSessionService;
+            _exchangeRateProvider         = exchangeRateProvider;
+            _azureBlobStorageService      = azureBlobStorageService;
+            _azureDocumentAnalysisService = azureDocumentAnalysisService;
 
             AddTransactionCommand    = new BasicRelayCommand(AddTransaction);
             AddRecipeCommand         = new BasicRelayCommand(async () => await AddRecipe());
@@ -190,9 +192,51 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 try
                 {
                     var uploadedBlob = await _azureBlobStorageService.UploadAsync(filePath);
-                    MessageBox.Show($"Receipt '{uploadedBlob.Name}' uploaded successfully!\nImage URL: {uploadedBlob.ImageUrl}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (uploadedBlob == null)
+                    {
+                        MessageBox.Show("Failed to upload receipt. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                    // TODO: Add proccesing by ai and open adding transaction window with recipe data
+                    var result = await _azureDocumentAnalysisService.AnalyzeReceiptFromBlobAsync(uploadedBlob);
+                    if (result == null)
+                    {
+                        MessageBox.Show("Failed to analyze receipt. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    var amount      = result.Total ?? 0.0m;
+                    var description = result.MerchantName ?? "Receipt";
+                    var date        = result.TransactionDate ?? DateTime.Now;
+                    var categoryId  = (await _categoryService.GetCategoryByNameAsync("Receipts"))?.Id ?? Guid.Empty;
+                    if (categoryId == Guid.Empty)
+                    {
+                        var newCategory = await _categoryService.CreateCategoryAsync("Receipts");
+                        categoryId      = newCategory.Id;
+                    }
+
+                    var transaction = Transaction.Create(
+                        Guid.NewGuid(),
+                        categoryId,
+                        amount,
+                        _userSessionService.GetUser()!.DefaultCurrencyCode,
+                        TransactionType.Expense,
+                        description,
+                        date
+                    );
+
+                    var window = new AddTransactionWindow(_transactionService, _categoryService,
+                        _exchangeRateProvider, _userSessionService, false, transaction)
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+
+                    if (window.ShowDialog() == true && window.Result != null)
+                    {
+                        var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
+                        Transactions.Add(new TransactionViewModel(window.Result, cat?.Name ?? "(none)"));
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -286,7 +330,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                 return;
 
             var window = new AddTransactionWindow(_transactionService, _categoryService,
-                _exchangeRateProvider, _userSessionService, SelectedTransaction.Model)
+                _exchangeRateProvider, _userSessionService, true, SelectedTransaction.Model)
             {
                 Owner = Application.Current.MainWindow
             };

@@ -24,18 +24,18 @@ namespace HouseholdBudget.DesktopApp.Views
         private readonly Transaction? _existingTransaction;
 
         public AddTransactionWindow(ITransactionService transactionService, ICategoryService categoryService,
-            IExchangeRateProvider exchangeRateProvider, IUserSessionService userSessionService, Transaction? existing = null)
+            IExchangeRateProvider exchangeRateProvider, IUserSessionService userSessionService, bool editMode = false, Transaction? existing = null)
         {
             _transactionService   = transactionService;
             _categoryService      = categoryService;
             _exchangeRateProvider = exchangeRateProvider;
             _session              = userSessionService;
 
-            _isEditMode = existing != null;
+            _isEditMode          = editMode;
             _existingTransaction = existing;
 
             InitializeComponent();
-            _viewModel = new AddTransactionViewModel(_categoryService, _exchangeRateProvider, _session, existing);
+            _viewModel = new AddTransactionViewModel(_categoryService, _exchangeRateProvider, _session, editMode, existing);
             DataContext = _viewModel;
 
             Loaded += async (_, _) => await Task.Run(() => _viewModel.LoadCategoriesCommand.Execute(null));
