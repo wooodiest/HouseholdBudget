@@ -3,6 +3,7 @@ using HouseholdBudget.Core.Events.Transactions;
 using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.Services.Local;
+using HouseholdBudget.Core.Services.Remote;
 using HouseholdBudget.Core.Services.Shared;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Infrastructure;
@@ -49,6 +50,8 @@ namespace HouseholdBudget.DesktopApp
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
+            services.AddSingleton<IConfiguration>(configuration);
+
             // ---------- Database Configuration ----------
             // Configure the EF Core database context with SQLite persistence.
             services.AddDbContext<BudgetDbContext>(options =>
@@ -75,6 +78,7 @@ namespace HouseholdBudget.DesktopApp
             services.AddScoped<IBudgetAnalysisService, LocalBudgetAnalysisService>();
             services.AddScoped<IBudgetPlanService, LocalBudgetPlanService>();
             services.AddScoped<IBudgetExecutionService, LocalBudgetExecutionService>();
+            services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
 
             // ---------- Domain Event Dispatcher ----------
             // Register the dispatcher and dynamic event handlers for transaction events.

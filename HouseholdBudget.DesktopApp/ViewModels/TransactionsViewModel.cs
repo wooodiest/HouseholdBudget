@@ -11,6 +11,8 @@ using HouseholdBudget.DesktopApp.Helpers;
 using HouseholdBudget.Core.UserData;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using HouseholdBudget.Core.Services.Remote;
+using Microsoft.Win32;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
@@ -20,6 +22,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly ICategoryService _categoryService;
         private readonly IUserSessionService _userSessionService;
         private readonly IExchangeRateProvider _exchangeRateProvider;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
 
         public ObservableCollection<TransactionViewModel> Transactions { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
@@ -72,6 +75,8 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         }
 
         public ICommand AddTransactionCommand { get; }
+
+        public ICommand AddRecipeCommand { get; }
         public ICommand EditTransactionCommand { get; }
         public ICommand DeleteTransactionCommand { get; }
         public ICommand ApplyFilterCommand { get; }
@@ -84,14 +89,17 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             ITransactionService transactionService,
             ICategoryService categoryService,
             IUserSessionService userSessionService,
-            IExchangeRateProvider exchangeRateProvider)
+            IExchangeRateProvider exchangeRateProvider,
+            IAzureBlobStorageService azureBlobStorageService)
         {
-            _transactionService   = transactionService;
-            _categoryService      = categoryService;
-            _userSessionService   = userSessionService;
-            _exchangeRateProvider = exchangeRateProvider;
+            _transactionService      = transactionService;
+            _categoryService         = categoryService;
+            _userSessionService      = userSessionService;
+            _exchangeRateProvider    = exchangeRateProvider;
+            _azureBlobStorageService = azureBlobStorageService;
 
             AddTransactionCommand    = new BasicRelayCommand(AddTransaction);
+            AddRecipeCommand         = new BasicRelayCommand(async () => await AddRecipe());
             EditTransactionCommand   = new BasicRelayCommand(EditTransaction, () => SelectedTransaction != null);
             DeleteTransactionCommand = new BasicRelayCommand(DeleteTransaction, () => SelectedTransaction != null);
             ApplyFilterCommand       = new BasicRelayCommand(async () => await LoadTransactionsAsync());
@@ -165,6 +173,33 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     MessageBox.Show($"Failed to add category:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private async Task AddRecipe()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Receipt File",
+                Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string filePath = dialog.FileName;
+                try
+                {
+                    var uploadedBlob = await _azureBlobStorageService.UploadAsync(filePath);
+                    MessageBox.Show($"Receipt '{uploadedBlob.Name}' uploaded successfully!\nImage URL: {uploadedBlob.ImageUrl}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // TODO: Add proccesing by ai and open adding transaction window with recipe data
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to upload recipe:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
         }
 
         private async Task LoadCurrenciesAsync()
