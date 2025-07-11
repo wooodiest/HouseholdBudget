@@ -2,13 +2,6 @@
 
 **HouseholdBudget** is a .NET-based application designed to help users manage their personal or household finances with clarity and control. It allows you to track income and expenses, categorize transactions, monitor financial trends, and generate monthly summaries.
 
-
-**Authors:**  
-- Maria Mrozek – 322956  
-- Michał Kuchnicki – 317129  
-
----
-
 ## 🚀 Features
 
 * 💸 **Transaction Management**
@@ -16,6 +9,12 @@
 
 * 📁 **Custom Categories**
   Create, rename, and delete user-specific categories for better financial organization (e.g., Food, Transport, Rent).
+
+* 📤 Receipt Uploads
+  Upload photos of receipts directly from the app. Images are stored in Azure Blob Storage, then processed using Azure Document Intelligence. Extracted transaction data is automatically interpreted and can be used to add new transactions with    minimal user input.
+
+* 🧠 AI-Powered OCR Integration
+  The app integrates with Azure's Document Intelligence service to extract relevant information (amount, date, vendor, etc.) from uploaded receipt images. This allows users to quickly digitize expenses and reduce manual input.
 
 * 📊 **Monthly Summaries**
   View comprehensive summaries of income and expenses for each calendar month.
@@ -105,7 +104,6 @@ The following features are planned or currently under development:
 
 * ✉️ Exporting financial data to formats such as CSV or Excel
 * 🧠 AI-based financial insights and spending analysis
-* 🗃️ OCR support to extract data from scanned receipts
 * ⏰ Notification system for budget limits, due dates, etc.
 
 ---
@@ -160,7 +158,7 @@ If you're not using Visual Studio, you can run the project manually using the CL
    cd HouseholdBudget
    ```
 
-2. Apply database migrations (SQLite):
+2. Apply database migrations:
 
    ```bash
    cd HouseholdBudget.Core
