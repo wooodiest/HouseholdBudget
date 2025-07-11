@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HouseholdBudget.Core.Migrations
 {
     [DbContext(typeof(BudgetDbContext))]
-    [Migration("20250607213818_InitialSqlServerSetup")]
-    partial class InitialSqlServerSetup
+    [Migration("20250706000501_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

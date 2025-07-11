@@ -51,17 +51,13 @@ namespace HouseholdBudget.Core.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                var properties = entityType.ClrType
-                    .GetProperties()
-                    .Where(p => p.PropertyType == typeof(Guid));
+                var properties = entity.ClrType.GetProperties().Where(p => p.PropertyType == typeof(Guid));
 
                 foreach (var property in properties)
                 {
-                    modelBuilder.Entity(entityType.ClrType)
-                        .Property(property.Name)
-                        .HasColumnType("uniqueidentifier");
+                    modelBuilder.Entity(entity.ClrType).Property(property.Name).HasColumnType("uniqueidentifier");
                 }
             }
         }

@@ -11,13 +11,14 @@ namespace HouseholdBudget.Core.Data
     {
         public BudgetDbContext CreateDbContext(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                   .SetBasePath(Directory.GetCurrentDirectory())
-                   .AddJsonFile("appsettings.json")
-                   .Build();
-
             var optionsBuilder = new DbContextOptionsBuilder<BudgetDbContext>();
-            optionsBuilder.UseSqlServer(config.GetConnectionString("AzureSql"));
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("AzureSql"));
 
             return new BudgetDbContext(optionsBuilder.Options);
         }

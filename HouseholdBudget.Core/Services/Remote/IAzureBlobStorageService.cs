@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace HouseholdBudget.Core.Services.Remote
 {
+
     public class BlobObject
     {
         public string Name { get; set; }
         public string ImageUrl { get; set; }
     }
+
 
     public interface IAzureBlobStorageService
     {

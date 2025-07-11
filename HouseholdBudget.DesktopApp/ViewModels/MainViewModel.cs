@@ -87,6 +87,13 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             _viewRouter.ShowView(view);
         }
 
+        public void ShowReceipt()
+        {
+            SelectedBudget = null;
+            var view = new ReceiptsView(_serviceProvider);
+            _viewRouter.ShowView(view);
+        }
+
         public async void ShowBudget(BudgetPlan plan)
         {
             var vm = _serviceProvider.GetRequiredService<BudgetDetailsViewModel>();

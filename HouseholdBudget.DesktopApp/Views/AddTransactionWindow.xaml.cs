@@ -31,7 +31,7 @@ namespace HouseholdBudget.DesktopApp.Views
             _exchangeRateProvider = exchangeRateProvider;
             _session              = userSessionService;
 
-            _isEditMode          = editMode;
+            _isEditMode = editMode;
             _existingTransaction = existing;
 
             InitializeComponent();

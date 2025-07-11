@@ -1,8 +1,12 @@
-﻿using Azure.Storage.Blobs;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using HouseholdBudget.Core.UserData;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace HouseholdBudget.Core.Services.Remote
 {
@@ -13,13 +17,12 @@ namespace HouseholdBudget.Core.Services.Remote
         private readonly string _storageConnectionString;
         private readonly string _storageContainerName;
 
-
         public AzureBlobStorageService(IConfiguration configuration, IUserSessionService userSessionService)
         {
             _userSessionService = userSessionService;
 
             _storageConnectionString = configuration["AzureBlobStorage:ConnectionString"];
-            _storageContainerName    = configuration["AzureBlobStorage:ContainerName"];
+            _storageContainerName = configuration["AzureBlobStorage:ContainerName"];
         }
 
         public async Task<IEnumerable<BlobObject>> GetBlobsByUserAsync()
@@ -45,8 +48,9 @@ namespace HouseholdBudget.Core.Services.Remote
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error while getting the blob {ex.Message}");
-            }      
+                throw new Exception($"Error uploading blob {ex.Message}");
+            }
+
         }
 
         public async Task<BlobObject> UploadAsync(string filePath)
@@ -60,12 +64,13 @@ namespace HouseholdBudget.Core.Services.Remote
                 var blobName = $"{userId}/{fileName}";
 
                 var client = containerClient.GetBlobClient(blobName);
-
                 await using var data = File.OpenRead(filePath);
+
                 await client.UploadAsync(data, overwrite: true);
 
-                return new BlobObject {
-                    Name     = blobName,
+                return new BlobObject
+                {
+                    Name = blobName,
                     ImageUrl = client.Uri.ToString()
                 };
 

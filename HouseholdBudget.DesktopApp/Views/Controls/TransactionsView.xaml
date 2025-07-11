@@ -151,7 +151,7 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0 0 0 16" Grid.Row="1">
                     <Button Content="Add" Style="{StaticResource ModernButton}" Command="{Binding AddTransactionCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
-                    <Button Content="Add Receipt" Style="{StaticResource ModernButton}" Command="{Binding AddRecipeCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
+                    <Button Content="Add Receipt" Style="{StaticResource ModernButton}" Command="{Binding AddReceiptCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
                     <Button Content="Edit" Style="{StaticResource ModernButton}" Command="{Binding EditTransactionCommand}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>
                     <Button Content="☰ Filters" Style="{StaticResource ModernButton}" Margin="4,0,2,0" MinWidth="75" Padding="8,12" Click="ToggleFilterPanel_Click"/>
                     <Button Content="Delete" Style="{StaticResource ModernButton}" Command="{Binding DeleteTransactionCommand}" Background="{StaticResource ErrorBrush}" Margin="4,0,2,0" MinWidth="75" Padding="8,12"/>

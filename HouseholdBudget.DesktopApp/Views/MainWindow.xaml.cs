@@ -55,6 +55,11 @@ namespace HouseholdBudget.DesktopApp
             _viewModel.ShowAnalysis();
         }
 
+        private void ReceiptButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ShowReceipt();
+        }
+
         private void AddBudget_Click(object sender, RoutedEventArgs e)
         {
             var window = new AddBudgetWindow(_budgetService, _userSessionService) {

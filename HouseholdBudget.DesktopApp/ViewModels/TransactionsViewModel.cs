@@ -11,8 +11,8 @@ using HouseholdBudget.DesktopApp.Helpers;
 using HouseholdBudget.Core.UserData;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
-using HouseholdBudget.Core.Services.Remote;
 using Microsoft.Win32;
+using HouseholdBudget.Core.Services.Remote;
 
 namespace HouseholdBudget.DesktopApp.ViewModels
 {
@@ -23,7 +23,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         private readonly IUserSessionService _userSessionService;
         private readonly IExchangeRateProvider _exchangeRateProvider;
         private readonly IAzureBlobStorageService _azureBlobStorageService;
-        private readonly IAzureDocumentAnalysisService _azureDocumentAnalysisService;
+        private readonly IAzureDocumentInteligence _azureDocumentInteligence;
 
         public ObservableCollection<TransactionViewModel> Transactions { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
@@ -76,7 +76,7 @@ namespace HouseholdBudget.DesktopApp.ViewModels
         }
 
         public ICommand AddTransactionCommand { get; }
-        public ICommand AddRecipeCommand { get; }
+        public ICommand AddReceiptCommand { get; }
         public ICommand EditTransactionCommand { get; }
         public ICommand DeleteTransactionCommand { get; }
         public ICommand ApplyFilterCommand { get; }
@@ -86,22 +86,22 @@ namespace HouseholdBudget.DesktopApp.ViewModels
 
 
         public TransactionsViewModel(
-            ITransactionService           transactionService,
-            ICategoryService              categoryService,
-            IUserSessionService           userSessionService,
-            IExchangeRateProvider         exchangeRateProvider,
-            IAzureBlobStorageService      azureBlobStorageService,
-            IAzureDocumentAnalysisService azureDocumentAnalysisService)
+            ITransactionService transactionService,
+            ICategoryService categoryService,
+            IUserSessionService userSessionService,
+            IExchangeRateProvider exchangeRateProvider,
+            IAzureBlobStorageService azureBlobStorageService,
+            IAzureDocumentInteligence azureDocumentInteligence)
         {
-            _transactionService           = transactionService;
-            _categoryService              = categoryService;
-            _userSessionService           = userSessionService;
-            _exchangeRateProvider         = exchangeRateProvider;
-            _azureBlobStorageService      = azureBlobStorageService;
-            _azureDocumentAnalysisService = azureDocumentAnalysisService;
+            _transactionService   = transactionService;
+            _categoryService      = categoryService;
+            _userSessionService   = userSessionService;
+            _exchangeRateProvider = exchangeRateProvider;
+            _azureBlobStorageService = azureBlobStorageService;
+            _azureDocumentInteligence = azureDocumentInteligence;
 
             AddTransactionCommand    = new BasicRelayCommand(AddTransaction);
-            AddRecipeCommand         = new BasicRelayCommand(async () => await AddRecipe());
+            AddReceiptCommand        = new BasicRelayCommand(async () => await AddReceipt());
             EditTransactionCommand   = new BasicRelayCommand(EditTransaction, () => SelectedTransaction != null);
             DeleteTransactionCommand = new BasicRelayCommand(DeleteTransaction, () => SelectedTransaction != null);
             ApplyFilterCommand       = new BasicRelayCommand(async () => await LoadTransactionsAsync());
@@ -140,17 +140,84 @@ namespace HouseholdBudget.DesktopApp.ViewModels
             };
 
             var transactions = await _transactionService.GetAsync(filter);
-            var transactionViewModels = new List<TransactionViewModel>();
+
+            Transactions.Clear();
             foreach (var tx in transactions)
             {
                 var cat = await _categoryService.GetCategoryByIdAsync(tx.CategoryId);
                 var name = cat?.Name ?? "(none)";
-                transactionViewModels.Add(new TransactionViewModel(tx, name));
+                Transactions.Add(new TransactionViewModel(tx, name));
             }
 
-            Transactions = new ObservableCollection<TransactionViewModel>(transactionViewModels);
             OnPropertyChanged(nameof(Transactions));
+        }
 
+        private async Task AddReceipt()
+        {
+            var dialog = new OpenFileDialog()
+            {
+                Title = "Select Receipt File",
+                Filter = "Image Files (*.png;*jpg;.jpeg)|*.png;*jpg;.jpeg",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string filepath = dialog.FileName;
+
+                try
+                {
+                    var uploadedblob = await _azureBlobStorageService.UploadAsync(filepath);
+                    if (uploadedblob == null)
+                    {
+                        MessageBox.Show("Failed to upload receipt. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    
+                    var result = await _azureDocumentInteligence.AnalyzeReceiptFromBlobAsync(uploadedblob);
+                    if (result == null)
+                    {
+                        MessageBox.Show("faild to analyze recipt. Please try again", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    var amout = result.Total ?? 0.0m;
+                    var description = result.MerachentName ?? "Receipt";
+                    var date = result.TransactionDate ?? DateTime.UtcNow;
+                    var category = (await _categoryService.GetCategoryByNameAsync("Receipts"))?.Id ?? Guid.Empty;
+                    if (category == Guid.Empty)
+                    {
+                        var newCategory = await _categoryService.CreateCategoryAsync("Receipts");
+                        category = newCategory.Id;
+                    }
+
+                    var transaction = Transaction.Create(
+                        Guid.NewGuid(),
+                        category,
+                        amout,
+                        _userSessionService.GetUser()!.DefaultCurrencyCode,
+                        TransactionType.Expense,
+                        description,
+                        date
+                    );
+
+                    var window = new AddTransactionWindow(_transactionService, _categoryService,
+                        _exchangeRateProvider, _userSessionService, false, transaction)
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+
+                    if (window.ShowDialog() == true && window.Result != null)
+                    {
+                        var catName = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
+                        Transactions.Add(new TransactionViewModel(window.Result, catName?.Name ?? "(none)"));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Faild to upload recipe:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private async Task AddCategoryAsync()
@@ -175,75 +242,6 @@ namespace HouseholdBudget.DesktopApp.ViewModels
                     MessageBox.Show($"Failed to add category:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-
-        private async Task AddRecipe()
-        {
-            var dialog = new OpenFileDialog
-            {
-                Title = "Select Receipt File",
-                Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
-                Multiselect = false
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                string filePath = dialog.FileName;
-                try
-                {
-                    var uploadedBlob = await _azureBlobStorageService.UploadAsync(filePath);
-                    if (uploadedBlob == null)
-                    {
-                        MessageBox.Show("Failed to upload receipt. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    var result = await _azureDocumentAnalysisService.AnalyzeReceiptFromBlobAsync(uploadedBlob);
-                    if (result == null)
-                    {
-                        MessageBox.Show("Failed to analyze receipt. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    var amount      = result.Total ?? 0.0m;
-                    var description = result.MerchantName ?? "Receipt";
-                    var date        = result.TransactionDate ?? DateTime.Now;
-                    var categoryId  = (await _categoryService.GetCategoryByNameAsync("Receipts"))?.Id ?? Guid.Empty;
-                    if (categoryId == Guid.Empty)
-                    {
-                        var newCategory = await _categoryService.CreateCategoryAsync("Receipts");
-                        categoryId      = newCategory.Id;
-                    }
-
-                    var transaction = Transaction.Create(
-                        Guid.NewGuid(),
-                        categoryId,
-                        amount,
-                        _userSessionService.GetUser()!.DefaultCurrencyCode,
-                        TransactionType.Expense,
-                        description,
-                        date
-                    );
-
-                    var window = new AddTransactionWindow(_transactionService, _categoryService,
-                        _exchangeRateProvider, _userSessionService, false, transaction)
-                    {
-                        Owner = Application.Current.MainWindow
-                    };
-
-                    if (window.ShowDialog() == true && window.Result != null)
-                    {
-                        var cat = await _categoryService.GetCategoryByIdAsync(window.Result.CategoryId);
-                        Transactions.Add(new TransactionViewModel(window.Result, cat?.Name ?? "(none)"));
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Failed to upload recipe:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-
         }
 
         private async Task LoadCurrenciesAsync()

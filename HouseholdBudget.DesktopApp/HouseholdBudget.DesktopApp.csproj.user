@@ -23,6 +23,9 @@
     <Compile Update="Views\Controls\LoginView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Controls\ReceiptsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Controls\RegisterView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

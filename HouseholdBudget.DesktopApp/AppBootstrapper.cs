@@ -3,20 +3,21 @@ using HouseholdBudget.Core.Events.Transactions;
 using HouseholdBudget.Core.Models;
 using HouseholdBudget.Core.Services.Interfaces;
 using HouseholdBudget.Core.Services.Local;
-using HouseholdBudget.Core.Services.Remote;
 using HouseholdBudget.Core.Services.Shared;
 using HouseholdBudget.Core.UserData;
 using HouseholdBudget.DesktopApp.Infrastructure;
 using HouseholdBudget.DesktopApp.ViewModels;
 using HouseholdBudget.DesktopApp.Views;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System;
 using System.Windows;
 using System.Xml.Linq;
+using System.Configuration;
+using HouseholdBudget.Core.Services.Remote;
 
 namespace HouseholdBudget.DesktopApp
 {
@@ -55,8 +56,7 @@ namespace HouseholdBudget.DesktopApp
             // ---------- Database Configuration ----------
             // Configure the EF Core database context with SQLite persistence.
             services.AddDbContext<BudgetDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("AzureSql")));
-
+                 options.UseSqlServer(configuration.GetConnectionString("AzureSql")));
             services.AddScoped<IBudgetRepository, BudgetRepository>();
 
             // ---------- User Authentication & Identity ----------
@@ -78,8 +78,9 @@ namespace HouseholdBudget.DesktopApp
             services.AddScoped<IBudgetAnalysisService, LocalBudgetAnalysisService>();
             services.AddScoped<IBudgetPlanService, LocalBudgetPlanService>();
             services.AddScoped<IBudgetExecutionService, LocalBudgetExecutionService>();
+
             services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
-            services.AddSingleton<IAzureDocumentAnalysisService, AzureDocumentAnalysisService>();
+            services.AddSingleton<IAzureDocumentInteligence, AzureDocumentInteligence>();
 
             // ---------- Domain Event Dispatcher ----------
             // Register the dispatcher and dynamic event handlers for transaction events.
@@ -106,6 +107,7 @@ namespace HouseholdBudget.DesktopApp
             services.AddTransient<AddBudgetViewModel>();
             services.AddTransient<AddBudgetWindow>();
             services.AddTransient<BudgetDetailsViewModel>();
+            services.AddTransient<ReceiptsViewModel>();
 
             // Custom factory for the combined AuthViewModel with login/register tabs.
             services.AddTransient<AuthViewModel>(provider =>
