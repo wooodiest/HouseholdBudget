@@ -10,11 +10,11 @@
 * 📁 **Custom Categories**
   Create, rename, and delete user-specific categories for better financial organization (e.g., Food, Transport, Rent).
 
-* 📤 Receipt Uploads
+* 📤 **Receipt Uploads**
   Upload photos of receipts directly from the app. Images are stored in Azure Blob Storage, then processed using Azure Document Intelligence. Extracted transaction data is automatically interpreted and can be used to add new transactions with    minimal user input.
 
-* 🧠 AI-Powered OCR Integration
-  The app integrates with Azure's Document Intelligence service to extract relevant information (amount, date, vendor, etc.) from uploaded receipt images. This allows users to quickly digitize expenses and reduce manual input.
+* 🧠 **AI-Powered OCR Integration**
+  The app integrates with Azure's Document Intelligence service to extract relevant information from uploaded receipt images. This allows users to quickly digitize expenses and reduce manual input.
 
 * 📊 **Monthly Summaries**
   View comprehensive summaries of income and expenses for each calendar month.
